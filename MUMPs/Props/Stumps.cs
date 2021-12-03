@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewValley;
 
 namespace MUMPs.Props
@@ -7,9 +8,11 @@ namespace MUMPs.Props
     {
         internal static void SpawnMapStumps(GameLocation location)
         {
-            string prop = location.getMapProperty("Stumps");
-            if (prop == null) { return; }
-            string[] stumpList = prop.Split(' ');
+            string[] stumpList = location.getMapProperty("Stumps").Split(' ');
+            if(stumpList.Length > 0)
+            {
+                ModEntry.monitor.Log("Adding stumps to " + location.Name + ".", LogLevel.Trace);
+            }
             for(int i = 0; i+2 < stumpList.Length; i += 3)
             {
                 //x, y, unused
