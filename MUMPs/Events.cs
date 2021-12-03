@@ -20,5 +20,26 @@ namespace MUMPs
                 }
             }
         }
+        public static void DrawOnTop(object sender, RenderedWorldEventArgs ev)
+        {
+            Props.Birds.DrawAbove(ev.SpriteBatch);
+        }
+        public static void Tick(object sender, UpdateTickedEventArgs ev)
+        {
+            Props.Birds.Update(Game1.currentGameTime);
+        }
+        public static void ChangeLocation(object sender, WarpedEventArgs ev)
+        {
+            Props.MoveWarps.CorrectWarp(ev);
+            Props.Birds.EnterLocation(ev.NewLocation);
+        }
+        public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
+        {
+            Cleanup();
+        }
+        public static void Cleanup()
+        {
+            Props.Birds.Cleanup();
+        }
     }
 }

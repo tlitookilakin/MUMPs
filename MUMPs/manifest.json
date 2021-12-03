@@ -5,6 +5,6 @@
   "Description": "Adds more map & tile properties for mapmakers.",
   "UniqueID": "tlitookilakin.mumps",
   "EntryDll": "MUMPs.dll",
-  "MinimumApiVersion": "2.11",
+  "MinimumApiVersion": "3.13",
   "UpdateKeys": [ "Nexus:" ]
 }
