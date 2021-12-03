@@ -1,0 +1,10 @@
+﻿{
+  "Name": "More Useful Map Properties",
+  "Author": "Tlitookilakin",
+  "Version": "1.0.0",
+  "Description": "Adds more map & tile properties for mapmakers.",
+  "UniqueID": "tlitookilakin.mumps",
+  "EntryDll": "MUMPs.dll",
+  "MinimumApiVersion": "2.11",
+  "UpdateKeys": [ "Nexus:" ]
+}
