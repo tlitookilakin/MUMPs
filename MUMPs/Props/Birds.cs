@@ -19,11 +19,15 @@ namespace MUMPs.Props
 
         public static void EnterLocation(GameLocation location)
         {
+
             birds = null;
-            string[] data = location.getMapProperty("Birds").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            string[] data = Utils.MapPropertyArray(location, "Birds");
             if(data.Length < 1) { return; }
+
             List<Point> perches = new();
             Point empty = new(0, 0);
+
             for(int i = 1; i + 1 < data.Length; i += 2)
             {
                 Point perch = Utils.StringsToPoint(data[i], data[i + 1]);
@@ -32,6 +36,7 @@ namespace MUMPs.Props
                     perches.Add(perch);
                 }
             }
+
             birds = new PerchingBirds(Game1.birdsSpriteSheet, 2, 16, 16, origin, perches.ToArray(), perches.ToArray())
             {
                 roosting = (Game1.timeOfDay >= 1800)

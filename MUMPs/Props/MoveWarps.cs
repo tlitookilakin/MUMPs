@@ -13,7 +13,7 @@ namespace MUMPs.Props
     {
         public static void CorrectWarp(WarpedEventArgs ev)
         {
-            string[] warps = ev.NewLocation.getMapProperty("MoveWarps").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string[] warps = Utils.MapPropertyArray(ev.NewLocation,"MoveWarps");
             Point pos = ev.Player.getTileLocationPoint();
             for(int i = 0; i + 3 < warps.Length; i += 4)
             {

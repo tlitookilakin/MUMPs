@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using StardewModdingAPI;
+using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,10 @@ namespace MUMPs
                 ModEntry.monitor.Log("Bad property format: [" + x + ", " + y + "].", LogLevel.Warn);
                 return new Vector2(0f, 0f);
             }
+        }
+        public static string[] MapPropertyArray(GameLocation loc, string prop)
+        {
+            return loc.getMapProperty(prop).Split(' ', StringSplitOptions.RemoveEmptyEntries);
         }
     }
 }

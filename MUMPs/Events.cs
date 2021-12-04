@@ -12,13 +12,20 @@ namespace MUMPs
     {
         public static void DayStarted(object sender, DayStartedEventArgs ev)
         {
-            foreach(GameLocation loc in Game1.locations)
+            if (!Game1.IsClient)
             {
-                if (loc.Name != "Woods")
+                foreach (GameLocation loc in Game1.locations)
                 {
-                    Props.Stumps.SpawnMapStumps(loc);
+                    if (loc.Name != "Woods")
+                    {
+                        Props.Stumps.SpawnMapStumps(loc);
+                    }
                 }
             }
+        }
+        public static void EnterWorld(object sender, SaveLoadedEventArgs ev)
+        {
+            Props.Birds.EnterLocation(Game1.currentLocation);
         }
         public static void DrawOnTop(object sender, RenderedWorldEventArgs ev)
         {
