@@ -23,6 +23,7 @@ namespace MUMPs
             helper.Events.GameLoop.UpdateTicked += Events.Tick;
             helper.Events.GameLoop.ReturnedToTitle += Events.OnQuit;
             helper.Events.GameLoop.SaveLoaded += Events.EnterWorld;
+            helper.Events.Display.RenderingWorld += Events.DrawOnBottom;
             Patch();
         }
         public static void Patch()

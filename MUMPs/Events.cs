@@ -26,10 +26,16 @@ namespace MUMPs
         public static void EnterWorld(object sender, SaveLoadedEventArgs ev)
         {
             Props.Birds.EnterLocation(Game1.currentLocation);
+            Props.Horizon.ChangeLocation(Game1.currentLocation);
+        }
+        public static void DrawOnBottom(object sender, RenderingWorldEventArgs ev)
+        {
+            Props.Horizon.DrawBefore(ev.SpriteBatch);
         }
         public static void DrawOnTop(object sender, RenderedWorldEventArgs ev)
         {
             Props.Birds.DrawAbove(ev.SpriteBatch);
+            Props.Horizon.DrawAfter(ev.SpriteBatch);
         }
         public static void Tick(object sender, UpdateTickedEventArgs ev)
         {
@@ -47,6 +53,7 @@ namespace MUMPs
         public static void Cleanup()
         {
             Props.Birds.Cleanup();
+            Props.Horizon.Cleanup();
         }
     }
 }
