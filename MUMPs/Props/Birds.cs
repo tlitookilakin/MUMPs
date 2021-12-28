@@ -5,15 +5,11 @@ using StardewValley;
 using StardewValley.BellsAndWhistles;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MUMPs.Props
 {
     class Birds
     {
-        //private static readonly Dictionary<string, PerchingBirds> flocks = new Dictionary<string, PerchingBirds>();
         private static PerchingBirds birds = null;
         private static Vector2 origin = new(8f, 14f);
 

@@ -9,11 +9,13 @@ namespace MUMPs
     {
         internal ITranslationHelper i18n => Helper.Translation;
         internal static IMonitor monitor;
+        internal static IModHelper helper;
         internal static Harmony harmony;
         public override void Entry(IModHelper helper)
         {
             string startingMessage = i18n.Get("template.start", new { mod = helper.ModRegistry.ModID, folder = helper.DirectoryPath });
-            monitor = Monitor;
+            ModEntry.monitor = Monitor;
+            ModEntry.helper = Helper;
             harmony = new(ModManifest.UniqueID);
             helper.Events.GameLoop.DayStarted += Events.DayStarted;
             helper.Events.Player.Warped += Events.ChangeLocation;
@@ -25,7 +27,7 @@ namespace MUMPs
         }
         public static void Patch()
         {
-            harmony.Patch(typeof(GameLocation).GetMethod("getFishingLocation"), new HarmonyMethod(typeof(Props.FishingArea).GetMethod("GetFishingLocationsPatch")));
+            harmony.Patch(typeof(GameLocation).GetMethod("getFishingLocation"), new HarmonyMethod(typeof(Props.FishingArea).GetMethod("GetFishingLocationPatch")));
         }
     }
 }
