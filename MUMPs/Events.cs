@@ -45,6 +45,7 @@ namespace MUMPs
         {
             Props.MoveWarps.CorrectWarp(ev);
             Props.Birds.EnterLocation(ev.NewLocation);
+            Props.Horizon.ChangeLocation(ev.NewLocation);
         }
         public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
         {

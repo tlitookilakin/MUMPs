@@ -15,7 +15,9 @@ namespace MUMPs.Props
         private static IDrawableWorldLayer currentForeground = null;
         public static IDrawableWorldLayer getTemplate(string name)
         {
-            if(name.Length == 0 || name.ToLower() == "default")
+            if (name.Length == 0)
+                return null;
+            if(name.ToLower() == "default")
             {
                 return new SummitHorizon();
             }
@@ -40,8 +42,8 @@ namespace MUMPs.Props
             currentForeground = null;
             if(loc == null)
                 return;
-            currentHorizon = getTemplate(loc.getMapProperty("horizon").Trim());
-            currentForeground = getTemplate(loc.getMapProperty("foreground").Trim());
+            currentHorizon = getTemplate(loc.getMapProperty("Horizon").Trim());
+            currentForeground = getTemplate(loc.getMapProperty("Foreground").Trim());
         }
         public static void DrawBefore(SpriteBatch b)
         {
