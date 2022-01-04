@@ -14,8 +14,8 @@ using xTile.Display;
 
 namespace MUMPs.Patches
 {
-    [HarmonyPatch(typeof(Game1))]
-    [HarmonyPatch("_draw")]
+    [HarmonyPatch(typeof(SGame))]
+    [HarmonyPatch("DrawImpl")]
     public static class LightingLayer
     {
         private static models.LightingDevice displayDevice = new();
