@@ -11,14 +11,20 @@ using System.Threading.Tasks;
 using xTile;
 using xTile.Dimensions;
 using xTile.Display;
+using StardewModdingAPI;
+using System.Reflection;
 
 namespace MUMPs.Patches
 {
-    [HarmonyPatch(typeof(SGame))]
-    [HarmonyPatch("DrawImpl")]
+    [HarmonyPatch]
     public static class LightingLayer
     {
         private static models.LightingDevice displayDevice = new();
+        static MethodBase TargetMethod()
+        {
+            Type type = AccessTools.TypeByName("StardewModdingAPI.Framework.SGame");
+            return AccessTools.Method(type, "DrawImpl");
+        }
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             int marker = 0;
@@ -64,7 +70,7 @@ namespace MUMPs.Patches
                 }
             }
         }
-        private static void DrawLightingLayer(SpriteBatch b)
+        private static void DrawLightingLayer(SpriteBatch b, float multiplier)
         {
             Map map = Game1.currentLocation?.Map;
 

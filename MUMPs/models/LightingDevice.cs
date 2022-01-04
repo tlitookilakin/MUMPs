@@ -13,7 +13,7 @@ using xTile.Tiles;
 
 namespace MUMPs.models
 {
-    class LightingDevice : IDisplayDevice, IDisposable
+    class LightingDevice : IDisplayDevice
     {
         private SpriteBatch batch;
         private Dictionary<TileSheet, Texture2D> m_tileSheetTextures;
@@ -21,6 +21,20 @@ namespace MUMPs.models
         private Vector2 m_tilePosition;
         private Microsoft.Xna.Framework.Rectangle m_sourceRectangle;
         public Color ModulationColour;
+        private Color Tint;
+        public float Multiplier
+        {
+            set
+            {
+                mult = value;
+                Tint = ModulationColour * value;
+            }
+            get
+            {
+                return mult;
+            }
+        }
+        private float mult = 1f;
 
         public LightingDevice()
         {
@@ -55,7 +69,7 @@ namespace MUMPs.models
                 m_sourceRectangle.Y = tileImageBounds.Y;
                 m_sourceRectangle.Width = tileImageBounds.Width;
                 m_sourceRectangle.Height = tileImageBounds.Height;
-                batch.Draw(texture, m_tilePosition, m_sourceRectangle, ModulationColour);
+                batch.Draw(texture, m_tilePosition, m_sourceRectangle, Tint);
             }
         }
         public void EndScene()
@@ -69,28 +83,15 @@ namespace MUMPs.models
         }
         public void SetClippingRegion(xTile.Dimensions.Rectangle clippingRegion)
         {
-            //what is this used for? doesn't show up in the IL code????
-        }
-        ~LightingDevice()
-        {
-            Dispose(false);
-        }
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (batch != null)
-                {
-                    batch.Dispose();
-                    batch = null;
-                }
-                m_tileSheetTextures.Clear();
-            }
+            int nMaxWidth = GameRunner.instance.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            int nMaxHeight = GameRunner.instance.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            int nClipLeft = Math.Clamp(clippingRegion.X, 0, nMaxWidth);
+            int nClipTop = Math.Clamp(clippingRegion.Y, 0, nMaxHeight);
+            int nClipRight = Math.Clamp(clippingRegion.X + clippingRegion.Width, 0, nMaxWidth);
+            int num = Math.Clamp(clippingRegion.Y + clippingRegion.Height, 0, nMaxHeight);
+            int nClipWidth = nClipRight - nClipLeft;
+            int nClipHeight = num - nClipTop;
+            //GameRunner.instance.GraphicsDevice.Viewport = new Viewport(nClipLeft, nClipTop, nClipWidth, nClipHeight);
         }
     }
 }
