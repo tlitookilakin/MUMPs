@@ -70,13 +70,14 @@ namespace MUMPs.Patches
                 }
             }
         }
-        private static void DrawLightingLayer(SpriteBatch b, float multiplier)
+        private static void DrawLightingLayer(float multiplier)
         {
             Map map = Game1.currentLocation?.Map;
 
             if (map == null)
                 return;
-            displayDevice.BeginScene(b);
+            displayDevice.Multiplier = multiplier;
+            displayDevice.BeginScene(Game1.spriteBatch);
             map.GetLayer("Lighting")?.Draw(displayDevice, Game1.viewport, new(), false, 3);
         }
     }
