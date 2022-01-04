@@ -4,13 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using xTile;
-using xTile.Dimensions;
-using xTile.Display;
 using StardewModdingAPI;
 using System.Reflection;
 
@@ -24,7 +19,7 @@ namespace MUMPs.Patches
             CodeInstruction.Call(typeof(Game1),"get_lightmap"),
             CodeInstruction.Call(typeof(Texture2D),"get_Bounds"),
             new(OpCodes.Ldloc_S, 23),
-            CodeInstruction.Call(typeof(SpriteBatch),"Draw",new Type[]{typeof(Texture2D),typeof(Microsoft.Xna.Framework.Rectangle),typeof(Color)})
+            CodeInstruction.Call(typeof(SpriteBatch),"Draw",new Type[]{typeof(Texture2D),typeof(Rectangle),typeof(Color)})
         };
         private static readonly CodeInstruction[] injected = { 
             new(OpCodes.Ldloc_S, 24),
