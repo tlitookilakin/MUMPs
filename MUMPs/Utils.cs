@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using HarmonyLib;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using System;
@@ -36,6 +37,35 @@ namespace MUMPs
         public static string[] MapPropertyArray(GameLocation loc, string prop)
         {
             return loc.getMapProperty(prop).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        }
+        public static IEnumerable<CodeInstruction> InjectAt(CodeInstruction[] Injection, CodeInstruction[] Anchors, IEnumerable<CodeInstruction> instructions)
+        {
+            int marker = 0;
+            foreach (var code in instructions)
+            {
+                if (marker > -1)
+                {
+                    if (marker >= Anchors.Length)
+                    {
+                        foreach (var inst in Injection)
+                        {
+                            yield return inst;
+                            marker = -1;
+                        }
+                    }
+                    else if (code == Anchors[marker])
+                    {
+                        marker++;
+                    }
+                    else
+                    {
+                        marker = 0;
+                    }
+                }
+                yield return code;
+            }
+            if (marker != -1)
+                throw new FormatException("Marker instructions not found.");
         }
     }
 }

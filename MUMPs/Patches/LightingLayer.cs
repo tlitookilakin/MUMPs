@@ -20,6 +20,16 @@ namespace MUMPs.Patches
     public static class LightingLayer
     {
         private static models.LightingDevice displayDevice = new();
+        private static readonly CodeInstruction[] anchors = {
+            CodeInstruction.Call(typeof(Game1),"get_lightmap"),
+            CodeInstruction.Call(typeof(Texture2D),"get_Bounds"),
+            new(OpCodes.Ldloc_S, 23),
+            CodeInstruction.Call(typeof(SpriteBatch),"Draw",new Type[]{typeof(Texture2D),typeof(Microsoft.Xna.Framework.Rectangle),typeof(Color)})
+        };
+        private static readonly CodeInstruction[] injected = { 
+            new(OpCodes.Ldloc_S, 24),
+            CodeInstruction.Call(typeof(LightingLayer),"DrawLightingLayer")
+        };
         static MethodBase TargetMethod()
         {
             Type type = AccessTools.TypeByName("StardewModdingAPI.Framework.SGame");
@@ -27,50 +37,12 @@ namespace MUMPs.Patches
         }
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            int marker = 0;
-            object batchop = null;
-            bool opped = false;
-            foreach(var code in instructions)
+            foreach(var code in Utils.InjectAt(injected, anchors, instructions))
             {
-                if (opped)
-                {
-                    yield return code;
-                    continue;
-                }
-                if(marker == 0 && code.opcode == OpCodes.Call && code.Calls(typeof(Game1).GetMethod("get_lightmap")))
-                {
-                    marker++;
-                } else if(code.opcode == OpCodes.Callvirt)
-                {
-                    if(marker == 1 && code.Calls(typeof(Texture2D).GetMethod("get_bounds"))){
-                        marker++;
-                    } else if(marker == 3 && code.Calls(typeof(SpriteBatch).GetMethod("Draw")))
-                    {
-                        marker++;
-                    }
-                    else
-                    {
-                        marker = 0;
-                    }
-                } else if(marker == 2 && code.opcode == OpCodes.Ldloc_S)
-                {
-                    batchop = code.operand;
-                    marker++;
-                } else if(marker == 4)
-                {
-                    yield return new(OpCodes.Ldloc_S, batchop);
-                    yield return CodeInstruction.Call(typeof(LightingLayer), "DrawLightingLayer");
-                    marker = 0;
-                    opped = true;
-                    yield return code;
-                } else
-                {
-                    marker = 0;
-                    yield return code;
-                }
+                yield return code;
             }
         }
-        private static void DrawLightingLayer(float multiplier)
+        public static void DrawLightingLayer(float multiplier)
         {
             Map map = Game1.currentLocation?.Map;
 
