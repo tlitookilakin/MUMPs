@@ -38,8 +38,9 @@ namespace MUMPs
         {
             return loc.getMapProperty(prop).Split(' ', StringSplitOptions.RemoveEmptyEntries);
         }
-        public static IEnumerable<CodeInstruction> InjectAt(CodeInstruction[] Injection, CodeInstruction[] Anchors, IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> InjectAt(CodeInstruction[] Injection, CodeInstruction[] Anchors, IEnumerable<CodeInstruction> instructions, string Name)
         {
+            ModEntry.monitor.Log("Now applying patch '" + Name + "'...", LogLevel.Debug);
             int marker = 0;
             foreach (var code in instructions)
             {
@@ -65,7 +66,7 @@ namespace MUMPs
                 yield return code;
             }
             if (marker != -1)
-                throw new FormatException("Marker instructions not found.");
+                ModEntry.monitor.Log("Failed to apply patch '" + Name + "'; Marker instructions not found!", LogLevel.Error);
         }
     }
 }
