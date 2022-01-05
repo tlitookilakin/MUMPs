@@ -76,6 +76,7 @@ namespace MUMPs.Props
         }
         public static (Point[] perch, Point[] roost) ScanForSpots(Map map)
         {
+            ModEntry.monitor.Log("Scanning for perches....");
             if (map == null)
                 return (Array.Empty<Point>(), Array.Empty<Point>());
 
@@ -95,14 +96,14 @@ namespace MUMPs.Props
                     Tile tile = paths.Tiles[new(x, y)];
                     if (tile != null)
                     {
-                        if (tile.Properties.ContainsKey("perch"))
+                        if (tile.Properties.ContainsKey("Perch"))
                             perches.Add(new(x, y));
-                        if (tile.Properties.ContainsKey("roost"))
+                        if (tile.Properties.ContainsKey("Roost"))
                             roosts.Add(new(x, y));
                     }
                 }
             }
-
+            ModEntry.monitor.Log("Found " + perches.Count.ToString() + " perches and " + roosts.Count.ToString() + " roosts.");
             return (perches.ToArray(), roosts.ToArray());
         }
     }
