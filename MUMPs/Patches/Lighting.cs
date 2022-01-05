@@ -11,7 +11,7 @@ using System.Reflection.Emit;
 namespace MUMPs.Patches
 {
     [HarmonyPatch]
-    static class LightingTest
+    static class Lighting
     {
         private static readonly CodeInstruction[] anchors = {
             new(OpCodes.Call, AccessTools.Method(typeof(Game1),"get_lightmap")),
@@ -21,7 +21,7 @@ namespace MUMPs.Patches
         };
         private static readonly CodeInstruction[] injected = {
             new(OpCodes.Ldloc_S, 24),
-            new(OpCodes.Call, typeof(LightingTest).GetMethod("RunLighting"))
+            new(OpCodes.Call, typeof(Lighting).GetMethod("RunLighting"))
         };
         public static MethodBase TargetMethod()
         {
@@ -36,7 +36,7 @@ namespace MUMPs.Patches
         }
         public static void RunLighting(float intensity)
         {
-            //noop
+            Props.LightingLayer.Draw(intensity);
         }
     }
 }

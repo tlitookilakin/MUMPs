@@ -25,6 +25,7 @@ namespace MUMPs
         }
         public static void EnterWorld(object sender, SaveLoadedEventArgs ev)
         {
+            Props.LightingLayer.Reload();
             EnterLocation(Game1.currentLocation);
         }
         public static void DrawOnTop(object sender, RenderedWorldEventArgs ev)
