@@ -25,8 +25,7 @@ namespace MUMPs
         }
         public static void EnterWorld(object sender, SaveLoadedEventArgs ev)
         {
-            Props.Birds.EnterLocation(Game1.currentLocation);
-            Props.Horizon.ChangeLocation(Game1.currentLocation);
+            EnterLocation(Game1.currentLocation);
         }
         public static void DrawOnTop(object sender, RenderedWorldEventArgs ev)
         {
@@ -40,8 +39,12 @@ namespace MUMPs
         public static void ChangeLocation(object sender, WarpedEventArgs ev)
         {
             Props.MoveWarps.CorrectWarp(ev);
-            Props.Birds.EnterLocation(ev.NewLocation);
-            Props.Horizon.ChangeLocation(ev.NewLocation);
+            EnterLocation(ev.NewLocation);
+        }
+        public static void EnterLocation(GameLocation location)
+        {
+            Props.Birds.EnterLocation(location);
+            Props.Horizon.ChangeLocation(location);
         }
         public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
         {

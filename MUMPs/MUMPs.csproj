@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Patches\" />
+    <Folder Include="assets\" />
   </ItemGroup>
 
 </Project>

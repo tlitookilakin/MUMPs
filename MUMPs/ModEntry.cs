@@ -28,7 +28,8 @@ namespace MUMPs
         public static void Patch()
         {
             harmony.Patch(typeof(GameLocation).GetMethod("getFishingLocation"), new HarmonyMethod(typeof(Props.FishingArea).GetMethod("GetFishingLocationPatch")));
-            harmony.Patch(typeof(GameLocation).GetMethod("DrawBackground"), new HarmonyMethod(typeof(Props.Horizon).GetMethod("DrawBackgroundPrefix")));
+            harmony.Patch(typeof(GameLocation).GetMethod("drawBackground"), new HarmonyMethod(typeof(Props.Horizon), nameof(Props.Horizon.DrawBackgroundPrefix)));
+            harmony.PatchAll();
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI;
 using StardewValley;
 using Microsoft.Xna.Framework.Graphics;
+using HarmonyLib;
 
 namespace MUMPs.Props
 {
