@@ -28,10 +28,6 @@ namespace MUMPs
             Props.Birds.EnterLocation(Game1.currentLocation);
             Props.Horizon.ChangeLocation(Game1.currentLocation);
         }
-        public static void DrawOnBottom(object sender, RenderingWorldEventArgs ev)
-        {
-            Props.Horizon.DrawBefore(ev.SpriteBatch);
-        }
         public static void DrawOnTop(object sender, RenderedWorldEventArgs ev)
         {
             Props.Birds.DrawAbove(ev.SpriteBatch);

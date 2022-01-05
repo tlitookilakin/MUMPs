@@ -17,7 +17,7 @@ namespace MUMPs.Props
         {
             if (name.Length == 0)
                 return null;
-            if(name.ToLower() == "default")
+            if(name.ToLower() == "summit")
             {
                 return new SummitHorizon();
             }
@@ -45,7 +45,7 @@ namespace MUMPs.Props
             currentHorizon = getTemplate(loc.getMapProperty("Horizon").Trim());
             currentForeground = getTemplate(loc.getMapProperty("Foreground").Trim());
         }
-        public static void DrawBefore(SpriteBatch b)
+        public static void DrawBackgroundPrefix(ref SpriteBatch b)
         {
             currentHorizon?.Draw(b, false);
         }
