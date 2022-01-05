@@ -5,6 +5,7 @@ using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,19 +55,33 @@ namespace MUMPs
                             marker = -1;
                         }
                     }
-                    else if (code == Anchors[marker])
-                    {
-                        marker++;
-                    }
                     else
                     {
-                        marker = 0;
+                        var s = Anchors[marker];
+                        if (code.opcode == s.opcode && (code.operand == s.operand || CompareOperands(code.operand, s.operand)))
+                        {
+                            marker++;
+                        }
+                        else
+                        {
+                            marker = 0;
+                        }
                     }
                 }
                 yield return code;
             }
             if (marker != -1)
                 ModEntry.monitor.Log("Failed to apply patch '" + Name + "'; Marker instructions not found!", LogLevel.Error);
+            else
+                ModEntry.monitor.Log("Sucessfully applied patch '" + Name + "'.", LogLevel.Debug);
+        }
+        public static bool CompareOperands(object op1, object op2)
+        {
+            if (op1 is LocalBuilder oper1 && op2 is ValueTuple<int, Type> oper2)
+            {
+                return oper1.LocalIndex == oper2.Item1 && oper1.LocalType == oper2.Item2;
+            }
+            return false;
         }
     }
 }

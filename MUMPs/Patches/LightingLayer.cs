@@ -17,9 +17,9 @@ namespace MUMPs.Patches
         private static models.LightingDevice displayDevice = new();
         private static readonly CodeInstruction[] anchors = {
             CodeInstruction.Call(typeof(Game1),"get_lightmap"),
-            CodeInstruction.Call(typeof(Texture2D),"get_Bounds"),
-            new(OpCodes.Ldloc_S, 23),
-            CodeInstruction.Call(typeof(SpriteBatch),"Draw",new Type[]{typeof(Texture2D),typeof(Rectangle),typeof(Color)})
+            new(OpCodes.Callvirt, AccessTools.Method(typeof(Texture2D),"get_Bounds")),
+            new(OpCodes.Ldloc_S, (23, typeof(Color))),
+            new(OpCodes.Callvirt, AccessTools.Method(typeof(SpriteBatch),"Draw",new Type[]{typeof(Texture2D),typeof(Rectangle),typeof(Color)}))
         };
         private static readonly CodeInstruction[] injected = { 
             new(OpCodes.Ldloc_S, 24),
@@ -45,7 +45,10 @@ namespace MUMPs.Patches
                 return;
             displayDevice.Multiplier = multiplier;
             displayDevice.BeginScene(Game1.spriteBatch);
-            map.GetLayer("Lighting")?.Draw(displayDevice, Game1.viewport, new(), false, 3);
+            float m = Game1.options.lightingQuality / 2;
+            Vector2 local = Game1.GlobalToLocal(Game1.viewport, new Vector2(0, 0)) / m;
+            map.GetLayer("Lighting")?.Draw(displayDevice, Game1.viewport, new((int)local.X, (int)local.Y), false, (int)(4f / m));
+            displayDevice.EndScene();
         }
     }
 }

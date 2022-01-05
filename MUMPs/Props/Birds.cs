@@ -21,10 +21,12 @@ namespace MUMPs.Props
         {
 
             birds = null;
-
-            if (!int.TryParse(location.getMapProperty("Birds"), out int count))
+            string prop = location.getMapProperty("Birds");
+            if (prop.Length == 0)
+                return;
+            if (!int.TryParse(prop, out int count))
             {
-                ModEntry.monitor.Log("Invalid value for 'Birds' property; could not convert to number.");
+                ModEntry.monitor.Log("Invalid value for 'Birds' property; could not convert to number.", LogLevel.Warn);
                 return;
             }
 
