@@ -92,5 +92,11 @@ namespace MUMPs
             }
             return false;
         }
+        public static void AddAction(string Name, bool isInspect, Action<Farmer, string> action)
+        {
+            Patches.Action.actions.Add(Name, action);
+            if (isInspect)
+                Patches.Action.inspectActions.Add(Name);
+        }
     }
 }
