@@ -40,7 +40,12 @@ namespace MUMPs
         {
             return loc.getMapProperty(prop).Split(' ', StringSplitOptions.RemoveEmptyEntries);
         }
-        public static IEnumerable<CodeInstruction> InjectAt(CodeInstruction[] Injection, CodeInstruction[] Anchors, IEnumerable<CodeInstruction> instructions, string Name)
+        public static IEnumerable<CodeInstruction> InjectAt(
+            CodeInstruction[] Anchors, 
+            IEnumerable<CodeInstruction> instructions, 
+            string Name, 
+            Func<IEnumerable<CodeInstruction>> injection, 
+            List<LocalBuilder> boxes)
         {
             ModEntry.monitor.Log("Now applying patch '" + Name + "'...", LogLevel.Debug);
             int marker = 0;
@@ -50,7 +55,7 @@ namespace MUMPs
                 {
                     if (marker >= Anchors.Length)
                     {
-                        foreach (var inst in Injection)
+                        foreach (var inst in injection())
                         {
                             yield return inst;
                             marker = -1;
@@ -62,9 +67,12 @@ namespace MUMPs
                         if (code.opcode == s.opcode && (code.operand == s.operand || CompareOperands(code.operand, s.operand)))
                         {
                             marker++;
+                            if (code.operand is LocalBuilder b && boxes != null)
+                                boxes.Add(b);
                         }
                         else
                         {
+                            boxes.Clear();
                             marker = 0;
                         }
                     }
@@ -80,7 +88,7 @@ namespace MUMPs
         {
             if (op1 is LocalBuilder oper1 && op2 is ValueTuple<int, Type> oper2)
             {
-                return oper1.LocalIndex == oper2.Item1 && oper1.LocalType == oper2.Item2;
+                return (oper2.Item1 < 0 || oper1.LocalIndex == oper2.Item1) && (oper2.Item2 == null || oper1.LocalType == oper2.Item2);
             }
             return false;
         }

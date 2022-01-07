@@ -13,15 +13,12 @@ namespace MUMPs.Patches
     [HarmonyPatch]
     static class Lighting
     {
+        private static List<LocalBuilder> boxes = new();
         private static readonly CodeInstruction[] anchors = {
             new(OpCodes.Call, AccessTools.Method(typeof(Game1),"get_lightmap")),
             new(OpCodes.Callvirt, typeof(Texture2D).GetMethod("get_Bounds")),
-            new(OpCodes.Ldloc_S, (23, typeof(Color))),
+            new(OpCodes.Ldloc_S, (-1, typeof(Color))),
             new(OpCodes.Callvirt, typeof(SpriteBatch).GetMethod("Draw", new Type[]{typeof(Texture2D),typeof(Rectangle),typeof(Color)}))
-        };
-        private static readonly CodeInstruction[] injected = {
-            new(OpCodes.Ldloc_S, 24),
-            new(OpCodes.Call, typeof(Lighting).GetMethod("RunLighting"))
         };
         public static MethodBase TargetMethod()
         {
@@ -29,10 +26,16 @@ namespace MUMPs.Patches
         }
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            foreach(var code in Utils.InjectAt(injected, anchors, instructions, "Lighting Test"))
+            boxes.Clear();
+            foreach(var code in Utils.InjectAt(anchors, instructions, "Lighting Test", Inject, boxes))
             {
                 yield return code;
             }
+        }
+        public static IEnumerable<CodeInstruction> Inject()
+        {
+            yield return new(OpCodes.Ldloc_S, boxes[0].LocalIndex + 1);
+            yield return new(OpCodes.Call, typeof(Lighting).GetMethod("RunLighting"));
         }
         public static void RunLighting(float intensity)
         {
