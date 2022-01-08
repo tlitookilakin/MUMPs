@@ -29,10 +29,12 @@ namespace MUMPs.Patches
             if (!actions.TryGetValue(name, out var exec))
                 return true;
 
-            StringBuilder sb = new(vals.Length - 1);
-            foreach(string s in vals)
+            StringBuilder sb = new();
+            for(int i = 1; i < vals.Length; i++)
             {
-                sb.Append(s).Append(' ');
+                sb.Append(vals[i]);
+                if (i + 1 < vals.Length)
+                    sb.Append(' ');
             }
 
             __result = true;
