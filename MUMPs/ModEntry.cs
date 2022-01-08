@@ -26,18 +26,13 @@ namespace MUMPs
             helper.Events.GameLoop.UpdateTicked += Events.Tick;
             helper.Events.GameLoop.ReturnedToTitle += Events.OnQuit;
             helper.Events.GameLoop.SaveLoaded += Events.EnterWorld;
-            Patch();
-            RegisterActions();
-        }
-        public static void Patch()
-        {
-            harmony.Patch(typeof(GameLocation).GetMethod("getFishingLocation"), new HarmonyMethod(typeof(Props.FishingArea).GetMethod("GetFishingLocationPatch")));
-            harmony.Patch(typeof(GameLocation).GetMethod("drawBackground"), new HarmonyMethod(typeof(Props.Horizon), nameof(Props.Horizon.DrawBackgroundPrefix)));
             harmony.PatchAll();
+            RegisterActions();
         }
         public static void RegisterActions()
         {
             Utils.AddAction("Image", true, Props.ActionImage.show);
+            Utils.AddAction("WarpList", false, Props.ActionWarpList.display);
         }
     }
 }

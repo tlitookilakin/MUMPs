@@ -1,10 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿using HarmonyLib;
+using Microsoft.Xna.Framework;
 using StardewValley;
 
 namespace MUMPs.Props
 {
+    [HarmonyPatch]
     class FishingArea
     {
+        [HarmonyPatch(typeof(GameLocation), "getFishingLocation")]
+        [HarmonyPrefix]
         public static bool GetFishingLocationPatch(ref Vector2 tile, GameLocation __instance, ref int __result)
         {
             string[] data = Utils.MapPropertyArray(__instance, "FishingAreas");

@@ -98,5 +98,60 @@ namespace MUMPs
             if (isInspect)
                 Patches.Action.inspectActions.Add(Name);
         }
+        public static IEnumerable<string> SafeSplit(string s, char delim)
+        {
+            bool dquote = false;
+            bool squote = false;
+            bool escaped = false;
+            StringBuilder sb = new();
+            foreach(char c in s)
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                    sb.Append(c);
+                    continue;
+                }
+                switch (c)
+                {
+                    case '"':
+                        if (!squote)
+                        {
+                            dquote = !dquote;
+                            continue;
+                        }
+                        break;
+                    case '\'':
+                        if (!dquote)
+                        {
+                            squote = !squote;
+                            continue;
+                        }
+                        break;
+                    case '\\':
+                        escaped = true;
+                        continue;
+                    default:
+                        if (c == delim)
+                        {
+                            if (sb.Length > 0)
+                                yield return sb.ToString();
+                            sb.Clear();
+                            continue;
+                        }
+                        break;
+                }
+                sb.Append(c);
+            }
+        }
+        public static List<string> SafeSplitList(string s, char delim)
+        {
+            var list = new List<string>();
+            foreach(string item in SafeSplit(s, delim))
+            {
+                list.Add(item);
+            }
+            return list;
+        }
     }
 }

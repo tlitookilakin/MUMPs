@@ -9,6 +9,7 @@ using HarmonyLib;
 
 namespace MUMPs.Props
 {
+    [HarmonyPatch]
     class Horizon
     {
         private static Dictionary<string, HorizonModel> Templates = new(StringComparer.OrdinalIgnoreCase);
@@ -46,6 +47,8 @@ namespace MUMPs.Props
             currentHorizon = getTemplate(loc.getMapProperty("Horizon").Trim());
             currentForeground = getTemplate(loc.getMapProperty("Foreground").Trim());
         }
+        [HarmonyPatch(typeof(GameLocation), "drawBackground")]
+        [HarmonyPrefix]
         public static void DrawBackgroundPrefix(ref SpriteBatch b)
         {
             currentHorizon?.Draw(b, false);
