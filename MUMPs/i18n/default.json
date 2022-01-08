@@ -1,5 +1,9 @@
 ﻿{
   "template.start": "Started {{mod}} from folder: {{folder}}",
   "warpmenu.title": "Choose Destination:",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "yes": "Yes",
+  "no":  "No",
+  "repair.need": "You need {{what}}.",
+  "repair.use":  "Use {{what}}?"
 }

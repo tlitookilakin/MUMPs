@@ -31,6 +31,7 @@ namespace MUMPs
         public static void DrawOnTop(object sender, RenderedWorldEventArgs ev)
         {
             Props.Birds.DrawAbove(ev.SpriteBatch);
+            Props.ActionRepair.Draw(ev.SpriteBatch);
             Props.Horizon.DrawAfter(ev.SpriteBatch);
         }
         public static void Tick(object sender, UpdateTickedEventArgs ev)
@@ -46,6 +47,7 @@ namespace MUMPs
         {
             Props.Birds.EnterLocation(location);
             Props.Horizon.ChangeLocation(location);
+            Props.ActionRepair.ChangeLocation(location);
         }
         public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
         {
