@@ -6,14 +6,19 @@ namespace MUMPs.UI
     class ImageDisplay : SimpleDisplay
     {
         public Texture2D Image;
-        public ImageDisplay(Texture2D image) : base(image.Width, image.Height)
+        public Rectangle area;
+        public ImageDisplay(Texture2D image) : base(image.Width * 3, image.Height * 3)
         {
             Image = image;
         }
         public override void draw(SpriteBatch b)
         {
             base.draw(b);
-            b.Draw(Image, new Vector2(xPositionOnScreen, yPositionOnScreen), Color.White);
+            b.Draw(Image, area, Color.White);
+        }
+        public override void resized()
+        {
+            area = new(xPositionOnScreen, yPositionOnScreen, width, height);
         }
     }
 }
