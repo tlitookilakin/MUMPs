@@ -32,6 +32,7 @@ namespace MUMPs
         public static void RegisterActions()
         {
             Utils.AddAction("Image", true, Props.ActionImage.show);
+            Utils.AddAction("Repair", false, Props.ActionRepair.DoAction);
             Utils.AddAction("WarpList", false, Props.ActionWarpList.display);
         }
     }

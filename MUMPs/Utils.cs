@@ -132,7 +132,7 @@ namespace MUMPs
                         escaped = true;
                         continue;
                     default:
-                        if (c == delim)
+                        if (c == delim && !dquote && !squote)
                         {
                             if (sb.Length > 0)
                                 yield return sb.ToString();
@@ -143,6 +143,7 @@ namespace MUMPs
                 }
                 sb.Append(c);
             }
+            yield return sb.ToString();
         }
         public static List<string> SafeSplitList(string s, char delim)
         {

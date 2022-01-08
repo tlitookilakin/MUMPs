@@ -12,7 +12,7 @@ namespace MUMPs.Props
             List<Response> opts = new();
             for(int i = 0; i + 3 < split.Count; i += 4)
             {
-                opts.Add(new(split[i + 1] + ' ' + split[i + 2] + ' ' + split[i + 3], split[i]));
+                opts.Add(new('"'+split[i + 1] + "\" \"" + split[i + 2] + "\" \"" + split[i + 3] + '"', split[i]));
             }
             opts.Add(new("___", ModEntry.helper.Translation.Get("cancel")));
             who.currentLocation.createQuestionDialogue(ModEntry.helper.Translation.Get("warpmenu.title"), opts.ToArray(), selected);

@@ -30,7 +30,7 @@ namespace MUMPs.Props
                     var tile = buildings.Tiles[new(x, y)];
                     if (tile == null)
                         continue;
-                    if (tile.Properties["Action"] == null)
+                    if (!tile.Properties.ContainsKey("Action"))
                         continue;
                     var action = tile.Properties["Action"].ToString().Trim();
                     if (action.StartsWith("Repair"))
