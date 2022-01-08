@@ -2,10 +2,6 @@
 using StardewValley;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace MUMPs.Props
 {
     class ActionWarpList
@@ -18,10 +14,13 @@ namespace MUMPs.Props
             {
                 opts.Add(new(split[i + 1] + ' ' + split[i + 2] + ' ' + split[i + 3], split[i]));
             }
+            opts.Add(new("___", ModEntry.helper.Translation.Get("cancel")));
             who.currentLocation.createQuestionDialogue(ModEntry.helper.Translation.Get("warpmenu.title"), opts.ToArray(), selected);
         }
         public static void selected(Farmer who, string target)
         {
+            if (target == "___")
+                return;
             var split = Utils.SafeSplitList(target, ' ');
             if (Game1.getLocationFromName(split[2]) == null)
                 return;
