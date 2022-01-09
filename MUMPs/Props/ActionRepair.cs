@@ -1,5 +1,8 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using HarmonyLib;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MUMPs.models;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 using System.Collections.Generic;
@@ -46,16 +49,14 @@ namespace MUMPs.Props
             if (split.Count < 3)
                 return;
 
-            if (!int.TryParse(split[0], out int count) || count <= 0)
+            if (!int.TryParse(split[0], out int count) || count <= 0 || !int.TryParse(split[1], out int id) || id < 0)
                 return;
 
-            if (!int.TryParse(split[1], out int id))
+            if (!Game1.objectInformation.TryGetValue(id, out string info))
                 return;
 
-            if (!Game1.bigCraftablesInformation.TryGetValue(id, out var info))
-                return;
-
-            object templ = new{ what = split[0] + "x " + info[0]};
+            string name = info.Split('/')[0];
+            object templ = new{ what = split[0] + "x " + name};
             if (!who.hasItemInInventory(id, count))
             {
                 Game1.drawObjectDialogue(Game1.parseText(ModEntry.helper.Translation.Get("repair.need",templ)));
@@ -74,18 +75,58 @@ namespace MUMPs.Props
                 return;
 
             who.removeItemsFromInventory(id, count);
+            Game1.addMail(split[2], true, true);
+
+            if (!who.IsLocalPlayer)
+                return;
+
             Dictionary<string, string> events;
-            try
+            string ev = null;
+            
+            if(split.Length <= 3)
             {
-                events = who.currentLocation.GetLocationEvents();
-            } catch(Exception)
-            {
-                return;
+                try
+                {
+                    events = who.currentLocation.GetLocationEvents();
+                    ev = events[split[3]];
+                }
+                catch (Exception)
+                {
+                }
             }
-            var ev = events[split[2]];
-            if (ev == null)
-                return;
-            who.currentLocation.startEvent(new(ev));
+            string path = who.currentLocation.mapPath;
+            Vector2 coords = who.getTileLocation();
+            string name = who.currentLocation.Name;
+
+            Events.afterFadeQueue.Add(() =>
+            {
+                if (ev != null)
+                {
+                    who.currentLocation.startEvent(new(ev)
+                    {
+                        onEventFinished = () =>
+                        {
+                            ReloadCurrentLocation(who, path, coords, name);
+                        }
+                    });
+                } else
+                {
+                    ReloadCurrentLocation(who, path, coords, name);
+                }
+            });
+            Game1.fadeScreenToBlack();
+        }
+        public static void ReloadCurrentLocation(Farmer who, string path, Vector2 coords, string name)
+        {
+            Events.drawVoid = true;
+            ModEntry.helper.Content.InvalidateCache(path);
+            if(who.currentLocation.mapPath == path)
+                Utils.warpToTempMap("EventVoid", who);
+            Events.afterFadeQueue.Add(() =>
+            {
+                Events.drawVoid = false;
+            });
+            who.warpFarmer(new(0, 0, name, (int)coords.X, (int)coords.Y, false));
         }
         public static Response[] MakeResponses(string val)
         {

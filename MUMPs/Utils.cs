@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 using System.Collections.Generic;
@@ -153,6 +154,21 @@ namespace MUMPs
                 list.Add(item);
             }
             return list;
+        }
+        public static void warpToTempMap(string path, Farmer who)
+        {
+            GameLocation temp = new(PathUtilities.NormalizeAssetName("Maps/"+path), "Temp");
+            temp.map.LoadTileSheets(Game1.mapDisplayDevice);
+            Event e = Game1.currentLocation.currentEvent;
+            Game1.currentLocation.cleanupBeforePlayerExit();
+            Game1.currentLocation.currentEvent = null;
+            Game1.currentLightSources.Clear();
+            Game1.currentLocation = temp;
+            Game1.currentLocation.resetForPlayerEntry();
+            Game1.currentLocation.currentEvent = e;
+            Game1.player.currentLocation = Game1.currentLocation;
+            who.currentLocation = Game1.currentLocation;
+            Game1.panScreen(0, 0);
         }
 
         //Used to get DGA item #

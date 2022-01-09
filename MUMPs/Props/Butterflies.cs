@@ -3,13 +3,8 @@ using StardewValley;
 using StardewValley.BellsAndWhistles;
 namespace MUMPs.Props
 {
-    [HarmonyPatch(typeof(GameLocation),"resetLocalState")]
     class Butterflies
     {
-        public static void Postfix(GameLocation __instance)
-        {
-            EnterLocation(__instance);
-        }
         public static void EnterLocation(GameLocation location)
         {
             if (!int.TryParse(location.getMapProperty("Butterflies"), out int count))

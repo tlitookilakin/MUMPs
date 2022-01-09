@@ -2,10 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MUMPs.models
 {
@@ -25,8 +21,8 @@ namespace MUMPs.models
         public void Draw(SpriteBatch b)
         {
             float yOffset = 4f * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
-            b.Draw(Game1.mouseCursors, Game1.GlobalToLocal(new(X*64 - 8, Y*64 - 64 + yOffset)), bubble, Color.White);
-            b.Draw(Game1.mouseCursors, Game1.GlobalToLocal(new(X*64 + 34, Y*64 - 24 + yOffset)), question, Color.White);
+            b.Draw(Game1.mouseCursors, Game1.GlobalToLocal(new(X*64 - 8, Y*64 - 128 + yOffset)), bubble, Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 0f);
+            b.Draw(Game1.mouseCursors, Game1.GlobalToLocal(new(X*64 + 8, Y*64 - 112 + yOffset)), question, Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 0f);
         }
     }
 }
