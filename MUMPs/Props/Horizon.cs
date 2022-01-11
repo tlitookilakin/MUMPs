@@ -60,8 +60,8 @@ namespace MUMPs.Props
         }
         public static void Cleanup()
         {
-            currentHorizon.Value = null;
-            currentForeground.Value = null;
+            currentHorizon.ResetAllScreens();
+            currentForeground.ResetAllScreens();
         }
     }
 }

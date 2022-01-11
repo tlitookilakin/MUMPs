@@ -43,6 +43,10 @@ namespace MUMPs.Props
                 }
             }
         }
+        public static void Cleanup()
+        {
+            currentSet.ResetAllScreens();
+        }
         public static void DoAction(Farmer who, string action)
         {
             if (who.currentLocation.name == "Temp")
@@ -106,7 +110,7 @@ namespace MUMPs.Props
             string path = loc.mapPath;
             Vector2 coords = Game1.player.getTileLocation();
 
-            Events.afterFadeQueue.Add(() =>
+            Events.afterFadeQueue.Value.Add(() =>
             {
                 if (ev != null)
                 {
@@ -127,13 +131,13 @@ namespace MUMPs.Props
         }
         public static void ReloadCurrentLocation(string path, Vector2 coords, string name)
         {
-            Events.drawVoid = true;
+            Events.drawVoid.Value = true;
             ModEntry.helper.Content.InvalidateCache(path);
             if(Game1.currentLocation.mapPath == path)
                 Utils.warpToTempMap("EventVoid", Game1.player);
-            Events.afterFadeQueue.Add(() =>
+            Events.afterFadeQueue.Value.Add(() =>
             {
-                Events.drawVoid = false;
+                Events.drawVoid.Value = false;
             });
             Game1.warpFarmer(name, (int)coords.X, (int)coords.Y, false);
         }

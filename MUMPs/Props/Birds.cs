@@ -49,8 +49,8 @@ namespace MUMPs.Props
         }
         public static void Cleanup()
         {
-            birds.Value = null;
-            spots.Value.Clear();
+            birds.ResetAllScreens();
+            spots.ResetAllScreens();
         }
         public static void DrawAbove(SpriteBatch batch)
         {

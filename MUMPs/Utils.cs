@@ -20,7 +20,7 @@ namespace MUMPs
             try
             {
                 return new Point(int.Parse(x), int.Parse(y));
-            } catch(FormatException e)
+            } catch(FormatException)
             {
                 ModEntry.monitor.Log("Bad property format: [" + x + ", " + y + "].", LogLevel.Warn);
                 return new Point(0, 0);

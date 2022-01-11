@@ -14,10 +14,10 @@ namespace MUMPs
 {
     class Events
     {
-        public static readonly List<Action> afterFadeQueue = new();
-        private static bool wasFading = false;
-        private static bool fadeWasRun = false;
-        public static bool drawVoid = false;
+        public static readonly PerScreen<List<Action>> afterFadeQueue = new(() => new());
+        private static readonly PerScreen<bool> wasFading = new(() => false);
+        private static readonly PerScreen<bool> fadeWasRun = new(() => false);
+        public static readonly PerScreen<bool> drawVoid = new(() => false);
         public static void DayStarted(object sender, DayStartedEventArgs ev)
         {
             if (!Game1.IsClient)
@@ -58,11 +58,12 @@ namespace MUMPs
         }
         public static void EnterLocation(GameLocation location)
         {
-            drawVoid = (location.mapPath == PathUtilities.NormalizeAssetName("Maps/EventVoid"));
+            drawVoid.Value = (location.mapPath == PathUtilities.NormalizeAssetName("Maps/EventVoid"));
             Props.Birds.EnterLocation(location);
             Props.Horizon.ChangeLocation(location);
             Props.ActionRepair.ChangeLocation(location);
             Props.Butterflies.EnterLocation(location);
+            Props.CamRegion.ChangeLocation(location);
         }
         public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
         {
@@ -72,24 +73,26 @@ namespace MUMPs
         {
             Props.Birds.Cleanup();
             Props.Horizon.Cleanup();
+            Props.CamRegion.Cleanup();
+            Props.ActionRepair.Cleanup();
         }
         public static void RunFade()
         {
-            if (wasFading != Game1.IsFading())
+            if (wasFading.Value != Game1.IsFading())
             {
-                fadeWasRun = false;
+                fadeWasRun.Value = false;
             }
-            if (!Game1.fadeIn && wasFading && !fadeWasRun)
+            if (!Game1.fadeIn && wasFading.Value && !fadeWasRun.Value)
             {
-                var existingQueue = afterFadeQueue.ToArray();
-                afterFadeQueue.Clear();
+                var existingQueue = afterFadeQueue.Value.ToArray();
+                afterFadeQueue.Value.Clear();
                 foreach (var action in existingQueue)
                 {
                     action();
                 }
-                fadeWasRun = true;
+                fadeWasRun.Value = true;
             }
-            wasFading = Game1.IsFading();
+            wasFading.Value = Game1.IsFading();
         }
         public static void RecieveMessage(object sender, ModMessageReceivedEventArgs ev)
         {
@@ -108,7 +111,7 @@ namespace MUMPs
         }
         public static void DrawVoid(SpriteBatch b)
         {
-            if (drawVoid)
+            if (drawVoid.Value)
             {
                 b.Draw(Game1.staminaRect, new Rectangle(0, 0, Game1.viewport.Width, Game1.viewport.Height), Color.Black);
             }
