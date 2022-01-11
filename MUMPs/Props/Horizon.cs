@@ -6,15 +6,16 @@ using StardewModdingAPI;
 using StardewValley;
 using Microsoft.Xna.Framework.Graphics;
 using HarmonyLib;
+using StardewModdingAPI.Utilities;
 
 namespace MUMPs.Props
 {
     [HarmonyPatch]
     class Horizon
     {
-        private static Dictionary<string, HorizonModel> Templates = new(StringComparer.OrdinalIgnoreCase);
-        private static IDrawableWorldLayer currentHorizon = null;
-        private static IDrawableWorldLayer currentForeground = null;
+        private static readonly Dictionary<string, HorizonModel> Templates = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly PerScreen<IDrawableWorldLayer> currentHorizon = new();
+        private static readonly PerScreen<IDrawableWorldLayer> currentForeground = new();
         public static IDrawableWorldLayer getTemplate(string name)
         {
             if (name.Length == 0)
@@ -40,27 +41,27 @@ namespace MUMPs.Props
         }
         public static void ChangeLocation(GameLocation loc)
         {
-            currentHorizon = null;
-            currentForeground = null;
+            currentHorizon.Value = null;
+            currentForeground.Value = null;
             if(loc == null)
                 return;
-            currentHorizon = getTemplate(loc.getMapProperty("Horizon").Trim());
-            currentForeground = getTemplate(loc.getMapProperty("Foreground").Trim());
+            currentHorizon.Value = getTemplate(loc.getMapProperty("Horizon").Trim());
+            currentForeground.Value = getTemplate(loc.getMapProperty("Foreground").Trim());
         }
         [HarmonyPatch(typeof(GameLocation), "drawBackground")]
         [HarmonyPrefix]
         public static void DrawBackgroundPrefix(ref SpriteBatch b)
         {
-            currentHorizon?.Draw(b, false);
+            currentHorizon.Value?.Draw(b, false);
         }
         public static void DrawAfter(SpriteBatch b)
         {
-            currentForeground?.Draw(b, true);
+            currentForeground.Value?.Draw(b, true);
         }
         public static void Cleanup()
         {
-            currentHorizon = null;
-            currentForeground = null;
+            currentHorizon.Value = null;
+            currentForeground.Value = null;
         }
     }
 }

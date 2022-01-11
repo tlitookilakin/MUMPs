@@ -11,17 +11,17 @@ namespace MUMPs.Props
 {
     class ActionRepair
     {
-        private static List<RepairSpot> currentSet = new();
+        private static readonly PerScreen<List<RepairSpot>> currentSet = new(() => new());
         public static void Draw(SpriteBatch b)
         {
-            foreach(var spot in currentSet)
+            foreach(var spot in currentSet.Value)
             {
                 spot.Draw(b);
             }
         }
         public static void ChangeLocation(GameLocation loc)
         {
-            currentSet.Clear();
+            currentSet.Value.Clear();
             var map = loc.map;
             if (map == null || loc.Name == "Temp")
                 return;
@@ -38,7 +38,7 @@ namespace MUMPs.Props
                     var action = tile.Properties["Action"].ToString().Trim();
                     if (action.StartsWith("Repair"))
                     {
-                        currentSet.Add(new(x, y));
+                        currentSet.Value.Add(new(x, y));
                     }
                 }
             }

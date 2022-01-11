@@ -7,7 +7,7 @@ namespace MUMPs.Props
 {
     class Stumps
     {
-        internal static void SpawnMapStumps(GameLocation location)
+        public static void SpawnMapStumps(GameLocation location)
         {
             string[] stumpList = Utils.MapPropertyArray(location, "Stumps");
             if(stumpList.Length > 0)
