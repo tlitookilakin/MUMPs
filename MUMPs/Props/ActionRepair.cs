@@ -23,7 +23,7 @@ namespace MUMPs.Props
         {
             currentSet.Clear();
             var map = loc.map;
-            if (map == null)
+            if (map == null || loc.Name == "Temp")
                 return;
             var buildings = map.GetLayer("Buildings");
             for(int x = 0; x < buildings.LayerWidth; x++)
@@ -45,6 +45,9 @@ namespace MUMPs.Props
         }
         public static void DoAction(Farmer who, string action)
         {
+            if (who.currentLocation.name == "Temp")
+                return;
+
             var split = Utils.SafeSplitList(action, ' ');
             if (split.Count < 3)
                 return;
@@ -77,56 +80,62 @@ namespace MUMPs.Props
             who.removeItemsFromInventory(id, count);
             Game1.addMail(split[2], true, true);
 
-            if (!who.IsLocalPlayer)
+            MessageRepairEvent msg = new(who.currentLocation.Name, (split.Length > 3) ? split[3] : null);
+            EventAndReload(msg);
+            ModEntry.helper.Multiplayer.SendMessage(msg, "RepairEvent", new string[]{ModEntry.ModID});
+        }
+        public static void EventAndReload(MessageRepairEvent msg)
+        {
+            GameLocation loc = Game1.getLocationFromName(msg.LocationName);
+
+            if (Game1.currentLocation != loc)
                 return;
 
-            Dictionary<string, string> events;
             string ev = null;
-            
-            if(split.Length <= 3)
+
+            if (msg.EventName != null)
             {
                 try
                 {
-                    events = who.currentLocation.GetLocationEvents();
-                    ev = events[split[3]];
+                    ev = loc.GetLocationEvents()[msg.EventName];
                 }
                 catch (Exception)
                 {
                 }
             }
-            string path = who.currentLocation.mapPath;
-            Vector2 coords = who.getTileLocation();
-            string name = who.currentLocation.Name;
+            string path = loc.mapPath;
+            Vector2 coords = Game1.player.getTileLocation();
 
             Events.afterFadeQueue.Add(() =>
             {
                 if (ev != null)
                 {
-                    who.currentLocation.startEvent(new(ev)
+                    Game1.currentLocation.startEvent(new(ev)
                     {
                         onEventFinished = () =>
                         {
-                            ReloadCurrentLocation(who, path, coords, name);
+                            ReloadCurrentLocation(path, coords, msg.LocationName);
                         }
                     });
-                } else
+                }
+                else
                 {
-                    ReloadCurrentLocation(who, path, coords, name);
+                    ReloadCurrentLocation(path, coords, msg.LocationName);
                 }
             });
             Game1.fadeScreenToBlack();
         }
-        public static void ReloadCurrentLocation(Farmer who, string path, Vector2 coords, string name)
+        public static void ReloadCurrentLocation(string path, Vector2 coords, string name)
         {
             Events.drawVoid = true;
             ModEntry.helper.Content.InvalidateCache(path);
-            if(who.currentLocation.mapPath == path)
-                Utils.warpToTempMap("EventVoid", who);
+            if(Game1.currentLocation.mapPath == path)
+                Utils.warpToTempMap("EventVoid", Game1.player);
             Events.afterFadeQueue.Add(() =>
             {
                 Events.drawVoid = false;
             });
-            who.warpFarmer(new(0, 0, name, (int)coords.X, (int)coords.Y, false));
+            Game1.warpFarmer(name, (int)coords.X, (int)coords.Y, false);
         }
         public static Response[] MakeResponses(string val)
         {

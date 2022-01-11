@@ -15,6 +15,7 @@ namespace MUMPs
         internal static IMonitor monitor;
         internal static IModHelper helper;
         internal static Harmony harmony;
+        internal static string ModID;
 
         public static Dictionary<string, string> strings;
         public override void Entry(IModHelper helper)
@@ -23,6 +24,7 @@ namespace MUMPs
             monitor = Monitor;
             ModEntry.helper = Helper;
             harmony = new(ModManifest.UniqueID);
+            ModID = ModManifest.UniqueID;
             strings = helper.Content.Load<Dictionary<string, string>>("assets/strings.json");
             helper.Events.GameLoop.DayStarted += Events.DayStarted;
             helper.Events.Player.Warped += Events.ChangeLocation;
@@ -31,6 +33,7 @@ namespace MUMPs
             helper.Events.GameLoop.ReturnedToTitle += Events.OnQuit;
             helper.Events.GameLoop.SaveLoaded += Events.EnterWorld;
             helper.Events.Display.RenderedHud += Events.DrawOverHud;
+            helper.Events.Multiplayer.ModMessageReceived += Events.RecieveMessage;
             harmony.PatchAll();
             RegisterActions();
         }

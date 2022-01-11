@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -89,6 +90,21 @@ namespace MUMPs
                 fadeWasRun = true;
             }
             wasFading = Game1.IsFading();
+        }
+        public static void RecieveMessage(object sender, ModMessageReceivedEventArgs ev)
+        {
+            if (ev.FromModID != ModEntry.ModID)
+                return;
+
+            switch (ev.Type)
+            {
+                case "RepairEvent":
+                    Props.ActionRepair.EventAndReload(ev.ReadAs<models.MessageRepairEvent>());
+                    break;
+                default:
+                    ModEntry.monitor.Log("Unhandled message type: " + ev.Type, LogLevel.Warn);
+                    break;
+            }
         }
         public static void DrawVoid(SpriteBatch b)
         {
