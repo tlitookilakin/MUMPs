@@ -73,7 +73,7 @@ namespace MUMPs
                         }
                         else
                         {
-                            boxes.Clear();
+                            boxes?.Clear();
                             marker = 0;
                         }
                     }

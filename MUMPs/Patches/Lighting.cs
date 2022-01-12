@@ -27,7 +27,7 @@ namespace MUMPs.Patches
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             boxes.Clear();
-            foreach(var code in Utils.InjectAt(anchors, instructions, "Lighting Test", Inject, boxes))
+            foreach(var code in Utils.InjectAt(anchors, instructions, "Lighting", Inject, boxes))
             {
                 yield return code;
             }

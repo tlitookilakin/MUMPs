@@ -35,6 +35,7 @@ namespace MUMPs.Props
         {
             regions.ResetAllScreens();
         }
+
         [HarmonyPatch(typeof(Game1), "UpdateViewPort")]
         [HarmonyPrefix]
         public static bool UpdateCamera(bool overrideFreeze, Point centerPoint)
@@ -50,6 +51,7 @@ namespace MUMPs.Props
                         Math.Clamp(centerPoint.X, region.X + Game1.viewport.Width / 2, region.X + region.Width - Game1.viewport.Width / 2);
                     centerPoint.Y = (Game1.viewport.Height >= region.Height) ? region.Y + region.Height / 2 :
                         Math.Clamp(centerPoint.Y, region.Y + Game1.viewport.Height / 2, region.Y + region.Height - Game1.viewport.Height / 2);
+                    break;
                 }
             }
             return true;
