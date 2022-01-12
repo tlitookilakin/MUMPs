@@ -6,9 +6,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MUMPs
 {
@@ -41,6 +38,7 @@ namespace MUMPs
             Props.Birds.DrawAbove(ev.SpriteBatch);
             Props.ActionRepair.Draw(ev.SpriteBatch);
             Props.Horizon.DrawAfter(ev.SpriteBatch);
+            Props.Tooltip.Draw(ev.SpriteBatch);
         }
         public static void DrawOverHud(object sender, RenderedHudEventArgs ev)
         {

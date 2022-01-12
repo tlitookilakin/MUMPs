@@ -20,7 +20,6 @@ namespace MUMPs.Props
         private static Dictionary<TileSheet, Texture2D> sheets;
         public static void Reload()
         {
-            //sheets = ModEntry.helper.Reflection.GetField<Dictionary<TileSheet, Texture2D>>(Game1.mapDisplayDevice, "m_tileSheetTextures").GetValue();
             sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("SXnaDisplayDevice").GetField("m_tileSheetTextures", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Game1.mapDisplayDevice);
         }
         public static void Draw(float intensity)
@@ -38,6 +37,7 @@ namespace MUMPs.Props
             Color color = intensity * Color.White;
             int tx = -(int)Math.Ceiling(origin.X / tilesize);
             int ty = -(int)Math.Ceiling(origin.Y / tilesize);
+
             for (int x = offset.X; x < size.X && tx < layer.LayerWidth; x += tilesize)
             {
                 for(int y = offset.Y; y < size.Y && ty < layer.LayerHeight; y += tilesize)

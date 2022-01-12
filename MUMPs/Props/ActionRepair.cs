@@ -26,20 +26,15 @@ namespace MUMPs.Props
             if (map == null || loc.Name == "Temp")
                 return;
             var buildings = map.GetLayer("Buildings");
-            for(int x = 0; x < buildings.LayerWidth; x++)
+
+            foreach((var tile, int x, int y) in Utils.tilesInLayer(buildings))
             {
-                for(int y = 0; y < buildings.LayerHeight; y++)
+                if (!tile.Properties.TryGetValue("Action", out var action) && !tile.TileIndexProperties.TryGetValue("Action", out action))
+                    continue;
+
+                if (action.ToString().Trim().StartsWith("Repair"))
                 {
-                    var tile = buildings.Tiles[new(x, y)];
-                    if (tile == null)
-                        continue;
-                    if (!tile.Properties.ContainsKey("Action"))
-                        continue;
-                    var action = tile.Properties["Action"].ToString().Trim();
-                    if (action.StartsWith("Repair"))
-                    {
-                        currentSet.Value.Add(new(x, y));
-                    }
+                    currentSet.Value.Add(new(x, y));
                 }
             }
         }

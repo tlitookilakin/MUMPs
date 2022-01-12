@@ -5,10 +5,8 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
-using System.Threading.Tasks;
 using xTile.Layers;
 
 namespace MUMPs
@@ -154,6 +152,24 @@ namespace MUMPs
                 list.Add(item);
             }
             return list;
+        }
+        public static IEnumerable<(xTile.Tiles.Tile, int, int)> tilesInLayer(Layer layer)
+        {
+            for(int x = 0; x < layer.LayerWidth; x++)
+            {
+                for(int y = 0; y < layer.LayerHeight; y++)
+                {
+                    var tile = layer.Tiles[x, y];
+                    if(tile != null)
+                    {
+                        yield return (tile, x, y);
+                    }
+                }
+            }
+        }
+        public static Point LocalToGlobal(int x, int y)
+        {
+            return new(x + Game1.viewport.X, y + Game1.viewport.Y);
         }
         public static void warpToTempMap(string path, Farmer who)
         {
