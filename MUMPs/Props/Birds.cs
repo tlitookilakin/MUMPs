@@ -16,7 +16,6 @@ namespace MUMPs.Props
     {
         private static readonly PerScreen<PerchingBirds> birds = new();
         private static readonly Vector2 origin = new(8f, 14f);
-        private static readonly PerScreen<Dictionary<GameLocation, (Point[] perch, Point[] roost)>> spots = new(() => new());
 
         public static void EnterLocation(GameLocation location)
         {
@@ -36,21 +35,16 @@ namespace MUMPs.Props
 
             birds.Value = new PerchingBirds(Game1.birdsSpriteSheet, 2, 16, 16, origin, spots.perch, spots.roost)
             {
-                roosting = (Game1.timeOfDay >= 1800)
+                roosting = Game1.timeOfDay >= 1800
             };
             for(int i = 0; i < count; i++)
             {
                 birds.Value.AddBird((Game1.currentSeason == "fall") ? 10 : Game1.random.Next(0, 4));
             }
         }
-        public static void StartDay()
-        {
-            spots.Value.Clear();
-        }
         public static void Cleanup()
         {
             birds.ResetAllScreens();
-            spots.ResetAllScreens();
         }
         public static void DrawAbove(SpriteBatch batch)
         {
@@ -66,16 +60,10 @@ namespace MUMPs.Props
         }
         public static (Point[] perch, Point[] roost) GetSpotsFor(GameLocation location)
         {
-
             if (location == null)
                 return (Array.Empty<Point>(), Array.Empty<Point>());
 
-            if (!spots.Value.TryGetValue(location, out var spot)){
-                spot = ScanForSpots(location.Map);
-                spots.Value.Add(location, spot);
-            }
-
-            return spot;
+            return ScanForSpots(location.Map);
         }
         public static (Point[] perch, Point[] roost) ScanForSpots(Map map)
         {
