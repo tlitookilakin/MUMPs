@@ -114,5 +114,9 @@ namespace MUMPs
                 b.Draw(Game1.staminaRect, new Rectangle(0, 0, Game1.viewport.Width, Game1.viewport.Height), Color.Black);
             }
         }
+        public static void DoLighting(object sender, float intensity)
+        {
+            Props.LightingLayer.Draw(intensity);
+        }
     }
 }

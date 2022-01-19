@@ -10,32 +10,29 @@ namespace MUMPs.Patches
     [HarmonyPatch(typeof(FarmerSprite),"checkForFootstep")]
     class SplashySteps
     {
-        internal static readonly CodeInstruction[] markers = {
-            new(OpCodes.Ldarg_0),
-            new(OpCodes.Ldfld, typeof(FarmerSprite).GetField("currentStep")),
-            new(OpCodes.Stloc_2)
-        };
-        internal static readonly CodeInstruction[] inject =
-        {
-            new(OpCodes.Ldarg_0),
-            new(OpCodes.Ldfld, typeof(FarmerSprite).GetField("owner", BindingFlags.NonPublic | BindingFlags.Instance)),
-            new(OpCodes.Ldarg_0),
-            new(OpCodes.Call, typeof(SplashySteps).GetMethod("shouldUseSplash")),
-            new(OpCodes.Stloc_2)
-        };
+        private static ILHelper patcher = setupPatcher();
+
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            foreach (var code in Utils.InjectAt(markers, instructions, "Splashy Steps", Inject, null))
-            {
+
+            foreach (var code in patcher.Run(instructions))
                 yield return code;
-            }
         }
-        public static IEnumerable<CodeInstruction> Inject()
+        private static ILHelper setupPatcher()
         {
-            foreach(var code in inject)
-            {
-                yield return code;
-            }
+            ILHelper helper = new("Splashy Steps");
+            helper.SkipTo(new CodeInstruction[]{
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldfld, typeof(FarmerSprite).GetField("currentStep")),
+                new(OpCodes.Stloc_2)
+            }).Add(new CodeInstruction[]{
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldfld, typeof(FarmerSprite).GetField("owner", BindingFlags.NonPublic | BindingFlags.Instance)),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Call, typeof(SplashySteps).GetMethod("shouldUseSplash")),
+                new(OpCodes.Stloc_2)
+            }).Finish();
+            return helper;
         }
         public static string shouldUseSplash(Farmer who, FarmerSprite sprite)
         {

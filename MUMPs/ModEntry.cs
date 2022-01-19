@@ -34,6 +34,7 @@ namespace MUMPs
             helper.Events.GameLoop.SaveLoaded += Events.EnterWorld;
             helper.Events.Display.RenderedHud += Events.DrawOverHud;
             helper.Events.Multiplayer.ModMessageReceived += Events.RecieveMessage;
+            Patches.Lighting.OnLighting += Events.DoLighting;
             harmony.PatchAll();
             RegisterActions();
         }

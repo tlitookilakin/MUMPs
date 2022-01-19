@@ -5,13 +5,14 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using xTile.Layers;
 
 namespace MUMPs
 {
-    class Utils
+    static class Utils
     {
         public static Point StringsToPoint(string x, string y)
         {
@@ -39,57 +40,17 @@ namespace MUMPs
         {
             return loc.getMapProperty(prop).Split(' ', StringSplitOptions.RemoveEmptyEntries);
         }
-        public static IEnumerable<CodeInstruction> InjectAt(
-            CodeInstruction[] Anchors, 
-            IEnumerable<CodeInstruction> instructions, 
-            string Name, 
-            Func<IEnumerable<CodeInstruction>> injection, 
-            List<LocalBuilder> boxes)
+        public static MethodInfo MethodNamed(this Type type, string methodName, Type[] param)
         {
-            ModEntry.monitor.Log("Now applying patch '" + Name + "'...", LogLevel.Debug);
-            int marker = 0;
-            foreach (var code in instructions)
-            {
-                if (marker > -1)
-                {
-                    if (marker >= Anchors.Length)
-                    {
-                        foreach (var inst in injection())
-                        {
-                            yield return inst;
-                            marker = -1;
-                        }
-                    }
-                    else
-                    {
-                        var s = Anchors[marker];
-                        if (code.opcode == s.opcode && (code.operand == s.operand || CompareOperands(code.operand, s.operand)))
-                        {
-                            marker++;
-                            if (code.operand is LocalBuilder b && boxes != null)
-                                boxes.Add(b);
-                        }
-                        else
-                        {
-                            boxes?.Clear();
-                            marker = 0;
-                        }
-                    }
-                }
-                yield return code;
-            }
-            if (marker != -1)
-                ModEntry.monitor.Log("Failed to apply patch '" + Name + "'; Marker instructions not found!", LogLevel.Error);
-            else
-                ModEntry.monitor.Log("Sucessfully applied patch '" + Name + "'.", LogLevel.Debug);
+            return AccessTools.Method(type, methodName, param);
         }
-        public static bool CompareOperands(object op1, object op2)
+        public static MethodInfo MethodNamed(this Type type, string MethodName)
         {
-            if (op1 is LocalBuilder oper1 && op2 is ValueTuple<int, Type> oper2)
-            {
-                return (oper2.Item1 < 0 || oper1.LocalIndex == oper2.Item1) && (oper2.Item2 == null || oper1.LocalType == oper2.Item2);
-            }
-            return false;
+            return AccessTools.Method(type, MethodName);
+        }
+        public static FieldInfo FieldNamed(this Type type, string fieldName)
+        {
+            return AccessTools.Field(type, fieldName);
         }
         public static void AddAction(string Name, bool isInspect, Action<Farmer, string> action)
         {
