@@ -136,6 +136,8 @@ namespace MUMPs
         {
             GameLocation temp = new(PathUtilities.NormalizeAssetName("Maps/"+path), "Temp");
             temp.map.LoadTileSheets(Game1.mapDisplayDevice);
+            if(path.Trim() == "EventVoid")
+                Events.drawVoid.Value = true; //anti-flicker
             Event e = Game1.currentLocation.currentEvent;
             Game1.currentLocation.cleanupBeforePlayerExit();
             Game1.currentLocation.currentEvent = null;

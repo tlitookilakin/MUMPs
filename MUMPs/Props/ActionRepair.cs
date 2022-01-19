@@ -126,14 +126,9 @@ namespace MUMPs.Props
         }
         public static void ReloadCurrentLocation(string path, Vector2 coords, string name)
         {
-            Events.drawVoid.Value = true;
             ModEntry.helper.Content.InvalidateCache(path);
             if(Game1.currentLocation.mapPath == path)
                 Utils.warpToTempMap("EventVoid", Game1.player);
-            Events.afterFadeQueue.Value.Add(() =>
-            {
-                Events.drawVoid.Value = false;
-            });
             Game1.warpFarmer(name, (int)coords.X, (int)coords.Y, false);
         }
         public static Response[] MakeResponses(string val)
