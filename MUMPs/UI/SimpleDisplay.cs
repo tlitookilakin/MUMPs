@@ -21,8 +21,8 @@ namespace MUMPs.UI
         public void align()
         {
             Point port = Game1.graphics.GraphicsDevice.Viewport.Bounds.Size;
-            xPositionOnScreen = port.X / 2 - width / 2;
-            yPositionOnScreen = port.Y / 2 - height / 2;
+            xPositionOnScreen = (int)((port.X / 2 - width / 2) / Game1.options.uiScale);
+            yPositionOnScreen = (int)((port.Y / 2 - height / 2) / Game1.options.uiScale);
         }
         public virtual void resized() {}
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
