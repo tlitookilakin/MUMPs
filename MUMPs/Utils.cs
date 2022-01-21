@@ -132,6 +132,10 @@ namespace MUMPs
         {
             return new(x + Game1.viewport.X, y + Game1.viewport.Y);
         }
+        public static Point LocalToGlobal(Point pos)
+        {
+            return LocalToGlobal(pos.X, pos.Y);
+        }
         public static void warpToTempMap(string path, Farmer who)
         {
             GameLocation temp = new(PathUtilities.NormalizeAssetName("Maps/"+path), "Temp");

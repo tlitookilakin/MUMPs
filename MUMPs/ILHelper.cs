@@ -11,7 +11,7 @@ namespace MUMPs
         public readonly List<LocalBuilder> boxes;
         public readonly string name;
 
-        private enum ActionType {None, SkipTo, Add, AddF, Remove, RemoveTo, Finish, Stop};
+        private enum ActionType {None, SkipTo, Add, AddF, Remove, RemoveTo, RemoveAt, RemoveL, Finish, Stop};
 
         private readonly List<(ActionType action, object arg)> actionQueue = new();
         private IEnumerable<CodeInstruction> instructions;
@@ -53,9 +53,19 @@ namespace MUMPs
             actionQueue.Add((ActionType.Remove, count));
             return this;
         }
+        public ILHelper Remove(IList<CodeInstruction> markers)
+        {
+            actionQueue.Add((ActionType.RemoveL, markers));
+            return this;
+        }
         public ILHelper RemoveTo(IList<CodeInstruction> markers)
         {
             actionQueue.Add((ActionType.RemoveTo, markers));
+            return this;
+        }
+        public ILHelper RemoveAt(IList<CodeInstruction> markers)
+        {
+            actionQueue.Add((ActionType.RemoveAt, markers));
             return this;
         }
         public ILHelper Finish()
@@ -115,6 +125,14 @@ namespace MUMPs
                         foreach (var code in removeTo((IList<CodeInstruction>)item.arg))
                             yield return code;
                         break;
+                    case ActionType.RemoveAt:
+                        foreach (var code in removeAt((IList<CodeInstruction>)item.arg))
+                            yield return code;
+                        break;
+                    case ActionType.RemoveL:
+                        foreach (var code in removeChunk((IList<CodeInstruction>)item.arg))
+                            yield return code;
+                        break;
                     case ActionType.Finish:
                         while (cursor.MoveNext())
                             yield return cursor.Current;
@@ -170,12 +188,12 @@ namespace MUMPs
                 {
                     marker++;
                     saved.Add(code);
-                    if (code.operand is LocalBuilder b && boxes != null)
+                    if (code.operand is LocalBuilder b)
                         boxes.Add(b);
                 }
                 else
                 {
-                    boxes?.Clear();
+                    boxes.Clear();
                     saved.Clear();
                     marker = 0;
                 }
@@ -185,6 +203,64 @@ namespace MUMPs
                     {
                         yield return inst;
                     }
+                    ModEntry.monitor.Log("Found markers for '" + name + "':" + actionIndex.ToString(), LogLevel.Debug);
+                    yield break;
+                }
+            }
+            ModEntry.monitor.Log("Failed to apply patch component '" + name + "':" + actionIndex.ToString() + " ; Marker instructions not found!", LogLevel.Error);
+        }
+        private IEnumerable<CodeInstruction> removeAt(IList<CodeInstruction> Anchors)
+        {
+            int marker = 0;
+            while (cursor.MoveNext())
+            {
+                var s = Anchors[marker];
+                var code = cursor.Current;
+                if (s == null || code.opcode == s.opcode && (code.operand == s.operand || CompareOperands(code.operand, s.operand)))
+                {
+                    marker++;
+                    if (code.operand is LocalBuilder b)
+                        boxes.Add(b);
+                }
+                else
+                {
+                    boxes.Clear();
+                    marker = 0;
+                }
+                if (marker >= Anchors.Count)
+                {
+                    ModEntry.monitor.Log("Found markers for '" + name + "':" + actionIndex.ToString(), LogLevel.Debug);
+                    yield break;
+                }
+            }
+            ModEntry.monitor.Log("Failed to apply patch component '" + name + "':" + actionIndex.ToString() + " ; Marker instructions not found!", LogLevel.Error);
+        }
+        private IEnumerable<CodeInstruction> removeChunk(IList<CodeInstruction> Anchors)
+        {
+            int marker = 0;
+            List<CodeInstruction> saved = new();
+            while (cursor.MoveNext())
+            {
+                var s = Anchors[marker];
+                var code = cursor.Current;
+                if (s == null || code.opcode == s.opcode && (code.operand == s.operand || CompareOperands(code.operand, s.operand)))
+                {
+                    marker++;
+                    saved.Add(code);
+                    if (code.operand is LocalBuilder b)
+                        boxes.Add(b);
+                }
+                else
+                {
+                    boxes.Clear();
+                    marker = 0;
+                    foreach (var inst in saved)
+                        yield return inst;
+                    saved.Clear();
+                    yield return code;
+                }
+                if (marker >= Anchors.Count)
+                {
                     ModEntry.monitor.Log("Found markers for '" + name + "':" + actionIndex.ToString(), LogLevel.Debug);
                     yield break;
                 }
