@@ -33,7 +33,7 @@ namespace MUMPs.Props
             {
                 cans.Add(id);
                 Point mouse = Utils.LocalToGlobal(Game1.getMousePositionRaw());
-                DoGarbage(who.currentLocation, new(mouse.X / 64, mouse.Y / 64), Game1.viewport, who);
+                //DoGarbage(who.currentLocation, new(mouse.X / 64, mouse.Y / 64), Game1.viewport, who);
             }
         }
 
@@ -55,14 +55,15 @@ namespace MUMPs.Props
                 new(OpCodes.Ldc_I4_0),
                 new(OpCodes.Stsfld, typeof(Game1).FieldNamed("haltAfterCheck")),
                 new(OpCodes.Ldc_I4_1)
-            }).Stop();
+            });
             return helper;
         }
 
+        /* not working ATM
         [HarmonyPatch(typeof(Town),"checkAction")]
-        [HarmonyReversePatch]
+        [HarmonyReversePatch] */
         public static void DoGarbage(GameLocation instance, xTile.Dimensions.Location tileLocation, xTile.Dimensions.Rectangle viewport, Farmer who)
-        {/* broken for now, fix later
+        {
             //reverse patch transpiler
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
@@ -71,7 +72,7 @@ namespace MUMPs.Props
             }
 
             // make the compiler happy
-            _ = Transpiler(null);*/
+            _ = Transpiler(null);
         }
 
         [HarmonyPatch(typeof(Town),"checkAction")]

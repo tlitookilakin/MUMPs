@@ -11,7 +11,7 @@ namespace MUMPs
         public readonly List<LocalBuilder> boxes;
         public readonly string name;
 
-        private enum ActionType {None, SkipTo, Add, AddF, Remove, RemoveTo, RemoveAt, RemoveL, Finish, Stop};
+        private enum ActionType {None, SkipTo, Add, AddF, Remove, RemoveTo, RemoveAt, RemoveL, Finish};
 
         private readonly List<(ActionType action, object arg)> actionQueue = new();
         private IEnumerable<CodeInstruction> instructions;
@@ -73,11 +73,6 @@ namespace MUMPs
             actionQueue.Add((ActionType.Finish, null));
             return this;
         }
-        public ILHelper Stop()
-        {
-            actionQueue.Add((ActionType.Stop, null));
-            return this;
-        }
         public void Reset()
         {
             actionQueue.Clear();
@@ -137,9 +132,6 @@ namespace MUMPs
                         while (cursor.MoveNext())
                             yield return cursor.Current;
                         break;
-                    case ActionType.Stop:
-                        while (cursor.MoveNext()){ }
-                        break;
                 }
                 if (hasErrored)
                     break;
@@ -174,6 +166,7 @@ namespace MUMPs
                     yield break;
                 }
             }
+            hasErrored = true;
             ModEntry.monitor.Log("Failed to apply patch component '" + name + "':"+actionIndex.ToString()+" ; Marker instructions not found!", LogLevel.Error);                
         }
         private IEnumerable<CodeInstruction> removeTo(IList<CodeInstruction> Anchors)
@@ -207,6 +200,7 @@ namespace MUMPs
                     yield break;
                 }
             }
+            hasErrored = true;
             ModEntry.monitor.Log("Failed to apply patch component '" + name + "':" + actionIndex.ToString() + " ; Marker instructions not found!", LogLevel.Error);
         }
         private IEnumerable<CodeInstruction> removeAt(IList<CodeInstruction> Anchors)
@@ -233,6 +227,7 @@ namespace MUMPs
                     yield break;
                 }
             }
+            hasErrored = true;
             ModEntry.monitor.Log("Failed to apply patch component '" + name + "':" + actionIndex.ToString() + " ; Marker instructions not found!", LogLevel.Error);
         }
         private IEnumerable<CodeInstruction> removeChunk(IList<CodeInstruction> Anchors)
@@ -265,6 +260,7 @@ namespace MUMPs
                     yield break;
                 }
             }
+            hasErrored = true;
             ModEntry.monitor.Log("Failed to apply patch component '" + name + "':" + actionIndex.ToString() + " ; Marker instructions not found!", LogLevel.Error);
         }
         public Label? FindAddress(CodeInstruction[] Anchors)
