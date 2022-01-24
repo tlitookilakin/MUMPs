@@ -38,7 +38,7 @@ namespace MUMPs.Props
 
         [HarmonyPatch(typeof(Game1), "UpdateViewPort")]
         [HarmonyPrefix]
-        public static bool UpdateCamera(bool overrideFreeze, Point centerPoint)
+        public static bool UpdateCamera(bool overrideFreeze, ref Point centerPoint)
         {
             if (Game1.currentLocation.forceViewportPlayerFollow || (!overrideFreeze && Game1.viewportFreeze))
                 return true;
