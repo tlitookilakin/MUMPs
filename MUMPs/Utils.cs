@@ -14,6 +14,11 @@ namespace MUMPs
 {
     static class Utils
     {
+        internal static IReflectedField<Multiplayer> mpField = null;
+        internal static void Setup()
+        {
+            mpField = ModEntry.helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer");
+        }
         public static Point StringsToPoint(string x, string y)
         {
             try
@@ -52,7 +57,7 @@ namespace MUMPs
         {
             return AccessTools.Field(type, fieldName);
         }
-        public static void AddAction(string Name, bool isInspect, Action<Farmer, string> action)
+        public static void AddAction(string Name, bool isInspect, Action<Farmer, string, Point> action)
         {
             Patches.Action.actions.Add(Name, action);
             if (isInspect)
@@ -135,6 +140,10 @@ namespace MUMPs
         public static Point LocalToGlobal(Point pos)
         {
             return LocalToGlobal(pos.X, pos.Y);
+        }
+        public static Multiplayer GetMultiplayer()
+        {
+            return mpField.GetValue();
         }
         public static void warpToTempMap(string path, Farmer who)
         {

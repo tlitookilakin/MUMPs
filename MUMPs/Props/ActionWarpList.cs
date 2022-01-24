@@ -6,7 +6,7 @@ namespace MUMPs.Props
 {
     class ActionWarpList
     {
-        public static void display(Farmer who, string action)
+        public static void display(Farmer who, string action, Point _)
         {
             var split = Utils.SafeSplitList(action, ' ');
             List<Response> opts = new();

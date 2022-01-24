@@ -27,6 +27,11 @@ namespace MUMPs
                     }
                 }
             }
+            Props.ActionGarbage.Cleanup();
+        }
+        public static void Setup()
+        {
+            Utils.Setup();
         }
         public static void EnterWorld(object sender, SaveLoadedEventArgs ev)
         {
@@ -73,6 +78,7 @@ namespace MUMPs
             Props.Horizon.Cleanup();
             Props.CamRegion.Cleanup();
             Props.ActionRepair.Cleanup();
+            Props.ActionGarbage.Cleanup();
         }
         public static void RunFade()
         {

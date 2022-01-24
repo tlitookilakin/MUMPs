@@ -42,7 +42,7 @@ namespace MUMPs.Props
         {
             currentSet.ResetAllScreens();
         }
-        public static void DoAction(Farmer who, string action)
+        public static void DoAction(Farmer who, string action, Point _)
         {
             if (who.currentLocation.name == "Temp")
                 return;

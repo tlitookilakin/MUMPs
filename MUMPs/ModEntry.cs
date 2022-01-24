@@ -35,6 +35,7 @@ namespace MUMPs
             helper.Events.Display.RenderedHud += Events.DrawOverHud;
             helper.Events.Multiplayer.ModMessageReceived += Events.RecieveMessage;
             Patches.Lighting.OnLighting += Events.DoLighting;
+            Events.Setup();
             harmony.PatchAll();
             RegisterActions();
         }
@@ -43,6 +44,8 @@ namespace MUMPs
             Utils.AddAction("Image", true, Props.ActionImage.show);
             Utils.AddAction("Repair", false, Props.ActionRepair.DoAction);
             Utils.AddAction("WarpList", false, Props.ActionWarpList.display);
+            if (!helper.ModRegistry.IsLoaded("furyx639.GarbageDay"))
+                Utils.AddAction("Garbage", false, Props.ActionGarbage.HandleAction);
         }
 
         public bool CanLoad<T>(IAssetInfo asset)

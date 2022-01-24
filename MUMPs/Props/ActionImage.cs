@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -10,7 +11,7 @@ namespace MUMPs.Props
     class ActionImage
     {
         public static string DirPath = ModEntry.ContentDir + "MapImages" + PathUtilities.PreferredAssetSeparator;
-        public static void show(Farmer who, string action)
+        public static void show(Farmer who, string action, Point _)
         {
             try
             {

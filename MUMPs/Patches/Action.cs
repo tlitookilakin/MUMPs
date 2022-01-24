@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using System;
 using System.Collections.Generic;
@@ -11,12 +12,12 @@ namespace MUMPs.Patches
     [HarmonyPatch(typeof(GameLocation))]
     class Action
     {
-        public static readonly Dictionary<string, Action<Farmer, string>> actions = new();
+        public static readonly Dictionary<string, Action<Farmer, string, Point>> actions = new();
         public static readonly List<string> inspectActions = new();
 
         [HarmonyPatch("performAction")]
         [HarmonyPrefix]
-        public static bool performAction(string action, Farmer who, ref bool __result)
+        public static bool performAction(string action, Farmer who, ref bool __result, xTile.Dimensions.Location tileLocation)
         {
             if (action == null || !who.IsLocalPlayer)
                 return true;
@@ -38,7 +39,7 @@ namespace MUMPs.Patches
             }
 
             __result = true;
-            exec(who,sb.ToString());
+            exec(who,sb.ToString(), new(tileLocation.X, tileLocation.Y));
             return false;
         }
 
