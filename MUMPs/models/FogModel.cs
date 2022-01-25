@@ -1,61 +1,39 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
 using StardewValley;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MUMPs.models
 {
     class FogModel
     {
+        public static readonly Vector2 offset = new(32f, -32f);
         public float radius { get; set; } = 0f;
-        public float fade { get; set; } = 100f;
         public Color color { get; set; } = Color.Gray;
 
-        private VertexBuffer mesh = null;
-        private BasicEffect effect;
-
+        private Texture2D fogTex;
         public FogModel(){}
-        public FogModel(float Radius, float Fade, Color Color)
+        public FogModel(float Radius, Color Color)
         {
             radius = Radius;
-            fade = Fade;
             color = Color;
-            RegenerateMesh();
+            fogTex = ModEntry.helper.Content.Load<Texture2D>("Mods/Mumps/Fog", ContentSource.GameContent);
         }
-        public void RegenerateMesh()
+        public void Draw(SpriteBatch b)
         {
-            int iters = Math.Max(10, (int)((radius + fade) * MathF.Tau / 10) + 1);
-            float turn = MathF.Tau / (iters - 1);
-            var verts = new VertexPositionColor[iters * 2];
-            for(int i = 0; i < iters; i++)
-            {
-                verts[i] = new(new(MathF.Cos(i * turn) * radius, MathF.Sin(i * turn) * radius, 0), Color.Transparent);
-                verts[i + 1] = new(new(MathF.Cos(i * turn) * (radius + fade), MathF.Sin(i * turn) * (radius + fade), 0), color);
-            }
-            mesh = new(Game1.graphics.GraphicsDevice, typeof(VertexPositionColor), verts.Length, BufferUsage.WriteOnly);
-            effect = new(Game1.graphics.GraphicsDevice);
-            effect.Projection = Matrix.CreateOrthographicOffCenter(0, Game1.graphics.GraphicsDevice.Viewport.Width, Game1.graphics.GraphicsDevice.Viewport.Height, 0, 0, 1);
-            mesh.SetData(verts);
-        }
-        public void Draw(Vector2 pos)
-        {
-            Game1.spriteBatch.End();
-            /*
-            pos = Game1.GlobalToLocal(pos);
-            effect.World = Matrix.CreateTranslation(pos.X, pos.Y, 0);
-            effect.CurrentTechnique.Passes[0].Apply();
-            Game1.graphics.GraphicsDevice.SetVertexBuffer(mesh);
-            Game1.graphics.GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleStrip, 0, mesh.VertexCount); 
-            */
+            var pos = Game1.GlobalToLocal(Game1.player.position) + offset;
             var port = Game1.viewport;
-            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-            Game1.spriteBatch.Draw(Game1.staminaRect, new Rectangle(0, 0, port.Width, port.Height), color);
-            Game1.spriteBatch.End();
-            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+            Rectangle rect = new((pos.X - radius).ToInt(), (pos.Y - radius).ToInt(), (2f * radius).ToInt(), (2f * radius).ToInt());
+            if (pos.Y - radius > 0) // top
+                b.Draw(Game1.staminaRect, new Rectangle(0, 0, port.Width, rect.Y), color);
+            if (pos.Y + radius < port.Height) // bottom
+                b.Draw(Game1.staminaRect, new Rectangle(0, rect.Bottom, port.Width, port.Height - rect.Bottom), color);
+            if (pos.X - radius > 0) // left
+                b.Draw(Game1.staminaRect, new Rectangle(0, rect.Y, rect.X, rect.Height), color);
+            if (pos.X + radius < port.Width) // right
+                b.Draw(Game1.staminaRect, new Rectangle(rect.Right, rect.Y, port.Width - rect.Right, rect.Height), color);
+            b.Draw(fogTex, rect, color);
         }
     }
 }

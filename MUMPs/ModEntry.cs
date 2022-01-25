@@ -50,13 +50,16 @@ namespace MUMPs
 
         public bool CanLoad<T>(IAssetInfo asset)
         {
-            return asset.AssetNameEquals("Maps/EventVoid");
+            return asset.AssetNameEquals("Maps/EventVoid") || 
+                   asset.AssetNameEquals("Mods/Mumps/Fog");
         }
 
         public T Load<T>(IAssetInfo asset)
         {
             if (asset.AssetNameEquals("Maps/EventVoid"))
                 return helper.Content.Load<T>("assets/eventvoid.tbin");
+            else if (asset.AssetNameEquals("Mods/Mumps/Fog"))
+                return helper.Content.Load<T>("assets/fog.png");
             return (T)asset;
         }
     }

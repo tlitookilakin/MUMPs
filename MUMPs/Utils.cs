@@ -19,6 +19,10 @@ namespace MUMPs
         {
             mpField = ModEntry.helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer");
         }
+        public static int ToInt(this float f)
+        {
+            return (int)MathF.Round(f);
+        }
         public static bool TryParseColor(string s, out Color color)
         {
             color = Color.White;

@@ -44,7 +44,7 @@ namespace MUMPs
             Props.ActionRepair.Draw(ev.SpriteBatch);
             Props.Horizon.DrawAfter(ev.SpriteBatch);
             Props.Tooltip.Draw(ev.SpriteBatch);
-            Props.Fog.Draw();
+            Props.Fog.Draw(ev.SpriteBatch);
         }
         public static void DrawOverHud(object sender, RenderedHudEventArgs ev)
         {

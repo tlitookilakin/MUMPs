@@ -1,11 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MUMPs.Props
 {
@@ -21,18 +18,19 @@ namespace MUMPs.Props
             if (prop == null)
                 return;
 
+            ModEntry.monitor.Log(prop);
             string[] data = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if(data.Length >= 3 && float.TryParse(data[0], out float radius) && float.TryParse(data[1], out float fade) && Utils.TryParseColor(data[2], out Color col))
+            if(data.Length >= 2 && float.TryParse(data[0], out float radius) && Utils.TryParseColor(data[1], out Color col))
             {
-                if (data.Length >= 4)
-                    if (float.TryParse(data[3], out float alpha))
+                if (data.Length >= 3)
+                    if (float.TryParse(data[2], out float alpha))
                         col *= alpha;
-                fog.Value = new(radius, fade, col);
+                fog.Value = new(radius, col);
             }
         }
-        public static void Draw()
+        public static void Draw(SpriteBatch b)
         {
-            fog.Value?.Draw(Game1.player.position);
+            fog.Value?.Draw(b);
         }
     }
 }
