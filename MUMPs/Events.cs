@@ -44,6 +44,7 @@ namespace MUMPs
             Props.ActionRepair.Draw(ev.SpriteBatch);
             Props.Horizon.DrawAfter(ev.SpriteBatch);
             Props.Tooltip.Draw(ev.SpriteBatch);
+            Props.Fog.Draw();
         }
         public static void DrawOverHud(object sender, RenderedHudEventArgs ev)
         {
@@ -70,6 +71,7 @@ namespace MUMPs
             Props.CamRegion.ChangeLocation(location);
             Props.SpawnObject.ChangeLocation(location);
             Props.MusicRegion.ChangeLocation(location);
+            Props.Fog.ChangeLocation(location);
         }
         public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
         {

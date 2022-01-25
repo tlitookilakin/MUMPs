@@ -19,6 +19,47 @@ namespace MUMPs
         {
             mpField = ModEntry.helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer");
         }
+        public static bool TryParseColor(string s, out Color color)
+        {
+            color = Color.White;
+            if (s.Length == 0)
+            {
+                ModEntry.monitor.Log("Could not parse color from string: '" + s + "'.", LogLevel.Warn);
+                return false;
+            }
+            if (s[0] == '#')
+            {
+                if (s.Length <= 6)
+                {
+                    ModEntry.monitor.Log("Could not parse color from string: '" + s + "'.", LogLevel.Warn);
+                    return false;
+                }
+                int r = Convert.ToInt32(s.Substring(1, 2), 16);
+                int g = Convert.ToInt32(s.Substring(3, 2), 16);
+                int b = Convert.ToInt32(s.Substring(5, 2), 16);
+                if (s.Length > 8)
+                {
+                    int a = Convert.ToInt32(s.Substring(7, 2), 16);
+                    color = new(r, g, b, a);
+                    return true;
+                }
+                color =  new(r, g, b);
+                return true;
+            }
+            else
+            {
+                string[] vals = s.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                if (vals.Length > 2)
+                {
+                    color = (vals.Length > 3) ?
+                        new Color(int.Parse(vals[0]), int.Parse(vals[1]), int.Parse(vals[2]), int.Parse(vals[3])) :
+                        new Color(int.Parse(vals[0]), int.Parse(vals[1]), int.Parse(vals[2]));
+                    return true;
+                }
+                ModEntry.monitor.Log("Could not parse color from string: '" + s + "'.", LogLevel.Warn);
+                return false;
+            }
+        }
         public static Point StringsToPoint(string x, string y)
         {
             try
