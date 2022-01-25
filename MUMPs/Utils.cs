@@ -63,7 +63,7 @@ namespace MUMPs
             if (isInspect)
                 Patches.Action.inspectActions.Add(Name);
         }
-        public static IEnumerable<string> SafeSplit(string s, char delim)
+        public static IEnumerable<string> SafeSplit(this string s, char delim)
         {
             bool dquote = false;
             bool squote = false;
@@ -110,7 +110,7 @@ namespace MUMPs
             }
             yield return sb.ToString();
         }
-        public static List<string> SafeSplitList(string s, char delim)
+        public static List<string> SafeSplitList(this string s, char delim)
         {
             var list = new List<string>();
             foreach(string item in SafeSplit(s, delim))

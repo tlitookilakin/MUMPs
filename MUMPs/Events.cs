@@ -53,6 +53,7 @@ namespace MUMPs
         {
             RunFade();
             Props.Birds.Update(Game1.currentGameTime);
+            Props.MusicRegion.Update(Game1.player);
         }
         public static void ChangeLocation(object sender, WarpedEventArgs ev)
         {
@@ -68,6 +69,7 @@ namespace MUMPs
             Props.Butterflies.EnterLocation(location);
             Props.CamRegion.ChangeLocation(location);
             Props.SpawnObject.ChangeLocation(location);
+            Props.MusicRegion.ChangeLocation(location);
         }
         public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
         {
@@ -80,6 +82,7 @@ namespace MUMPs
             Props.CamRegion.Cleanup();
             Props.ActionRepair.Cleanup();
             Props.ActionGarbage.Cleanup();
+            Props.MusicRegion.Cleanup();
         }
         public static void RunFade()
         {
