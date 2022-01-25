@@ -67,6 +67,7 @@ namespace MUMPs
             Props.ActionRepair.ChangeLocation(location);
             Props.Butterflies.EnterLocation(location);
             Props.CamRegion.ChangeLocation(location);
+            Props.SpawnObject.ChangeLocation(location);
         }
         public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
         {

@@ -121,6 +121,9 @@ namespace MUMPs
         }
         public static IEnumerable<(xTile.Tiles.Tile, int, int)> tilesInLayer(Layer layer)
         {
+            if (layer == null)
+                yield break;
+
             for(int x = 0; x < layer.LayerWidth; x++)
             {
                 for(int y = 0; y < layer.LayerHeight; y++)
@@ -132,6 +135,17 @@ namespace MUMPs
                     }
                 }
             }
+        }
+        public static IEnumerable<(xTile.Tiles.Tile, int, int)> tilesInLayer(xTile.Map map, string layerName)
+        {
+            foreach (var item in tilesInLayer(map.GetLayer(layerName)))
+                yield return item;
+        }
+        public static bool TileHasProperty(this xTile.Tiles.Tile tile, string name, out string prop)
+        {
+            bool ret = tile.Properties.TryGetValue(name, out var val) || tile.TileIndexProperties.TryGetValue(name, out val);
+            prop = val?.ToString();
+            return ret;
         }
         public static Point LocalToGlobal(int x, int y)
         {
