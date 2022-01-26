@@ -24,11 +24,12 @@ namespace MUMPs.Props
             string[] data = loc.getMapProperty("MusicRegions")?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if (data == null)
                 return;
+
             for(int i = 0; i + 4 < data.Length; i += 5)
             {
-                if(int.TryParse(data[i],out int x) && int.TryParse(data[i + 1], out int y) && int.TryParse(data[i + 2],out int w) && int.TryParse(data[i + 3], out int h))
+                if(data.StringsToRect(out Rectangle rect, i))
                 {
-                    regions[new(x, y, w, h)] = data[i + 4];
+                    regions[rect] = data[i + 4];
                 } else
                 {
                     ModEntry.monitor.Log("Invalid MusicRegions property value on the map for " + loc.Name, LogLevel.Warn);

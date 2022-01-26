@@ -17,10 +17,18 @@ namespace MUMPs.Props
             Point pos = ev.Player.getTileLocationPoint();
             for(int i = 0; i + 3 < warps.Length; i += 4)
             {
-                if(Utils.StringsToPoint(warps[i], warps[i + 1]) == pos){
-                    ev.Player.setTileLocation(Utils.StringsToVec2(warps[i + 2], warps[i + 3]));
-                    ModEntry.monitor.Log("Redirected player from [" + warps[i] + ", " + warps[i + 1] + "] to [" + warps[i + 2] + ", " + warps[i + 3] + "].", LogLevel.Trace);
-                    break;
+                if(warps.StringsToPoint(out Point point, i) && pos == point)
+                {
+                    if(warps.StringsToVec2(out Vector2 to, i + 2))
+                    {
+                        ev.Player.setTileLocation(to);
+                        ModEntry.monitor.Log("Redirected player from " + point.ToString() + " to " + to.ToString() + ".", LogLevel.Trace);
+                        return;
+                    } else
+                    {
+                        ModEntry.monitor.Log("Could not read MoveWarps property @ " + ev.NewLocation.Name + ", invalid format.");
+                        return;
+                    }
                 }
             }
         }

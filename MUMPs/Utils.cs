@@ -64,27 +64,62 @@ namespace MUMPs
                 return false;
             }
         }
-        public static Point StringsToPoint(string x, string y)
+        public static bool StringsToPoint(this string[] strings, out Point point, int offset = 0)
         {
-            try
+            if(offset + 1 >= strings.Length)
             {
-                return new Point(int.Parse(x), int.Parse(y));
-            } catch(FormatException)
-            {
-                ModEntry.monitor.Log("Bad property format: [" + x + ", " + y + "].", LogLevel.Warn);
-                return new Point(0, 0);
+                point = new();
+                return false;
             }
+            return StringsToPoint(strings[offset], strings[offset + 1], out point);
         }
-        public static Vector2 StringsToVec2(string x, string y)
+        public static bool StringsToPoint(string x, string y, out Point point)
         {
-            try
+            if(int.TryParse(x, out int xx) && int.TryParse(y, out int yy))
             {
-                return new Vector2(float.Parse(x), float.Parse(y));
-            } catch(FormatException e)
-            {
-                ModEntry.monitor.Log("Bad property format: [" + x + ", " + y + "].", LogLevel.Warn);
-                return new Vector2(0f, 0f);
+                point = new(xx, yy);
+                return true;
             }
+            point = new();
+            return false;
+        }
+        public static bool StringsToVec2(this string[] strings, out Vector2 vec, int offset = 0)
+        {
+            if(offset + 1 >= strings.Length)
+            {
+                vec = new();
+                return false;
+            }
+            return StringsToVec2(strings[offset], strings[offset + 1], out vec);
+        }
+        public static bool StringsToVec2(string x, string y, out Vector2 vec)
+        {
+            if(float.TryParse(x, out float xx) && float.TryParse(y, out float yy))
+            {
+                vec = new(xx, yy);
+                return true;
+            }
+            vec = new();
+            return false;
+        }
+        public static bool StringsToRect(this string[] strings, out Rectangle rect, int offset = 0)
+        {
+            if(offset + 3 >= strings.Length)
+            {
+                rect = new();
+                return false;
+            }
+            return StringsToRect(strings[offset], strings[offset + 1], strings[offset + 2], strings[offset + 3], out rect);
+        }
+        public static bool StringsToRect(string x, string y, string w, string h, out Rectangle rect)
+        {
+            if(int.TryParse(x, out int xx) && int.TryParse(y, out int yy) && int.TryParse(w, out int ww) && int.TryParse(h, out int hh))
+            {
+                rect = new(xx, yy, ww, hh);
+                return true;
+            }
+            rect = new();
+            return false;
         }
         public static string[] MapPropertyArray(GameLocation loc, string prop)
         {

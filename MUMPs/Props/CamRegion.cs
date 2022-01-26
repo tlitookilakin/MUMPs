@@ -22,13 +22,13 @@ namespace MUMPs.Props
 
             for(int i = 0; i + 3 < split.Length; i += 4)
             {
-                if(!int.TryParse(split[i], out int x) || !int.TryParse(split[i + 1], out int y) || !int.TryParse(split[i + 2], out int w) || !int.TryParse(split[i + 3], out int h))
+                if(!split.StringsToRect(out Rectangle rect, i))
                 {
                     ModEntry.monitor.Log("Failed to parse CamRegion map property @ " + loc.Name + ": could not convert to number.", LogLevel.Warn);
                     regions.Value.Clear();
                     return;
                 }
-                regions.Value.Add(new(x * 64, y * 64, w * 64, h * 64));
+                regions.Value.Add(rect);
             }
         }
         public static void Cleanup()
@@ -43,9 +43,10 @@ namespace MUMPs.Props
             if (Game1.currentLocation.forceViewportPlayerFollow || (!overrideFreeze && Game1.viewportFreeze))
                 return true;
 
+            Point tileCenter = new(centerPoint.X / 64, centerPoint.Y / 64);
             foreach(var region in regions.Value)
             {
-                if (region.Contains(centerPoint))
+                if (region.Contains(tileCenter))
                 {
                     centerPoint.X = (Game1.viewport.Width >= region.Width) ? region.X + region.Width / 2 :
                         Math.Clamp(centerPoint.X, region.X + Game1.viewport.Width / 2, region.X + region.Width - Game1.viewport.Width / 2);
