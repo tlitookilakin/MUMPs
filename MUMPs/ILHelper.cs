@@ -83,6 +83,7 @@ namespace MUMPs
             ModEntry.monitor.Log("Now applying patch '" + name + "'...", LogLevel.Debug);
             instructions = Instructions;
             cursor = instructions.GetEnumerator();
+            cursor.Reset();
             actionIndex = 0;
             hasErrored = false;
             foreach(var item in actionQueue)
@@ -133,12 +134,15 @@ namespace MUMPs
                             yield return cursor.Current;
                         break;
                 }
+
                 if (hasErrored)
                     break;
                 actionIndex++;
             }
             if (hasErrored)
                 ModEntry.monitor.Log("Failed to correctly apply patch '" + name + "'! May cause problems!", LogLevel.Error);
+            else
+                ModEntry.monitor.Log("Successfully applied patch '" + name + "'.", LogLevel.Debug);
         }
         private IEnumerable<CodeInstruction> skipTo(IList<CodeInstruction> Anchors)
         {
