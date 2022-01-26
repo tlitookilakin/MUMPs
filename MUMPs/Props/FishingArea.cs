@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Buildings;
@@ -35,6 +36,7 @@ namespace MUMPs.Props
                     return;
                 }
             }
+            ModEntry.monitor.Log("Fishing: Found " + idRegions.Value.Count.ToString() + " ID regions and " + locRegions.Value.Count.ToString() + " Location regions.", LogLevel.Trace);
         }
 
         public static void Cleanup()
@@ -45,16 +47,18 @@ namespace MUMPs.Props
 
         [HarmonyPatch(typeof(GameLocation), "getFish")]
         [HarmonyPrefix]
-        public static void SwapFishingPool(ref Vector2 bobberTile, ref string location)
+        public static void SwapFishingPool(ref Vector2 bobberTile, ref string locationName)
         {
-            if (location != null)
+            if (locationName != null)
                 return;
+
+            ModEntry.monitor.Log("derp");
 
             foreach((var region, string loc) in locRegions.Value)
             {
                 if (region.Contains(bobberTile))
                 {
-                    location = loc;
+                    locationName = loc;
                     return;
                 }
             }
@@ -62,7 +66,7 @@ namespace MUMPs.Props
 
         [HarmonyPatch(typeof(Farm), "getFish")]
         [HarmonyPrefix]
-        public static bool FarmSwapFishingPool(Farm __instance, Object __result, ref Vector2 bobberTile, ref string location)
+        public static bool FarmSwapFishingPool(Farm __instance, ref Object __result, ref Vector2 bobberTile, ref string location)
         {
             if (location != null)
                 return false;

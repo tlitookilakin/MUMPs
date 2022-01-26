@@ -18,7 +18,6 @@ namespace MUMPs.Props
             if (prop == null)
                 return;
 
-            ModEntry.monitor.Log(prop);
             string[] data = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if(data.Length >= 2 && float.TryParse(data[0], out float radius) && Utils.TryParseColor(data[1], out Color col))
             {

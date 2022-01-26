@@ -73,6 +73,7 @@ namespace MUMPs
             Props.MusicRegion.ChangeLocation(location);
             Props.Fog.ChangeLocation(location);
             Props.OverrideLighting.ChangeLocation(location);
+            Props.FishingArea.ChangeLocation(location);
         }
         public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
         {
@@ -87,6 +88,7 @@ namespace MUMPs
             Props.ActionGarbage.Cleanup();
             Props.MusicRegion.Cleanup();
             Props.OverrideLighting.Cleanup();
+            Props.FishingArea.Cleanup();
         }
         public static void RunFade()
         {
