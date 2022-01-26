@@ -11,7 +11,7 @@ namespace MUMPs.Props
         [HarmonyPrefix]
         public static bool GetFishingLocationPatch(ref Vector2 tile, GameLocation __instance, ref int __result)
         {
-            string[] data = Utils.MapPropertyArray(__instance, "FishingAreas");
+            string[] data = Utils.MapPropertyArray(__instance, "FishingRegions");
             for(int i = 0; i + 4 < data.Length; i += 5)
             {
                 if( !int.TryParse(data[i], out int ind))

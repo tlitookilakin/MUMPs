@@ -16,8 +16,6 @@ namespace MUMPs.Props
                 return;
 
             regions.Clear();
-            if (lastCue != "")
-                Game1.stopMusicTrack(Game1.MusicContext.SubLocation);
             lastCue = "";
             UpdateRegions(loc);
         }
