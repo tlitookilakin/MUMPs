@@ -7,6 +7,7 @@ using StardewValley;
 using Microsoft.Xna.Framework.Graphics;
 using HarmonyLib;
 using StardewModdingAPI.Utilities;
+using Microsoft.Xna.Framework;
 
 namespace MUMPs.Props
 {
@@ -16,27 +17,34 @@ namespace MUMPs.Props
         private static readonly Dictionary<string, HorizonModel> Templates = new(StringComparer.OrdinalIgnoreCase);
         private static readonly PerScreen<IDrawableWorldLayer> currentHorizon = new();
         private static readonly PerScreen<IDrawableWorldLayer> currentForeground = new();
-        public static IDrawableWorldLayer getTemplate(string name)
+        public static IDrawableWorldLayer getTemplate(string prop)
         {
-            if (name.Length == 0)
+            string[] props = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            if (props.Length == 0)
                 return null;
-            if(name.ToLower() == "summit")
+
+            if(props[0].ToLowerInvariant() == "summit")
             {
                 return new SummitHorizon();
             }
-            if(!Templates.TryGetValue(name, out HorizonModel ret))
+            if(!Templates.TryGetValue(props[0], out HorizonModel ret))
             {
                 try
                 {
-                    ret = ModEntry.helper.Content.Load<HorizonModel>("Data/Mumps/Backgrounds/" + name);
+                    ret = ModEntry.helper.Content.Load<HorizonModel>("Mods/Mumps/Backgrounds/" + props[0]);
                 }
                 catch (ContentLoadException e)
                 {
-                    ModEntry.monitor.Log("Could not find background template '" + name + "'.\nReason: "+e.Message, LogLevel.Warn);
+                    ModEntry.monitor.Log("Could not find background template '" + props[0] + "'.\nReason: "+e.Message, LogLevel.Warn);
                     return null;
                 }
-                Templates.Add(name, ret);
+                Templates.Add(props[0], ret);
             }
+            if (props.StringsToVec2(out Vector2 vec))
+                ret.offset = vec;
+            else
+                ret.offset = Vector2.Zero;
             return ret;
         }
         public static void ChangeLocation(GameLocation loc)
@@ -45,8 +53,8 @@ namespace MUMPs.Props
             currentForeground.Value = null;
             if(loc == null)
                 return;
-            currentHorizon.Value = getTemplate(loc.getMapProperty("Horizon").Trim());
-            currentForeground.Value = getTemplate(loc.getMapProperty("Foreground").Trim());
+            currentHorizon.Value = getTemplate(loc.getMapProperty("Background"));
+            currentForeground.Value = getTemplate(loc.getMapProperty("Foreground"));
         }
         [HarmonyPatch(typeof(GameLocation), "drawBackground")]
         [HarmonyPrefix]

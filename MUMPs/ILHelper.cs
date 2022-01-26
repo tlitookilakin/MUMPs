@@ -83,7 +83,6 @@ namespace MUMPs
             ModEntry.monitor.Log("Now applying patch '" + name + "'...", LogLevel.Debug);
             instructions = Instructions;
             cursor = instructions.GetEnumerator();
-            cursor.Reset();
             actionIndex = 0;
             hasErrored = false;
             foreach(var item in actionQueue)

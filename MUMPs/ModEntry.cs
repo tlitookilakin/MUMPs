@@ -4,6 +4,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MUMPs
 {
@@ -51,7 +52,8 @@ namespace MUMPs
         public bool CanLoad<T>(IAssetInfo asset)
         {
             return asset.AssetNameEquals("Maps/EventVoid") || 
-                   asset.AssetNameEquals("Mods/Mumps/Fog");
+                   asset.AssetNameEquals("Mods/Mumps/Fog") ||
+                   asset.AssetNameEquals("Mods/Mumps/Backgrounds/Empty");
         }
 
         public T Load<T>(IAssetInfo asset)
@@ -60,6 +62,8 @@ namespace MUMPs
                 return helper.Content.Load<T>("assets/eventvoid.tbin");
             else if (asset.AssetNameEquals("Mods/Mumps/Fog"))
                 return helper.Content.Load<T>("assets/fog.png");
+            else if (asset.AssetName.StartsWith(PathUtilities.NormalizeAssetName("Mods/Mumps/Backgrounds")))
+                return helper.Content.Load<T>("assets/backgrounds/" + asset.AssetName.Split(PathUtilities.PreferredAssetSeparator).Last() + ".json");
             return (T)asset;
         }
     }

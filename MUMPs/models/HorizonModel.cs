@@ -10,6 +10,8 @@ namespace MUMPs.models
     {
         public List<HorizonLayer> Layers { set; get; } = new();
         public bool DrawSky { set; get; } = true;
+		public Vector2 offset = Vector2.Zero;
+
 		private Color c = Color.White;
         public void Draw(SpriteBatch b, bool isForeground)
         {

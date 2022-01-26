@@ -74,7 +74,7 @@ namespace MUMPs.Props
                     if (b is FishPond && b.isTileFishable(bobberTile))
                     {
                         __result = (b as FishPond).CatchFish();
-                        return true;
+                        return false;
                     }
                 }
             }
@@ -83,11 +83,11 @@ namespace MUMPs.Props
             
             if (location != null)
             {
+                ModEntry.monitor.Log("found region '" + location + "'.");
                 __result = FarmBaseGetFish(__instance, millisecondsAfterNibble, bait, waterDepth, who, baitPotency, bobberTile, location);
-                return true;
+                return false;
             }
-
-            return false;
+            return true;
         }
 
         [HarmonyReversePatch]
@@ -120,10 +120,10 @@ namespace MUMPs.Props
                 if (region.Contains(tile))
                 {
                     __result = id;
-                    return true;
+                    return false;
                 }
             }
-            return false;
+            return true;
         }
     }
 }
