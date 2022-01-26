@@ -80,7 +80,7 @@ namespace MUMPs.Props
             }
 
             location = SwapPool(bobberTile, location);
-
+            
             if (location != null)
             {
                 __result = FarmBaseGetFish(__instance, millisecondsAfterNibble, bait, waterDepth, who, baitPotency, bobberTile, location);
