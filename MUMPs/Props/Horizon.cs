@@ -32,7 +32,7 @@ namespace MUMPs.Props
             {
                 try
                 {
-                    ret = ModEntry.helper.Content.Load<HorizonModel>("Mods/Mumps/Backgrounds/" + props[0]);
+                    ret = ModEntry.helper.Content.Load<HorizonModel>("Mods/Mumps/Backgrounds/" + props[0], ContentSource.GameContent);
                 }
                 catch (ContentLoadException e)
                 {
