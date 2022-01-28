@@ -26,7 +26,7 @@ namespace MUMPs.Props
                         return;
                     } else
                     {
-                        ModEntry.monitor.Log("Could not read MoveWarps property @ " + ev.NewLocation.Name + ", invalid format.");
+                        ModEntry.monitor.Log("Could not read MoveWarps property @ " + ev.NewLocation.Name + ", invalid format.", LogLevel.Warn);
                         return;
                     }
                 }

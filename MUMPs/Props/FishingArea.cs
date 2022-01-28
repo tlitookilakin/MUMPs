@@ -40,7 +40,7 @@ namespace MUMPs.Props
                         locRegions.Value[rect] = data[i + 4];
                 } else
                 {
-                    ModEntry.monitor.Log("Invalid region specified in FishingRegions @ " + loc.Name + ".");
+                    ModEntry.monitor.Log("Invalid region specified in FishingRegions @ " + loc.Name + ".", LogLevel.Warn);
                     idRegions.Value.Clear();
                     locRegions.Value.Clear();
                     return;
@@ -83,7 +83,6 @@ namespace MUMPs.Props
             
             if (location != null)
             {
-                ModEntry.monitor.Log("found region '" + location + "'.");
                 __result = FarmBaseGetFish(__instance, millisecondsAfterNibble, bait, waterDepth, who, baitPotency, bobberTile, location);
                 return false;
             }
