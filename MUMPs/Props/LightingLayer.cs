@@ -20,7 +20,14 @@ namespace MUMPs.Props
         private static Dictionary<TileSheet, Texture2D> sheets;
         public static void Reload()
         {
-            sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("SXnaDisplayDevice").GetField("m_tileSheetTextures", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Game1.mapDisplayDevice);
+            if (ModEntry.helper.ModRegistry.IsLoaded("Platonymous.Toolkit"))
+                sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("PyDisplayDevice").
+                    GetField("m_tileSheetTextures2", BindingFlags.NonPublic | BindingFlags.Instance).
+                    GetValue(Game1.mapDisplayDevice);
+            else
+                sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("SXnaDisplayDevice").
+                    GetField("m_tileSheetTextures", BindingFlags.NonPublic | BindingFlags.Instance).
+                    GetValue(Game1.mapDisplayDevice);
         }
         public static void Draw(float intensity)
         {
