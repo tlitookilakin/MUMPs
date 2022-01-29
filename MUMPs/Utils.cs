@@ -73,6 +73,14 @@ namespace MUMPs
             }
             return StringsToPoint(strings[offset], strings[offset + 1], out point);
         }
+        public static IList<T> TransformItems<T>(this IList<T> list, Func<T, T> transformer)
+        {
+            for(int i = 0; i < list.Count; i++)
+            {
+                list[i] = transformer(list[i]);
+            }
+            return list;
+        }
         public static bool StringsToPoint(string x, string y, out Point point)
         {
             if(int.TryParse(x, out int xx) && int.TryParse(y, out int yy))

@@ -16,7 +16,7 @@ namespace MUMPs.Props
             {"bigcraftable",AddBigCraftable},
             {"fruittree",AddFruitTree}
         };
-        private static HashSet<int> TVIDs = new() {
+        internal static HashSet<int> TVIDs = new() {
             1466, 1468, 1680, 2326
         };
         private static Dictionary<int, string> furnitureData;
