@@ -26,14 +26,14 @@ namespace MUMPs.Patches
         public static Furniture Replace(Furniture orig)
         {
             if (Props.SpawnObject.TVIDs.Contains(orig.parentSheetIndex))
-                return new TV(orig.parentSheetIndex, orig.tileLocation);
+                return (orig is TV) ? orig : new TV(orig.parentSheetIndex, orig.tileLocation);
             else if (furnitureData.TryGetValue(orig.parentSheetIndex, out string data))
                 switch (data.Split('/')[1].Split(' ')[0])
                 {
                     case "bed":
-                        return new BedFurniture(orig.parentSheetIndex, orig.tileLocation, orig.currentRotation);
+                        return (orig is BedFurniture) ? orig : new BedFurniture(orig.parentSheetIndex, orig.tileLocation, orig.currentRotation);
                     case "fishtank":
-                        return new FishTankFurniture(orig.parentSheetIndex, orig.tileLocation, orig.currentRotation);
+                        return (orig is FishTankFurniture) ? orig : new FishTankFurniture(orig.parentSheetIndex, orig.tileLocation, orig.currentRotation);
                 }
             return orig;
         }
