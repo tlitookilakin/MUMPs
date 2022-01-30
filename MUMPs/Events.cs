@@ -17,7 +17,10 @@ namespace MUMPs
         public static readonly PerScreen<bool> drawVoid = new(() => false);
         public static void DayStarted(object sender, DayStartedEventArgs ev)
         {
-            if (!Game1.IsClient)
+            if (!Context.IsMainPlayer)
+                return;
+
+            if (Context.IsOnHostComputer)
             {
                 foreach (GameLocation loc in Game1.locations)
                 {
@@ -28,10 +31,12 @@ namespace MUMPs
                 }
             }
             Props.ActionGarbage.Cleanup();
+            Integration.VisibleFish.DayStart();
         }
         public static void Setup()
         {
             Utils.Setup();
+            Integration.VisibleFish.Setup();
         }
         public static void EnterWorld(object sender, SaveLoadedEventArgs ev)
         {

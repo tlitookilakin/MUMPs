@@ -123,8 +123,7 @@ namespace MUMPs.Props
                     break;
                 case 105:
                 case 264:
-                    Tree tree = loc.terrainFeatures[pos] as Tree;
-                    if(tree != null)
+                    if (loc.terrainFeatures[pos] is Tree tree)
                     {
                         obj = new(id, 1);
                         obj.tileLocation.Value = pos;
@@ -152,11 +151,11 @@ namespace MUMPs.Props
                     };
                     (obj as Chest).lidFrameCount.Value = 2;
                     break;
+                case >= 143 and <= 153: //torch fix
+                    obj = new Torch(pos, id, true);
+                    break;
                 default:
-                    if (id >= 143 && id <= 153) //torch fix
-                        obj = new Torch(pos, id, true);
-                    else
-                        obj = new(pos, id);
+                    obj = new(pos, id);
                     break;
             }
             loc.objects[pos] = obj;

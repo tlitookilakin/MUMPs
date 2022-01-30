@@ -23,6 +23,10 @@ namespace MUMPs
         {
             return (int)MathF.Round(f);
         }
+        public static Type TypeNamed(string name)
+        {
+            return AccessTools.TypeByName(name);
+        }
         public static bool TryParseColor(string s, out Color color)
         {
             color = Color.White;

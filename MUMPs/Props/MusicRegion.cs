@@ -12,7 +12,7 @@ namespace MUMPs.Props
         private static string lastCue = "";
         public static void ChangeLocation(GameLocation loc)
         {
-            if (Context.IsSplitScreen && !Context.IsMainPlayer)
+            if (!Context.IsMainPlayer)
                 return;
 
             regions.Clear();
@@ -60,7 +60,7 @@ namespace MUMPs.Props
                     break;
                 }
             }
-            if (cue == lastCue)
+            if (cue == lastCue && !Game1.isMusicContextActiveButNotPlaying(Game1.MusicContext.SubLocation))
                 return;
 
             lastCue = cue;

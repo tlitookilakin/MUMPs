@@ -21,19 +21,25 @@ namespace MUMPs.Props
         public static void Reload()
         {
             if (ModEntry.helper.ModRegistry.IsLoaded("Platonymous.Toolkit"))
-                sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("PyDisplayDevice").
-                    GetField("m_tileSheetTextures2", BindingFlags.NonPublic | BindingFlags.Instance).
-                    GetValue(Game1.mapDisplayDevice);
-            else
-                sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("SXnaDisplayDevice").
-                    GetField("m_tileSheetTextures", BindingFlags.NonPublic | BindingFlags.Instance).
-                    GetValue(Game1.mapDisplayDevice);
+                try {
+                    sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("PyDisplayDevice").
+                        GetField("m_tileSheetTextures2", BindingFlags.NonPublic | BindingFlags.Instance).
+                        GetValue(Game1.mapDisplayDevice);
+                    return;
+                } catch (ArgumentException)
+                {
+                    ModEntry.monitor.Log("Failed to retrieve hijacked pytk display device, attempting default", LogLevel.Debug);
+                }
+            sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("SXnaDisplayDevice").
+                GetField("m_tileSheetTextures", BindingFlags.NonPublic | BindingFlags.Instance).
+                GetValue(Game1.mapDisplayDevice);
         }
         public static void Draw(float intensity)
         {
             Layer layer = Game1.currentLocation?.map?.GetLayer("Lighting");
             if (layer == null)
                 return;
+
             var batch = Game1.spriteBatch;
             Vector2 origin = Game1.GlobalToLocal(Vector2.Zero) / (Game1.options.lightingQuality / 2);
             float scale = 8f / Game1.options.lightingQuality;

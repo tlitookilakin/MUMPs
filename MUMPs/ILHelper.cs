@@ -153,12 +153,12 @@ namespace MUMPs
                 if (s == null || code.opcode == s.opcode && (code.operand == s.operand || CompareOperands(code.operand, s.operand)))
                 {
                     marker++;
-                    if (code.operand is LocalBuilder b && boxes != null)
+                    if (code.operand is LocalBuilder b)
                         boxes.Add(b);
                 }
                 else
                 {
-                    boxes?.Clear();
+                    boxes.Clear();
                     marker = 0;
                 }
                 yield return code;
@@ -289,7 +289,7 @@ namespace MUMPs
         }
         public static bool CompareOperands(object op1, object op2)
         {
-            if (op1 is LocalBuilder oper1 && op2 is ValueTuple<int, Type?> oper2)
+            if (op1 is LocalBuilder oper1 && op2 is ValueTuple<int, Type> oper2)
             {
                 return (oper2.Item1 < 0 || oper1.LocalIndex == oper2.Item1) && (oper2.Item2 == null || oper1.LocalType == oper2.Item2);
             }
