@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 namespace MUMPs.Props
 {
     [HarmonyPatch]
-    class Horizon
+    class Parallax
     {
         private static readonly Dictionary<string, HorizonModel> Templates = new(StringComparer.OrdinalIgnoreCase);
         private static readonly PerScreen<IDrawableWorldLayer> currentHorizon = new();

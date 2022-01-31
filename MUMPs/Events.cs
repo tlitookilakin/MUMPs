@@ -15,6 +15,7 @@ namespace MUMPs
         private static readonly PerScreen<bool> wasFading = new(() => false);
         private static readonly PerScreen<bool> fadeWasRun = new(() => false);
         public static readonly PerScreen<bool> drawVoid = new(() => false);
+        internal static readonly PerScreen<bool> reloadScreen = new(() => false);
         public static void DayStarted(object sender, DayStartedEventArgs ev)
         {
             if (!Context.IsMainPlayer)
@@ -47,7 +48,7 @@ namespace MUMPs
         {
             Props.Birds.DrawAbove(ev.SpriteBatch);
             Props.ActionRepair.Draw(ev.SpriteBatch);
-            Props.Horizon.DrawAfter(ev.SpriteBatch);
+            Props.Parallax.DrawAfter(ev.SpriteBatch);
             Props.Tooltip.Draw(ev.SpriteBatch);
             Props.Fog.Draw(ev.SpriteBatch);
         }
@@ -57,6 +58,11 @@ namespace MUMPs
         }
         public static void Tick(object sender, UpdateTickedEventArgs ev)
         {
+            if (reloadScreen.Value)
+            {
+                reloadScreen.Value = false;
+                EnterLocation(Game1.currentLocation);
+            }
             RunFade();
             Props.Birds.Update(Game1.currentGameTime);
             Props.MusicRegion.Update(Game1.player);
@@ -70,7 +76,7 @@ namespace MUMPs
         {
             drawVoid.Value = (location.mapPath == PathUtilities.NormalizeAssetName("Maps/EventVoid"));
             Props.Birds.EnterLocation(location);
-            Props.Horizon.ChangeLocation(location);
+            Props.Parallax.ChangeLocation(location);
             Props.ActionRepair.ChangeLocation(location);
             Props.Butterflies.EnterLocation(location);
             Props.CamRegion.ChangeLocation(location);
@@ -87,7 +93,7 @@ namespace MUMPs
         public static void Cleanup()
         {
             Props.Birds.Cleanup();
-            Props.Horizon.Cleanup();
+            Props.Parallax.Cleanup();
             Props.CamRegion.Cleanup();
             Props.ActionRepair.Cleanup();
             Props.ActionGarbage.Cleanup();
@@ -123,6 +129,9 @@ namespace MUMPs
                 case "RepairEvent":
                     Props.ActionRepair.EventAndReload(ev.ReadAs<models.MessageRepairEvent>());
                     break;
+                case "ReloadEvent":
+                    Utils.ReceiveReloadRequest(ev.ReadAs<models.MessageRepairEvent>());
+                    break;
                 default:
                     ModEntry.monitor.Log("Unhandled message type: " + ev.Type, LogLevel.Warn);
                     break;
@@ -138,6 +147,7 @@ namespace MUMPs
         public static void DoLighting(object sender, float intensity)
         {
             Props.LightingLayer.Draw(intensity);
+            ModEntry.API.InvokeLighting(intensity);
         }
     }
 }

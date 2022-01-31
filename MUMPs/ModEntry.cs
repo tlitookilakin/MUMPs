@@ -17,6 +17,7 @@ namespace MUMPs
         internal static IModHelper helper;
         internal static Harmony harmony;
         internal static string ModID;
+        internal static API API = new();
 
         public static Dictionary<string, string> strings;
         public override void Entry(IModHelper helper)
@@ -39,6 +40,10 @@ namespace MUMPs
             Events.Setup();
             harmony.PatchAll();
             RegisterActions();
+        }
+        public override object GetApi()
+        {
+            return API;
         }
         public static void RegisterActions()
         {

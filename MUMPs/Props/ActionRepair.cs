@@ -113,23 +113,16 @@ namespace MUMPs.Props
                     {
                         onEventFinished = () =>
                         {
-                            ReloadCurrentLocation(path, coords, msg.LocationName);
+                            Utils.ReloadCurrentLocation(path, coords, msg.LocationName);
                         }
                     });
                 }
                 else
                 {
-                    ReloadCurrentLocation(path, coords, msg.LocationName);
+                    Utils.ReloadCurrentLocation(path, coords, msg.LocationName);
                 }
             });
             Game1.fadeScreenToBlack();
-        }
-        public static void ReloadCurrentLocation(string path, Vector2 coords, string name)
-        {
-            ModEntry.helper.Content.InvalidateCache(path);
-            if(Game1.currentLocation.mapPath == path)
-                Utils.warpToTempMap("EventVoid", Game1.player);
-            Game1.warpFarmer(name, (int)coords.X, (int)coords.Y, false);
         }
         public static Response[] MakeResponses(string val)
         {

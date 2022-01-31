@@ -155,6 +155,11 @@ namespace MUMPs
             if (isInspect)
                 Patches.Action.inspectActions.Add(Name);
         }
+        public static void RemoveAction(string Name)
+        {
+            Patches.Action.actions.Remove(Name);
+            Patches.Action.inspectActions.Remove(Name);
+        }
         public static IEnumerable<string> SafeSplit(this string s, char delim)
         {
             bool dquote = false;
@@ -238,6 +243,26 @@ namespace MUMPs
             bool ret = tile.Properties.TryGetValue(name, out var val) || tile.TileIndexProperties.TryGetValue(name, out val);
             prop = val?.ToString();
             return ret;
+        }
+        public static void BroadcastReloadRequest(string name)
+        {
+            models.MessageRepairEvent msg = new(name);
+            ReceiveReloadRequest(msg);
+            ModEntry.helper.Multiplayer.SendMessage(msg, "RepairEvent", new string[] { ModEntry.ModID });
+        }
+        public static void ReceiveReloadRequest(models.MessageRepairEvent ev)
+        {
+            if(ev.LocationName == Game1.currentLocation.name)
+            {
+                ReloadCurrentLocation(Game1.currentLocation.mapPath, Game1.player.getTileLocation(), ev.LocationName);
+            }
+        }
+        public static void ReloadCurrentLocation(string path, Vector2 coords, string name)
+        {
+            ModEntry.helper.Content.InvalidateCache(path);
+            if (Game1.currentLocation.mapPath == path)
+                Utils.warpToTempMap("EventVoid", Game1.player);
+            Game1.warpFarmer(name, (int)coords.X, (int)coords.Y, false);
         }
         public static Point LocalToGlobal(int x, int y)
         {

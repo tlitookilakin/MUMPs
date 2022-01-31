@@ -39,12 +39,17 @@ namespace MUMPs.Props
                 if (tile.TileHasProperty("SpawnObject", out string prop))
                 {
                     string[] props = prop.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                    if (props.Length >= 2 && generators.TryGetValue(props[0].ToLower(), out var gen))
-                        gen(loc, new(x, y), props[1]);
-                    else
-                        ModEntry.monitor.Log("Invalid property value for SpawnObject: '" + prop + "'.", LogLevel.Warn);
+                    if (props.Length > 1)
+                        GenerateAt(loc, new(x, y), props[0], props[1]);
                 }
             }
+        }
+        public static void GenerateAt(GameLocation loc, Vector2 pos, string type, string item)
+        {
+            if (generators.TryGetValue(type.ToLowerInvariant(), out var gen))
+                gen(loc, pos, item);
+            else
+                ModEntry.monitor.Log("Could not spawn object type: '" + type + "'.", LogLevel.Warn);
         }
         public static void AddFurniture(GameLocation loc, Vector2 pos, string str)
         {
