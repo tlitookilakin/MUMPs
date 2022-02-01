@@ -61,14 +61,15 @@ namespace MUMPs.Patches
         }
         public static void ClearObject(StardewValley.Object obj, GameLocation loc, Vector2 pos)
         {
+            Vector2 pixelPos = new(pos.X * 64f + 32f, pos.Y * 64f + 32f);
             if (obj is Chest chest)
             {
                 if (chest.SpecialChestType is (Chest.SpecialChestTypes.JunimoChest or Chest.SpecialChestTypes.MiniShippingBin))
                     return;
                 if (!chest.MoveToSafePosition(loc, pos))
                 {
-                    Game1.createItemDebris(obj.getOne(), new(pos.X * 64f + 32f, pos.Y * 64f + 32f), 0, loc);
-                    chest.destroyAndDropContents(pos, loc);
+                    Game1.createItemDebris(obj.getOne(), pixelPos, 0, loc);
+                    chest.destroyAndDropContents(pixelPos, loc);
                 }
             }
             obj.performRemoveAction(pos, loc);
