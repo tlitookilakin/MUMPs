@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MUMPs.models;
+using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
@@ -114,12 +115,20 @@ namespace MUMPs.Props
                         onEventFinished = () =>
                         {
                             Utils.ReloadCurrentLocation(path, coords, msg.LocationName);
+                            if (Context.IsMainPlayer)
+                            {
+                                Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
+                            }
                         }
                     });
                 }
                 else
                 {
                     Utils.ReloadCurrentLocation(path, coords, msg.LocationName);
+                    if (Context.IsMainPlayer)
+                    {
+                        Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
+                    }
                 }
             });
             Game1.fadeScreenToBlack();

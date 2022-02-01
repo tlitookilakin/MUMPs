@@ -29,6 +29,7 @@ namespace MUMPs
                     {
                         Props.Stumps.SpawnMapStumps(loc);
                     }
+                    Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
                 }
             }
             Props.ActionGarbage.Cleanup();
