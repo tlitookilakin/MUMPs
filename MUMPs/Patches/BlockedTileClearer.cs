@@ -1,12 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.Locations;
 using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MUMPs.Patches
 {
@@ -14,18 +13,29 @@ namespace MUMPs.Patches
     {
         public static void ClearBlockedTilesIn(GameLocation loc)
         {
-            if (loc?.map == null)
+            //don't run in farmhouse, it interacts weirdly with house upgrades
+            if (loc?.map == null || loc is FarmHouse)
                 return;
 
             List<Vector2> objPositions = loc.Objects.Keys.ToList();
             foreach (Vector2 pos in objPositions)
             {
-                if(ShouldKillObject(loc, (int)pos.X, (int)pos.Y))
+                // allow water placement to prevent chest dumping and crab pot deletion
+                if(ShouldKillObject(loc, pos, true))
                 {
                     ClearObject(loc.Objects[pos], loc, pos);
                     loc.Objects.Remove(pos);
                 }
             }
+            loc.furniture.Filter((f) => {
+                if (ShouldKillObject(loc, f.TileLocation))
+                {
+                    ClearFurniture(f, loc);
+                    return false;
+                }
+                return true;
+            });
+            //just delete these, no drops.
             loc.resourceClumps.Filter((f) =>
             {
                 return !ShouldKillObject(loc, f.tile);
@@ -35,14 +45,6 @@ namespace MUMPs.Patches
             });
             loc.largeTerrainFeatures.Filter((f) => {
                 return !ShouldKillObject(loc, f.tilePosition);
-            });
-            loc.furniture.Filter((f) => {
-                if(ShouldKillObject(loc, f.TileLocation))
-                {
-                    ClearFurniture(f, loc);
-                    return false;
-                }
-                return true;
             });
         }
         public static void ClearFurniture(Furniture obj, GameLocation loc)
@@ -74,15 +76,15 @@ namespace MUMPs.Patches
             }
             obj.performRemoveAction(pos, loc);
         }
-        public static bool ShouldKillObject(GameLocation loc, Vector2 tilePosition)
+        public static bool ShouldKillObject(GameLocation loc, Vector2 tilePosition, bool allowWater = false)
         {
-            return ShouldKillObject(loc, (int)tilePosition.X, (int)tilePosition.Y);
+            return ShouldKillObject(loc, (int)tilePosition.X, (int)tilePosition.Y, allowWater);
         }
-        public static bool ShouldKillObject(GameLocation loc, int x, int y)
+        public static bool ShouldKillObject(GameLocation loc, int x, int y, bool allowWater = false)
         {
-            return loc.isWaterTile(x, y) ||
+            return  !(allowWater && loc.isWaterTile(x, y)) && (
                     !loc.isTilePassable(new xTile.Dimensions.Location(x, y), Game1.viewport) ||
-                    loc.doesTileHaveProperty(x, y, "Placeable", "Back") != null;
+                    loc.doesTileHaveProperty(x, y, "Placeable", "Back") != null);
         }
     }
 }
