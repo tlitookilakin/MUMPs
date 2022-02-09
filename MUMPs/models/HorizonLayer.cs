@@ -39,7 +39,7 @@ namespace MUMPs.models
         {
             try
             {
-                return ModEntry.helper.Content.Load<Texture2D>(texture);
+                return ModEntry.helper.Content.Load<Texture2D>(texture, ContentSource.GameContent);
             }
             catch (ContentLoadException e)
             {
