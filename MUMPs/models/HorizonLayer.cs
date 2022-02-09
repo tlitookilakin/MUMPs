@@ -15,7 +15,7 @@ namespace MUMPs.models
     class HorizonLayer
     {
         public enum Mode {None, Tile, Stretch}
-        public string texture { set; get; } = "";
+        public string Texture { set; get; } = "";
         public Mode HMode { set; get; } = Mode.None;
         public Mode VMode { set; get; } = Mode.None;
         public float Depth { set; get; } = 0f;
@@ -29,27 +29,27 @@ namespace MUMPs.models
         public Rectangle Region { set; get; } = Rectangle.Empty;
 
         private Texture2D cachedTexture = null;
-        public readonly RLazy<Texture2D> Texture;
+        public readonly RLazy<Texture2D> ATexture;
 
         public HorizonLayer()
         {
-            Texture = new(TryLoadTexture);
+            ATexture = new(TryLoadTexture);
         }
         private Texture2D TryLoadTexture()
         {
             try
             {
-                return ModEntry.helper.Content.Load<Texture2D>(texture, ContentSource.GameContent);
+                return ModEntry.helper.Content.Load<Texture2D>(Texture, ContentSource.GameContent);
             }
             catch (ContentLoadException e)
             {
-                ModEntry.monitor.Log("Could not load asset '" + texture + "': " + e.Message, LogLevel.Warn);
+                ModEntry.monitor.Log("Could not load asset '" + Texture + "': " + e.Message, LogLevel.Warn);
                 return Game1.fadeToBlackRect;
             }
         }
         private Rectangle getRegion()
         {
-            Rectangle region = (Region == Rectangle.Empty) ? Texture.Value.Bounds : Region;
+            Rectangle region = (Region == Rectangle.Empty) ? ATexture.Value.Bounds : Region;
             return Animation != null ? Animation.GetSource(region, Game1.currentGameTime.ElapsedGameTime.Milliseconds) : region;
         }
         private int getScaledSize(int view, int map)
@@ -83,17 +83,17 @@ namespace MUMPs.models
             switch (VMode)
             {
                 case Mode.None:
-                    b.Draw(Texture.Value, new Rectangle(x, y, w, (int)(source.Height * Scale)), source, Color.White * Opacity);
+                    b.Draw(ATexture.Value, new Rectangle(x, y, w, (int)(source.Height * Scale)), source, Color.White * Opacity);
                     break;
                 case Mode.Stretch:
-                    b.Draw(Texture.Value, new Rectangle(x, y, w, getScaledSize(Game1.viewport.Height, Game1.currentLocation.map.DisplayHeight)), source, Color.White * Opacity);
+                    b.Draw(ATexture.Value, new Rectangle(x, y, w, getScaledSize(Game1.viewport.Height, Game1.currentLocation.map.DisplayHeight)), source, Color.White * Opacity);
                     break;
                 case Mode.Tile:
                     int tile = (int)(source.Height * Scale);
                     int hg = Game1.viewport.Height + Game1.viewport.Y;
                     for (int yy = y % tile; yy < y + hg; yy += tile)
                     {
-                        b.Draw(Texture.Value, new Rectangle(x, yy, w, tile), source, Color.White * Opacity);
+                        b.Draw(ATexture.Value, new Rectangle(x, yy, w, tile), source, Color.White * Opacity);
                     }
                     break;
             }

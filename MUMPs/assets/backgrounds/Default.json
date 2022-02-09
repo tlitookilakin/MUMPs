@@ -1,0 +1,41 @@
+﻿{
+  "DrawSky": true,
+  "Layers": [
+    {
+      "HMode": "Tile",
+      "VMode": "None",
+      "Depth": 0.5,
+      "Region": {
+        "X": 0,
+        "Y": 1024,
+        "Width": 639,
+        "Height": 149
+      },
+      "Texture": "LooseSprites/Cursors"
+    },
+    {
+      "HMode": "Tile",
+      "VMode": "None",
+      "Depth": 0.3,
+      "Region": {
+        "X": 0,
+        "Y": 885,
+        "Width": 639,
+        "Height": 149
+      },
+      "Texture": "LooseSprites/Cursors"
+    },
+    {
+      "HMode": "Tile",
+      "VMode": "None",
+      "Depth": 0.5,
+      "Region": {
+        "X": 0,
+        "Y": 736,
+        "Width": 639,
+        "Height": 149
+      },
+      "Texture": "LooseSprites/Cursors"
+    }
+  ]
+}
