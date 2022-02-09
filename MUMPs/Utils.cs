@@ -27,6 +27,10 @@ namespace MUMPs
         {
             return AccessTools.TypeByName(name);
         }
+        public static Rectangle ToRect(this xTile.Dimensions.Rectangle source)
+        {
+            return new(source.X, source.Y, source.Width, source.Height);
+        }
         public static bool TryParseColor(string s, out Color color)
         {
             color = Color.White;

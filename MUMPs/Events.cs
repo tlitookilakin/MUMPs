@@ -47,6 +47,7 @@ namespace MUMPs
         }
         public static void DrawOnTop(object sender, RenderedWorldEventArgs ev)
         {
+            Props.DrawBorder.Draw(ev.SpriteBatch);
             Props.Birds.DrawAbove(ev.SpriteBatch);
             Props.ActionRepair.Draw(ev.SpriteBatch);
             Props.Parallax.DrawAfter(ev.SpriteBatch);
@@ -86,6 +87,7 @@ namespace MUMPs
             Props.Fog.ChangeLocation(location);
             Props.OverrideLighting.ChangeLocation(location);
             Props.FishingArea.ChangeLocation(location);
+            Props.DrawBorder.ChangeLocation(location);
         }
         public static void OnQuit(object sender, ReturnedToTitleEventArgs ev)
         {
@@ -101,6 +103,7 @@ namespace MUMPs
             Props.MusicRegion.Cleanup();
             Props.OverrideLighting.Cleanup();
             Props.FishingArea.Cleanup();
+            Props.DrawBorder.Cleanup();
         }
         public static void RunFade()
         {
