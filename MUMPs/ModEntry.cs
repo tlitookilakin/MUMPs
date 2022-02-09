@@ -56,9 +56,10 @@ namespace MUMPs
 
         public bool CanLoad<T>(IAssetInfo asset)
         {
-            return asset.AssetNameEquals("Maps/EventVoid") || 
+            return asset.AssetNameEquals("Maps/EventVoid") ||
                    asset.AssetNameEquals("Mods/Mumps/Fog") ||
-                   asset.AssetNameEquals("Mods/Mumps/Backgrounds/Empty");
+                   asset.AssetNameEquals("Mods/Mumps/Backgrounds/Empty") ||
+                   asset.AssetNameEquals("Mods/Mumps/Backgrounds/Default");
         }
 
         public T Load<T>(IAssetInfo asset)

@@ -23,17 +23,22 @@ namespace MUMPs.models
         public float Scale { set; get; } = 1f;
         public float OffsetX { set; get; } = 0f;
         public float OffsetY { set; get; } = 0f;
-        public float MotionX { set; get; } = 0f;
-        public float MotionY { set; get; } = 0f;
+        public int MotionX { set; get; } = 0;
+        public int MotionY { set; get; } = 0;
         public AnimationModel Animation { set; get; }
         public Rectangle Region { set; get; } = Rectangle.Empty;
 
-        private Texture2D cachedTexture = null;
         public readonly RLazy<Texture2D> ATexture;
 
+        private int accum = 0;
         public HorizonLayer()
         {
             ATexture = new(TryLoadTexture);
+        }
+        public void Reload()
+        {
+            ATexture.Reset();
+            accum = 0;
         }
         private Texture2D TryLoadTexture()
         {
@@ -47,31 +52,36 @@ namespace MUMPs.models
                 return Game1.fadeToBlackRect;
             }
         }
-        private Rectangle getRegion()
+        private Rectangle getRegion(int millis)
         {
             Rectangle region = (Region == Rectangle.Empty) ? ATexture.Value.Bounds : Region;
-            return Animation != null ? Animation.GetSource(region, Game1.currentGameTime.ElapsedGameTime.Milliseconds) : region;
+            return Animation != null ? Animation.GetSource(region, millis) : region;
         }
         private int getScaledSize(int view, int map)
         {
             return (int)(view + (map - view) * (1f - Depth));
         }
-        public void Draw(SpriteBatch b, Point center)
+        public void Draw(SpriteBatch b, Point center, int millis)
         {
-            Point offset = new((int)MathF.Round(Game1.viewport.X * (1f - Depth) + OffsetX + center.X), (int)MathF.Round(Game1.viewport.Y * (1f - Depth) + OffsetY + center.Y));
-            Rectangle region = getRegion();
+            Point offset = new((int)MathF.Round(center.X * (1f - Depth) + OffsetX * 64f), (int)MathF.Round(center.Y * (1f - Depth) + OffsetY * 64f));
+            Rectangle region = getRegion(millis);
+            int fillx = getScaledSize(Game1.viewport.Width, Game1.currentLocation.map.DisplayWidth);
+            int tile = (int)(region.Width * Scale);
+            accum += millis;
             switch (HMode)
             {
                 case Mode.None:
-                    DrawVmode(b, region, offset.X, offset.Y, (int)(region.Width * Scale));
+                    if(MotionX != 0)
+                        DrawVmode(b, region, offset.X + (accum * MotionX / 1000 % (fillx + tile)) - tile, offset.Y, tile);
+                    else
+                        DrawVmode(b, region, offset.X, offset.Y, tile);
                     break;
                 case Mode.Stretch:
-                    DrawVmode(b, region, offset.X, offset.Y, getScaledSize(Game1.viewport.Width, Game1.currentLocation.map.DisplayWidth));
+                    DrawVmode(b, region, offset.X, offset.Y, fillx);
                     break;
                 case Mode.Tile:
-                    int tile = (int)(region.Width * Scale);
-                    int wd = Game1.viewport.Width + Game1.viewport.X;
-                    for(int xx = offset.X % tile; xx < offset.X + wd; xx += tile)
+                    int wd = Game1.viewport.Width + offset.X;
+                    for(int xx = (offset.X + accum * MotionX / 1000) % tile - tile; xx < wd; xx += tile)
                     {
                         DrawVmode(b, region, xx, offset.Y, tile);
                     }

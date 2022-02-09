@@ -17,10 +17,13 @@ namespace MUMPs.models
             if(!isForeground && DrawSky)
 				drawSky(b);
 
-			Point center = new((int)(offset.X * 64f), (int)(offset.Y * 64f));
-
+			Point center = new(
+				(int)(offset.X * 64f) + (Game1.currentLocation.map.DisplayWidth - Game1.viewport.Width) / 2 - Game1.viewport.X, 
+				(int)(offset.Y * 64f) + (Game1.currentLocation.map.DisplayHeight - Game1.viewport.Height) / 2 - Game1.viewport.Y
+			);
+			int millis = Game1.currentGameTime.ElapsedGameTime.Milliseconds;
             foreach(var layer in Layers)
-                layer.Draw(b, center);
+                layer.Draw(b, center, millis);
         }
 		public void drawSky(SpriteBatch b)
         {
