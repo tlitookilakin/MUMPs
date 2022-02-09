@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MUMPs
 {
-    class API : IMumpsAPI
+    public class API : IMumpsAPI
     {
         public event Action<object, float> OnLighting;
 

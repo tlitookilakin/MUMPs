@@ -5,7 +5,7 @@ using System;
 
 namespace MUMPs
 {
-    interface IMumpsAPI
+    public interface IMumpsAPI
     {
         public event Action<object, float> OnLighting;
         public void DrawInspectBubble(Point position);

@@ -15,16 +15,24 @@ namespace MUMPs.Props
     class Parallax
     {
         private static readonly Dictionary<string, HorizonModel> Templates = new(StringComparer.OrdinalIgnoreCase);
-        private static readonly PerScreen<IDrawableWorldLayer> currentHorizon = new();
+        private static readonly PerScreen<IDrawableWorldLayer> currentBackground = new();
         private static readonly PerScreen<IDrawableWorldLayer> currentForeground = new();
-        public static IDrawableWorldLayer getTemplate(string prop)
+        private static readonly PerScreen<Vector2> backgroundOffset = new();
+        private static readonly PerScreen<Vector2> foregroundOffset = new();
+        public static IDrawableWorldLayer getTemplate(string prop, out Vector2 offset)
         {
             string[] props = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            offset = Vector2.Zero;
 
             if (props.Length == 0)
                 return null;
 
-            if(props[0].ToLowerInvariant() == "summit")
+            if (props.StringsToVec2(out Vector2 vec))
+                offset = vec;
+            else
+                offset = Vector2.Zero;
+
+            if (props[0].ToLowerInvariant() == "summit")
             {
                 return new SummitHorizon();
             }
@@ -41,35 +49,39 @@ namespace MUMPs.Props
                 }
                 Templates.Add(props[0], ret);
             }
-            if (props.StringsToVec2(out Vector2 vec))
-                ret.offset = vec;
-            else
-                ret.offset = Vector2.Zero;
             return ret;
         }
         public static void ChangeLocation(GameLocation loc)
         {
-            currentHorizon.Value = null;
+            currentBackground.Value = null;
             currentForeground.Value = null;
+
             if(loc == null)
                 return;
-            currentHorizon.Value = getTemplate(loc.getMapProperty("Background"));
-            currentForeground.Value = getTemplate(loc.getMapProperty("Foreground"));
+
+            Vector2 off;
+            currentBackground.Value = getTemplate(loc.getMapProperty("Background"), out off);
+            backgroundOffset.Value = off;
+            currentForeground.Value = getTemplate(loc.getMapProperty("Foreground"), out off);
+            foregroundOffset.Value = off;
         }
+
         [HarmonyPatch(typeof(GameLocation), "drawBackground")]
         [HarmonyPrefix]
         public static void DrawBackgroundPrefix(ref SpriteBatch b)
         {
-            currentHorizon.Value?.Draw(b, false);
+            currentBackground.Value?.Draw(b, false, backgroundOffset.Value);
         }
         public static void DrawAfter(SpriteBatch b)
         {
-            currentForeground.Value?.Draw(b, true);
+            currentForeground.Value?.Draw(b, true, foregroundOffset.Value);
         }
         public static void Cleanup()
         {
-            currentHorizon.ResetAllScreens();
+            currentBackground.ResetAllScreens();
             currentForeground.ResetAllScreens();
+            backgroundOffset.ResetAllScreens();
+            foregroundOffset.ResetAllScreens();
         }
     }
 }
