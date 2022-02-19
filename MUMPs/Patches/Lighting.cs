@@ -22,8 +22,7 @@ namespace MUMPs.Patches
         }
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            foreach (var code in patcher.Run(instructions))
-                yield return code;
+            return patcher.Run(instructions);
         }
         private static ILHelper setupPatch()
         {
