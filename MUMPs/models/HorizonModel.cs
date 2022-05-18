@@ -49,7 +49,7 @@ namespace MUMPs.models
 				c = new Color(255f, 255f - Math.Max(100f, adjustedTime + ablend - 1800f), 255f - Math.Max(100f, (adjustedTime + ablend - 1800f) / 2f));
 				alpha = Math.Max(0f, Math.Min(1f, (2000f - (adjustedTime + ablend)) / 200f));
 				skyAlpha = Math.Max(0f, Math.Min(1f, (2200f - (adjustedTime + ablend)) / 400f));
-				Game1.ambientLight = new Color((int)Utility.Lerp(0f, 30f, 1f - alpha), (int)Utility.Lerp(0f, 60f, 1f - alpha), (int)Utility.Lerp(0f, 15f, 1f - alpha));
+                Game1.ambientLight = new Color((int)StardewValley.Utility.Lerp(0f, 30f, 1f - alpha), (int)StardewValley.Utility.Lerp(0f, 60f, 1f - alpha), (int)StardewValley.Utility.Lerp(0f, 15f, 1f - alpha));
 			}
 			b.Draw(Game1.mouseCursors, new Rectangle(0, 0, Game1.viewport.Width, Game1.viewport.Height), new Rectangle(639, 858, 1, 144), c * skyAlpha, 0f, Vector2.Zero, SpriteEffects.None, 5E-08f);
 			b.Draw(Game1.mouseCursors, new Rectangle(0, 0, Game1.viewport.Width, Game1.viewport.Height), (Game1.currentSeason == "fall") ? new Rectangle(639, 1051, 1, 400) : new Rectangle(639 + (seasonOffset + 1), 1051, 1, 400), c * alpha, 0f, Vector2.Zero, SpriteEffects.None, 1E-07f);

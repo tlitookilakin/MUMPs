@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using AeroCore.Utils;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -21,7 +22,7 @@ namespace MUMPs.Integration
             if (ModEntry.helper.ModRegistry.IsLoaded("shekurika.WaterFish"))
             {
                 ModEntry.monitor.Log("Attempting to patch Visible Fish mod for integration...", LogLevel.Debug);
-                var method = Utils.TypeNamed("showFishInWater.FishManager").MethodNamed("getFishAt");
+                var method = AccessTools.TypeByName("showFishInWater.FishManager").MethodNamed("getFishAt");
                 ModEntry.harmony.Patch(method, transpiler: new HarmonyMethod(typeof(VisibleFish), "Transpiler"));
             }
         }

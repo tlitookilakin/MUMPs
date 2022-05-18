@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.Utils;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
@@ -34,7 +35,7 @@ namespace MUMPs.Props
         }
         public static void Generate(GameLocation loc)
         {
-            foreach ((var tile, int x, int y) in Utils.tilesInLayer(loc.map, "Back"))
+            foreach ((var tile, int x, int y) in Maps.tilesInLayer(loc.map, "Back"))
             {
                 if (tile.TileHasProperty("SpawnObject", out string prop))
                 {
@@ -131,7 +132,7 @@ namespace MUMPs.Props
                     if (loc.terrainFeatures[pos] is Tree tree)
                     {
                         obj = new(id, 1);
-                        obj.tileLocation.Value = pos;
+                        obj.TileLocation = pos;
                         loc.objects[pos] = obj;
                         tree.tapped.Value = true;
                         tree.UpdateTapperProduct(obj);

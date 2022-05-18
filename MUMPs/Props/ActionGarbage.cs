@@ -55,7 +55,7 @@ namespace MUMPs.Props
 				garbageRandom.NextDouble();
 			}
 			Game1.stats.incrementStat("trashCansChecked", 1);
-			int xSourceOffset = Utility.getSeasonNumber(Game1.currentSeason) * 17;
+			int xSourceOffset = StardewValley.Utility.getSeasonNumber(Game1.currentSeason) * 17;
 			bool mega = Game1.stats.getStat("trashCansChecked") > 20 && garbageRandom.NextDouble() < 0.01;
 			bool doubleMega = Game1.stats.getStat("trashCansChecked") > 20 && garbageRandom.NextDouble() < 0.002;
 			if (doubleMega)
@@ -120,14 +120,14 @@ namespace MUMPs.Props
 					acceleration = new Vector2(0f, 0.4f),
 					layerDepth = ((y + 1) * 64 + 3) / 10000f,
 					scale = 4f,
-					color = Utility.getRandomRainbowColor(),
+					color = StardewValley.Utility.getRandomRainbowColor(),
 					delayBeforeAnimationStart = Game1.random.Next(100)
 				});
 			}
-			var multiplayer = Utils.GetMultiplayer();
+			var multiplayer = Utility.GetMultiplayer();
 			multiplayer.broadcastSprites(location, trashCanSprites);
 			location.playSound("trashcan");
-			Character c = Utility.isThereAFarmerOrCharacterWithinDistance(new Vector2(x, y), 7, location);
+            Character c = StardewValley.Utility.isThereAFarmerOrCharacterWithinDistance(new Vector2(x, y), 7, location);
 			if (c != null && c is NPC && !(c is Horse))
 			{
 				multiplayer.globalChatInfoMessage("TrashCan", Game1.player.Name, c.name);
@@ -186,7 +186,7 @@ namespace MUMPs.Props
 						item = 216;
 						break;
 					case 6:
-						item = Utility.getRandomItemFromSeason(Game1.currentSeason, x * 653 + y * 777, forQuest: false);
+						item = StardewValley.Utility.getRandomItemFromSeason(Game1.currentSeason, x * 653 + y * 777, forQuest: false);
 						break;
 					case 7:
 						item = 403;

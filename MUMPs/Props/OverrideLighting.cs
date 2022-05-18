@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using AeroCore.Utils;
+using HarmonyLib;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Locations;
@@ -15,7 +16,7 @@ namespace MUMPs.Props
         private static readonly ILHelper patcher = setupHelper();
         public static void ChangeLocation(GameLocation loc)
         {
-            force.Value = !(loc is Woods) && loc.getMapProperty("OverrideLighting") != null;
+            force.Value = loc is not Woods && loc.getMapProperty("OverrideLighting") != null;
         }
         [HarmonyPatch(typeof(GameLocation),"_updateAmbientLighting")]
         [HarmonyTranspiler]

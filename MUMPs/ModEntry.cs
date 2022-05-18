@@ -18,6 +18,7 @@ namespace MUMPs
         internal static Harmony harmony;
         internal static string ModID;
         internal static API API = new();
+        internal static AeroCore.API.API AeroAPI;
 
         public static Dictionary<string, string> strings;
         public override void Entry(IModHelper helper)
@@ -28,30 +29,20 @@ namespace MUMPs
             harmony = new(ModManifest.UniqueID);
             ModID = ModManifest.UniqueID;
             strings = helper.Content.Load<Dictionary<string, string>>("assets/strings.json");
-            helper.Events.GameLoop.DayStarted += Events.DayStarted;
-            helper.Events.Player.Warped += Events.ChangeLocation;
-            helper.Events.Display.RenderedWorld += Events.DrawOnTop;
-            helper.Events.GameLoop.UpdateTicked += Events.Tick;
-            helper.Events.GameLoop.ReturnedToTitle += Events.OnQuit;
-            helper.Events.GameLoop.SaveLoaded += Events.EnterWorld;
-            helper.Events.Display.RenderedHud += Events.DrawOverHud;
-            helper.Events.Multiplayer.ModMessageReceived += Events.RecieveMessage;
-            Patches.Lighting.OnLighting += Events.DoLighting;
-            Events.Setup();
+            AeroAPI = (AeroCore.API.API)helper.ModRegistry.GetApi("tlitookilakin.AeroCore");
+
             harmony.PatchAll();
+            AeroAPI.InitAll(typeof(ModEntry));
             RegisterActions();
         }
-        public override object GetApi()
-        {
-            return API;
-        }
+        public override object GetApi() => API;
         public static void RegisterActions()
         {
-            Utils.AddAction("Image", true, Props.ActionImage.show);
-            Utils.AddAction("Repair", false, Props.ActionRepair.DoAction);
-            Utils.AddAction("WarpList", false, Props.ActionWarpList.display);
+            AeroAPI.RegisterAction("Image",Props.ActionImage.show, 5);
+            AeroAPI.RegisterAction("Repair", Props.ActionRepair.DoAction, 6);
+            AeroAPI.RegisterAction("WarpList", Props.ActionWarpList.display);
             if (!helper.ModRegistry.IsLoaded("furyx639.GarbageDay"))
-                Utils.AddAction("Garbage", false, Props.ActionGarbage.HandleAction);
+                AeroAPI.RegisterAction("Garbage", Props.ActionGarbage.HandleAction);
         }
 
         public bool CanLoad<T>(IAssetInfo asset)

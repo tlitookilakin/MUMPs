@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.Utils;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using System;
@@ -13,13 +14,13 @@ namespace MUMPs.Props
     {
         public static void CorrectWarp(WarpedEventArgs ev)
         {
-            string[] warps = Utils.MapPropertyArray(ev.NewLocation,"MoveWarps");
+            string[] warps = Maps.MapPropertyArray(ev.NewLocation,"MoveWarps");
             Point pos = ev.Player.getTileLocationPoint();
             for(int i = 0; i + 3 < warps.Length; i += 4)
             {
-                if(warps.StringsToPoint(out Point point, i) && pos == point)
+                if(warps.ToPoint(out Point point, i) && pos == point)
                 {
-                    if(warps.StringsToVec2(out Vector2 to, i + 2))
+                    if(warps.ToVec2(out Vector2 to, i + 2))
                     {
                         ev.Player.setTileLocation(to);
                         ModEntry.monitor.Log("Redirected player from " + point.ToString() + " to " + to.ToString() + ".", LogLevel.Trace);

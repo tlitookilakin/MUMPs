@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using AeroCore.Utils;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -29,10 +30,10 @@ namespace MUMPs.Props
             idRegions.Value.Clear();
             locRegions.Value.Clear();
 
-            string[] data = Utils.MapPropertyArray(loc, "FishingRegions");
+            string[] data = Maps.MapPropertyArray(loc, "FishingRegions");
             for (int i = 0; i + 4 < data.Length; i += 5)
             {
-                if (data.StringsToRect(out var rect, i))
+                if (data.ToRect(out var rect, i))
                 {
                     if (int.TryParse(data[i + 4], out int id))
                         idRegions.Value[rect] = id;

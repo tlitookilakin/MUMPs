@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using HarmonyLib;
 using StardewModdingAPI.Utilities;
 using Microsoft.Xna.Framework;
+using AeroCore.Utils;
 
 namespace MUMPs.Props
 {
@@ -27,7 +28,7 @@ namespace MUMPs.Props
             if (props.Length == 0)
                 return null;
 
-            if (props.StringsToVec2(out Vector2 vec))
+            if (props.ToVec2(out Vector2 vec))
                 offset = vec;
             else
                 offset = Vector2.Zero;

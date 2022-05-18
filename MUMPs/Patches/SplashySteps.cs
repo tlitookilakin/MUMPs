@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using StardewValley;
+using StardewValley.Locations;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -35,7 +36,7 @@ namespace MUMPs.Patches
         public static string shouldUseSplash(Farmer who, FarmerSprite sprite)
         {
             var pos = who.getTileLocationPoint();
-            return (who.currentLocation.doesTileHaveProperty(pos.X, pos.Y, "Water", "Back") != null && who.currentLocation.getTileIndexAt(pos, "Buildings") == -1) ? "slosh" : sprite.currentStep;
+            return (who.currentLocation is not BoatTunnel && who.currentLocation.doesTileHaveProperty(pos.X, pos.Y, "Water", "Back") != null && who.currentLocation.getTileIndexAt(pos, "Buildings") == -1) ? "slosh" : sprite.currentStep;
         }
     }
 }

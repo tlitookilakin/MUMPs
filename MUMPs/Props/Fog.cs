@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.Utils;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -19,7 +20,7 @@ namespace MUMPs.Props
                 return;
 
             string[] data = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if(data.Length >= 2 && float.TryParse(data[0], out float radius) && Utils.TryParseColor(data[1], out Color col))
+            if(data.Length >= 2 && float.TryParse(data[0], out float radius) && Strings.TryParseColor(data[1], out Color col))
             {
                 if (data.Length >= 3)
                     if (float.TryParse(data[2], out float alpha))

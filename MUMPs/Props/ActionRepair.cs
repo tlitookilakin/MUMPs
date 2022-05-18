@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using AeroCore.Utils;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MUMPs.models;
@@ -28,7 +29,7 @@ namespace MUMPs.Props
                 return;
             var buildings = map.GetLayer("Buildings");
 
-            foreach((var tile, int x, int y) in Utils.tilesInLayer(buildings))
+            foreach((var tile, int x, int y) in Maps.tilesInLayer(buildings))
             {
                 if (!tile.Properties.TryGetValue("Action", out var action) && !tile.TileIndexProperties.TryGetValue("Action", out action))
                     continue;
@@ -45,10 +46,10 @@ namespace MUMPs.Props
         }
         public static void DoAction(Farmer who, string action, Point _)
         {
-            if (who.currentLocation.name == "Temp")
+            if (who.currentLocation.Name == "Temp")
                 return;
 
-            var split = Utils.SafeSplitList(action, ' ');
+            var split = action.SafeSplitList(' ');
             if (split.Count < 3)
                 return;
 
@@ -58,7 +59,7 @@ namespace MUMPs.Props
             if (!Game1.objectInformation.TryGetValue(id, out string info))
                 return;
 
-            string name = info.Split('/')[0];
+            string name = info.GetChunk('/', 0);
             object templ = new{ what = split[0] + "x " + name};
             if (!who.hasItemInInventory(id, count))
             {
@@ -114,7 +115,7 @@ namespace MUMPs.Props
                     {
                         onEventFinished = () =>
                         {
-                            Utils.ReloadCurrentLocation(path, coords, msg.LocationName);
+                            Utility.ReloadCurrentLocation(path, coords, msg.LocationName);
                             if (Context.IsMainPlayer)
                             {
                                 Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
@@ -124,7 +125,7 @@ namespace MUMPs.Props
                 }
                 else
                 {
-                    Utils.ReloadCurrentLocation(path, coords, msg.LocationName);
+                    Utility.ReloadCurrentLocation(path, coords, msg.LocationName);
                     if (Context.IsMainPlayer)
                     {
                         Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);

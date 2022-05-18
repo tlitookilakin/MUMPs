@@ -24,7 +24,7 @@ namespace MUMPs.models
         {
             var pos = Game1.GlobalToLocal(Game1.player.position) + offset;
             var port = Game1.viewport;
-            Rectangle rect = new((pos.X - radius).ToInt(), (pos.Y - radius).ToInt(), (2f * radius).ToInt(), (2f * radius).ToInt());
+            Rectangle rect = new((int)(pos.X - radius + .5f), (int)(pos.Y - radius + .5f), (int)(2f * radius + .5f), (int)(2f * radius + .5f));
             if (pos.Y - radius > 0) // top
                 b.Draw(Game1.staminaRect, new Rectangle(0, 0, port.Width, rect.Y), color);
             if (pos.Y + radius < port.Height) // bottom

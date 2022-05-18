@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.Utils;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using System;
@@ -10,7 +11,7 @@ namespace MUMPs.Props
         private static readonly Point stumpArea = new(2, 2);
         public static void SpawnMapStumps(GameLocation location)
         {
-            string[] stumpList = Utils.MapPropertyArray(location, "Stumps");
+            string[] stumpList = Maps.MapPropertyArray(location, "Stumps");
             if(stumpList.Length > 0)
             {
                 ModEntry.monitor.Log("Adding stumps to " + location.Name + ".", LogLevel.Trace);
@@ -18,7 +19,7 @@ namespace MUMPs.Props
             for(int i = 0; i + 2 < stumpList.Length; i += 3)
             {
                 //x, y, unused
-                if (stumpList.StringsToPoint(out Point pos, i) && location.isAreaClear(new Rectangle(pos, stumpArea)))
+                if (stumpList.ToPoint(out Point pos, i) && location.isAreaClear(new Rectangle(pos, stumpArea)))
                 {
                     //will not be saved in most locations, but that's fine because they are regenerated at day start anyways
                     location.addResourceClumpAndRemoveUnderlyingTerrain(600, 2, 2, pos.ToVector2());

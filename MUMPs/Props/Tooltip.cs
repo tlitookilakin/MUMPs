@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
+using AeroCore.Utils;
 
 namespace MUMPs.Props
 {
@@ -14,7 +15,7 @@ namespace MUMPs.Props
             if (Game1.currentLocation == null || Game1.activeClickableMenu != null)
                 return;
 
-            Point pos = Utils.LocalToGlobal(Game1.getMouseX(), Game1.getMouseY());
+            Point pos = Misc.LocalToGlobal(Game1.getMouseX(), Game1.getMouseY());
             string tip = Game1.currentLocation.doesTileHavePropertyNoNull(pos.X / 64, pos.Y / 64, "Tooltip", "Buildings");
 
             if (tip == null)

@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.Generics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using MUMPs.Misc;
 using StardewModdingAPI;
 using StardewValley;
 using System;
@@ -28,29 +28,16 @@ namespace MUMPs.models
         public AnimationModel Animation { set; get; }
         public Rectangle Region { set; get; } = Rectangle.Empty;
 
-        public readonly RLazy<Texture2D> ATexture;
+        public readonly LazyAsset<Texture2D> ATexture;
 
         private int accum = 0;
         public HorizonLayer()
         {
-            ATexture = new(TryLoadTexture);
+            ATexture = new(ModEntry.helper, ModEntry.monitor, () => Texture);
         }
         public void Reload()
         {
-            ATexture.Reset();
             accum = 0;
-        }
-        private Texture2D TryLoadTexture()
-        {
-            try
-            {
-                return ModEntry.helper.Content.Load<Texture2D>(Texture, ContentSource.GameContent);
-            }
-            catch (ContentLoadException e)
-            {
-                ModEntry.monitor.Log("Could not load asset '" + Texture + "': " + e.Message, LogLevel.Warn);
-                return Game1.fadeToBlackRect;
-            }
         }
         private Rectangle getRegion(int millis)
         {
@@ -63,7 +50,7 @@ namespace MUMPs.models
         }
         public void Draw(SpriteBatch b, Point center, int millis)
         {
-            Point offset = new((int)MathF.Round(center.X * (1f - Depth) + OffsetX * 64f), (int)MathF.Round(center.Y * (1f - Depth) + OffsetY * 64f));
+            Point offset = new((int)(center.X * (1f - Depth) + OffsetX * 64f + .5f), (int)(center.Y * (1f - Depth) + OffsetY * 64f + .5f));
             Rectangle region = getRegion(millis);
             int fillx = getScaledSize(Game1.viewport.Width, Game1.currentLocation.map.DisplayWidth);
             int tile = (int)(region.Width * Scale);

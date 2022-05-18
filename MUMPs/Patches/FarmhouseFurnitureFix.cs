@@ -30,8 +30,6 @@ namespace MUMPs.Patches
             else if (furnitureData.TryGetValue(orig.parentSheetIndex, out string data))
                 switch (data.Split('/')[1].Split(' ')[0])
                 {
-                    case "bed":
-                        return (orig is BedFurniture) ? orig : new BedFurniture(orig.parentSheetIndex, orig.tileLocation, orig.currentRotation);
                     case "fishtank":
                         return (orig is FishTankFurniture) ? orig : new FishTankFurniture(orig.parentSheetIndex, orig.tileLocation, orig.currentRotation);
                 }

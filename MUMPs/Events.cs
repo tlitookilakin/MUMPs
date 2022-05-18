@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.API;
+using AeroCore.Models;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 
 namespace MUMPs
 {
+    [ModInit]
     class Events
     {
         public static readonly PerScreen<List<Action>> afterFadeQueue = new(() => new());
@@ -35,10 +38,17 @@ namespace MUMPs
             Props.ActionGarbage.Cleanup();
             Integration.VisibleFish.DayStart();
         }
-        public static void Setup()
+        public static void Init()
         {
-            Utils.Setup();
-            Integration.VisibleFish.Setup();
+            ModEntry.helper.Events.GameLoop.DayStarted += DayStarted;
+            ModEntry.helper.Events.Player.Warped += ChangeLocation;
+            ModEntry.helper.Events.Display.RenderedWorld += DrawOnTop;
+            ModEntry.helper.Events.GameLoop.UpdateTicked += Tick;
+            ModEntry.helper.Events.GameLoop.ReturnedToTitle += OnQuit;
+            ModEntry.helper.Events.GameLoop.SaveLoaded += EnterWorld;
+            ModEntry.helper.Events.Display.RenderedHud += DrawOverHud;
+            ModEntry.helper.Events.Multiplayer.ModMessageReceived += RecieveMessage;
+            ModEntry.AeroAPI.LightingEvent += DoLighting;
         }
         public static void EnterWorld(object sender, SaveLoadedEventArgs ev)
         {
@@ -134,7 +144,7 @@ namespace MUMPs
                     Props.ActionRepair.EventAndReload(ev.ReadAs<models.MessageRepairEvent>());
                     break;
                 case "ReloadEvent":
-                    Utils.ReceiveReloadRequest(ev.ReadAs<models.MessageRepairEvent>());
+                    Utility.ReceiveReloadRequest(ev.ReadAs<models.MessageRepairEvent>());
                     break;
                 default:
                     ModEntry.monitor.Log("Unhandled message type: " + ev.Type, LogLevel.Warn);
@@ -148,10 +158,9 @@ namespace MUMPs
                 b.Draw(Game1.staminaRect, new Rectangle(0, 0, Game1.viewport.Width, Game1.viewport.Height), Color.Black);
             }
         }
-        public static void DoLighting(object sender, float intensity)
+        public static void DoLighting(ILightingEventArgs ev)
         {
-            Props.LightingLayer.Draw(intensity);
-            ModEntry.API.InvokeLighting(intensity);
+            Props.LightingLayer.Draw(ev);
         }
     }
 }

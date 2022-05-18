@@ -13,12 +13,6 @@ namespace MUMPs
 {
     public class API : IMumpsAPI
     {
-        public event Action<object, float> OnLighting;
-
-        internal void InvokeLighting(float intensity)
-        {
-            OnLighting?.Invoke(Game1.spriteBatch, intensity);
-        }
         public void DisplayImage(string assetPath)
         {
             if (Game1.activeClickableMenu == null) {
@@ -36,17 +30,9 @@ namespace MUMPs
         {
             throw new NotImplementedException();
         }
-        public bool TryParseColor(string str, out Color color)
-        {
-            return Utils.TryParseColor(str, out color);
-        }
         public void PlaceItemAt(GameLocation location, Vector2 tile, string type, string id)
         {
             Props.SpawnObject.GenerateAt(location, tile, type, id);
-        }
-        public void RegisterAction(string id, Action<Farmer, string, Point> action, bool isInspect = false)
-        {
-            Utils.AddAction(id, isInspect, action);
         }
         public void ReloadAllScreens()
         {
@@ -57,7 +43,7 @@ namespace MUMPs
         }
         public void ReloadLocation(GameLocation location)
         {
-            Utils.BroadcastReloadRequest(location.Name);
+            Utility.BroadcastReloadRequest(location.Name);
         }
         public void ReloadScreen(int id = -1)
         {
@@ -66,13 +52,9 @@ namespace MUMPs
             else
                 Events.reloadScreen.SetValueForScreen(id, true);
         }
-        public void UnregisterAction(string id)
-        {
-            Utils.RemoveAction(id);
-        }
         public void WarpToTempMap(Farmer who, string path)
         {
-            Utils.warpToTempMap(path, who);
+            Utility.warpToTempMap(path, who);
         }
     }
 }

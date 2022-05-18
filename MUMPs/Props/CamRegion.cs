@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using AeroCore.Utils;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -22,7 +23,7 @@ namespace MUMPs.Props
 
             for(int i = 0; i + 3 < split.Length; i += 4)
             {
-                if(!split.StringsToRect(out Rectangle rect, i))
+                if(!split.ToRect(out Rectangle rect, i))
                 {
                     ModEntry.monitor.Log("Failed to parse CamRegion map property @ " + loc.Name + ": could not convert to number.", LogLevel.Warn);
                     regions.Value.Clear();

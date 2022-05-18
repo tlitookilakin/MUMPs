@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.Utils;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ namespace MUMPs.Props
     {
         public static void display(Farmer who, string action, Point _)
         {
-            var split = Utils.SafeSplitList(action, ' ');
+            var split = action.SafeSplitList(' ');
             List<Response> opts = new();
             for(int i = 0; i + 3 < split.Count; i += 4)
             {
@@ -21,7 +22,7 @@ namespace MUMPs.Props
         {
             if (target == "___")
                 return;
-            var split = Utils.SafeSplitList(target, ' ');
+            var split = target.SafeSplitList(' ');
             if (Game1.getLocationFromName(split[2]) == null)
                 return;
             if (!int.TryParse(split[0], out int x) || !int.TryParse(split[1], out int y))

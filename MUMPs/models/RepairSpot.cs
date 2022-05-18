@@ -7,8 +7,8 @@ namespace MUMPs.models
 {
     class RepairSpot
     {
-        public static Rectangle bubble = new Rectangle(141, 465, 20, 24);
-        public static Rectangle question = new Rectangle(175, 425, 12, 12);
+        public static Rectangle bubble = new(141, 465, 20, 24);
+        public static Rectangle question = new(175, 425, 12, 12);
 
         public int X = 0;
         public int Y = 0;

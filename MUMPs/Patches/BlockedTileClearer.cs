@@ -38,18 +38,18 @@ namespace MUMPs.Patches
             //just delete these, no drops.
             loc.resourceClumps.Filter((f) =>
             {
-                return !ShouldKillObject(loc, f.tile);
+                return !ShouldKillObject(loc, f.tile.Value);
             });
             loc.terrainFeatures.Filter((f) => {
                 return !ShouldKillObject(loc, f.Key);
             });
             loc.largeTerrainFeatures.Filter((f) => {
-                return !ShouldKillObject(loc, f.tilePosition);
+                return !ShouldKillObject(loc, f.tilePosition.Value);
             });
         }
         public static void ClearFurniture(Furniture obj, GameLocation loc)
         {
-            Vector2 pos = obj.tileLocation;
+            Vector2 pos = obj.TileLocation;
             Vector2 pixelPos = new(pos.X * 64f + 32f, pos.Y * 64f + 32f);
             Game1.createItemDebris(obj.getOne(), pixelPos, 0, loc);
             if(obj is StorageFurniture furn)

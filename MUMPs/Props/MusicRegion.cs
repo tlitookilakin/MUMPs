@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.Utils;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using System;
@@ -29,7 +30,7 @@ namespace MUMPs.Props
 
             for(int i = 0; i + 4 < data.Length; i += 5)
             {
-                if(data.StringsToRect(out Rectangle rect, i))
+                if(data.ToRect(out Rectangle rect, i))
                 {
                     regions[rect] = data[i + 4];
                 } else
