@@ -18,7 +18,7 @@ namespace MUMPs.models
         {
             radius = Radius;
             color = Color;
-            fogTex = ModEntry.helper.Content.Load<Texture2D>("Mods/Mumps/Fog", ContentSource.GameContent);
+            fogTex = ModEntry.helper.GameContent.Load<Texture2D>("Mods/Mumps/Fog");
         }
         public void Draw(SpriteBatch b)
         {

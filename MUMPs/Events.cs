@@ -36,7 +36,6 @@ namespace MUMPs
                 }
             }
             Props.ActionGarbage.Cleanup();
-            Integration.VisibleFish.DayStart();
         }
         public static void Init()
         {
@@ -86,7 +85,7 @@ namespace MUMPs
         }
         public static void EnterLocation(GameLocation location)
         {
-            drawVoid.Value = (location.mapPath == PathUtilities.NormalizeAssetName("Maps/EventVoid"));
+            drawVoid.Value = (location.mapPath.Value == PathUtilities.NormalizeAssetName("Maps/EventVoid"));
             Props.Birds.EnterLocation(location);
             Props.Parallax.ChangeLocation(location);
             Props.ActionRepair.ChangeLocation(location);

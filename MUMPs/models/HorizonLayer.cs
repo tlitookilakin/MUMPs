@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MUMPs.models
 {
-    class HorizonLayer
+    class HorizonLayer : IDisposable
     {
         public enum Mode {None, Tile, Stretch}
         public string Texture { set; get; } = "";
@@ -94,6 +94,10 @@ namespace MUMPs.models
                     }
                     break;
             }
+        }
+        public void Dispose()
+        {
+            ATexture.Dispose();
         }
     }
 }

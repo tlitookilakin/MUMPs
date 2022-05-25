@@ -19,52 +19,33 @@ namespace MUMPs.Props
 
         public static void EnterLocation(GameLocation location)
         {
-
             birds.Value = null;
             string prop = location.getMapProperty("Birds");
             if (prop.Length == 0)
                 return;
+
             if (!int.TryParse(prop, out int count))
             {
                 ModEntry.monitor.Log("Invalid value for 'Birds' property; could not convert to number.", LogLevel.Warn);
                 return;
             }
 
-            var spots = GetSpotsFor(location);
-            count = Math.Clamp(count, 0, Math.Min(spots.perch.Length, spots.roost.Length));
+            var (perch, roost) = GetSpotsFor(location);
+            count = Math.Clamp(count, 0, Math.Min(perch.Length, roost.Length));
 
-            birds.Value = new PerchingBirds(Game1.birdsSpriteSheet, 2, 16, 16, origin, spots.perch, spots.roost)
+            birds.Value = new PerchingBirds(Game1.birdsSpriteSheet, 2, 16, 16, origin, perch, roost)
             {
                 roosting = Game1.timeOfDay >= 1800
             };
-            for(int i = 0; i < count; i++)
-            {
-                birds.Value.AddBird((Game1.currentSeason == "fall") ? 10 : Game1.random.Next(0, 4));
-            }
-        }
-        public static void Cleanup()
-        {
-            birds.ResetAllScreens();
-        }
-        public static void DrawAbove(SpriteBatch batch)
-        {
-            if(birds.Value == null)
-                return;
-            birds.Value.Draw(batch);
-        }
-        public static void Update(GameTime time)
-        {
-            if(birds.Value == null)
-                return;
-            birds.Value.Update(time);
-        }
-        public static (Point[] perch, Point[] roost) GetSpotsFor(GameLocation location)
-        {
-            if (location == null)
-                return (Array.Empty<Point>(), Array.Empty<Point>());
 
-            return ScanForSpots(location.Map);
+            for(int i = 0; i < count; i++)
+                birds.Value.AddBird((Game1.currentSeason == "fall") ? 10 : Game1.random.Next(0, 4));
         }
+        public static void Cleanup() => birds.ResetAllScreens();
+        public static void DrawAbove(SpriteBatch batch) => birds.Value?.Draw(batch);
+        public static void Update(GameTime time) => birds.Value?.Update(time);
+        public static (Point[] perch, Point[] roost) GetSpotsFor(GameLocation location)
+            => location is null ? (Array.Empty<Point>(), Array.Empty<Point>()) : ScanForSpots(location.map);
         public static (Point[] perch, Point[] roost) ScanForSpots(Map map)
         {
             ModEntry.monitor.Log("Scanning for perches....");

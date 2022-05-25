@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.Utils;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -13,13 +14,8 @@ namespace MUMPs.Props
         public static string DirPath = ModEntry.ContentDir + "MapImages" + PathUtilities.PreferredAssetSeparator;
         public static void show(Farmer who, string action, Point _)
         {
-            try
-            {
-                Game1.activeClickableMenu = new UI.ImageDisplay(ModEntry.helper.Content.Load<Texture2D>(DirPath + action, ContentSource.GameContent));
-            } catch(ContentLoadException e)
-            {
-                ModEntry.monitor.Log("Failed to load display image '" + DirPath + action + "' from game content:\n" + e.Message, LogLevel.Warn);
-            }
+            if(Misc.TryLoadAsset<Texture2D>(ModEntry.monitor, ModEntry.helper, DirPath + action, out var tex))
+                Game1.activeClickableMenu = new UI.ImageDisplay(tex);
         }
     }
 }

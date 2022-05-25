@@ -1,4 +1,5 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -17,13 +18,14 @@ namespace MUMPs.Props
         public static readonly PerScreen<Dictionary<Rectangle, int>> idRegions = new(() => new());
         public static readonly PerScreen<Dictionary<Rectangle, string>> locRegions = new(() => new());
 
-        private static ILHelper fishPatch = new ILHelper("GetFish").Add(new CodeInstruction[]
-        {
-            new(OpCodes.Ldarg_S, 6),
-            new(OpCodes.Ldarg_S, 7),
-            new(OpCodes.Call, typeof(FishingArea).MethodNamed("SwapPool")),
-            new(OpCodes.Starg_S, 7)
-        }).Finish();
+        private static readonly ILHelper fishPatch = new ILHelper(ModEntry.monitor, "GetFish")
+            .Add(new CodeInstruction[]{
+                new(OpCodes.Ldarg_S, 6),
+                new(OpCodes.Ldarg_S, 7),
+                new(OpCodes.Call, typeof(FishingArea).MethodNamed("SwapPool")),
+                new(OpCodes.Starg_S, 7)
+            })
+            .Finish();
 
         public static void ChangeLocation(GameLocation loc)
         {
@@ -58,28 +60,19 @@ namespace MUMPs.Props
 
         [HarmonyPatch(typeof(GameLocation), "getFish")]
         [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> GetFish(IEnumerable<CodeInstruction> instructions)
-        {
-            foreach (var code in fishPatch.Run(instructions))
-                yield return code;
-        }
+        public static IEnumerable<CodeInstruction> GetFish(IEnumerable<CodeInstruction> instructions) => fishPatch.Run(instructions);
 
         [HarmonyPatch(typeof(Farm), "getFish")]
         [HarmonyPrefix]
         public static bool FarmGetFish(Farm __instance, ref Object __result, float millisecondsAfterNibble, int bait, int waterDepth, Farmer who, double baitPotency, Vector2 bobberTile, string location)
         {
             if (bobberTile != Vector2.Zero)
-            {
                 foreach (Building b in __instance.buildings)
-                {
                     if (b is FishPond && b.isTileFishable(bobberTile))
                     {
                         __result = (b as FishPond).CatchFish();
                         return false;
                     }
-                }
-            }
-
             location = SwapPool(bobberTile, location);
             
             if (location != null)
@@ -102,12 +95,8 @@ namespace MUMPs.Props
                 return location;
 
             foreach ((var region, string loc) in locRegions.Value)
-            {
                 if (region.Contains(bobber))
-                {
                     return loc;
-                }
-            }
             return null;
         }
 
@@ -116,13 +105,11 @@ namespace MUMPs.Props
         public static bool GetFishingLocationPatch(ref Vector2 tile, ref int __result)
         {
             foreach((var region, int id) in idRegions.Value)
-            {
                 if (region.Contains(tile))
                 {
                     __result = id;
                     return false;
                 }
-            }
             return true;
         }
     }

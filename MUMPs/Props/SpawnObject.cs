@@ -24,7 +24,7 @@ namespace MUMPs.Props
 
         public static void ChangeLocation(GameLocation loc)
         {
-            furnitureData = ModEntry.helper.Content.Load<Dictionary<int, string>>("Data/Furniture", ContentSource.GameContent);
+            furnitureData = ModEntry.helper.GameContent.Load<Dictionary<int, string>>("Data/Furniture");
 
             if (loc.modData.ContainsKey("tlitookilakin.mumps.generatedObjects"))
                 return;

@@ -1,32 +1,43 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Models;
+using AeroCore.Utils;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MUMPs.Integration
 {
+    [ModInit(WhenHasMod = "shekurika.WaterFish")]
     class VisibleFish
     {
-        private static readonly ILHelper patcher = setupPatcher();
         private static (double chance, string loc)? farmFishOverride = null;
-        public static void Setup()
-        {
-            if (ModEntry.helper.ModRegistry.IsLoaded("shekurika.WaterFish"))
+
+        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codes, ILGenerator gen) => patcher.Run(codes, gen);
+        private static readonly ILHelper patcher = new ILHelper(ModEntry.monitor, "Visible Fish Integration")
+            .SkipTo(new CodeInstruction[]
             {
-                ModEntry.monitor.Log("Attempting to patch Visible Fish mod for integration...", LogLevel.Debug);
-                var method = AccessTools.TypeByName("showFishInWater.FishManager").MethodNamed("getFishAt");
-                ModEntry.harmony.Patch(method, transpiler: new HarmonyMethod(typeof(VisibleFish), "Transpiler"));
-            }
+                new(OpCodes.Ldloc_0),
+                new(OpCodes.Callvirt, typeof(GameLocation).MethodNamed("get_NameOrUniqueName")),
+                new(OpCodes.Stloc_S, (-1, typeof(string)))
+            })
+            .Skip(2)
+            .Transform(Inject)
+            .Remove(1)
+            .Finish();
+
+        internal static void Init()
+        {
+            ModEntry.monitor.Log("Attempting to patch Visible Fish mod for integration...", LogLevel.Debug);
+            var method = AccessTools.TypeByName("showFishInWater.FishManager").MethodNamed("getFishAt");
+            ModEntry.harmony.Patch(method, transpiler: new HarmonyMethod(typeof(VisibleFish), "Transpiler"));
+            ModEntry.helper.Events.GameLoop.DayStarted += (s, e) => DayStart();
         }
-        public static void DayStart()
+
+        private static void DayStart()
         {
             string[] prop = Game1.getFarm().getMapProperty("FarmFishLocationOverride")?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if (prop != null && prop.Length >= 2 && double.TryParse(prop[1], out double chance))
@@ -34,12 +45,8 @@ namespace MUMPs.Integration
             else
                 farmFishOverride = null;
         }
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            foreach (var code in patcher.Run(instructions))
-                yield return code;
-        }
-        public static string GetUseNameAt(GameLocation loc, int x, int y, string defaultVal)
+
+        private static string GetUseNameAt(int x, int y, string defaultVal)
         {
             Point pos = new(x, y);
 
@@ -52,23 +59,18 @@ namespace MUMPs.Integration
 
             return defaultVal;
         }
-        private static ILHelper setupPatcher()
+
+        private static IList<CodeInstruction> Inject(ILHelper.ILEnumerator cursor)
         {
-            return new ILHelper("Visible Fish").SkipTo(new CodeInstruction[]
+            return new CodeInstruction[]
             {
-                new(OpCodes.Ldloc_0),
-                new(OpCodes.Callvirt, typeof(GameLocation).MethodNamed("get_NameOrUniqueName")),
-                new(OpCodes.Stloc_S, (-1, typeof(string)))
-            }).Add(Inject).Finish();
-        }
-        private static IEnumerable<CodeInstruction> Inject(IList<LocalBuilder> boxes)
-        {
-            yield return new(OpCodes.Ldarg_0);
-            yield return new(OpCodes.Ldarg_1);
-            yield return new(OpCodes.Ldarg_2);
-            yield return new(OpCodes.Ldloc_S, boxes[0]);
-            yield return new(OpCodes.Call, typeof(VisibleFish).MethodNamed("GetUseNameAt"));
-            yield return new(OpCodes.Stloc_S, boxes[0]);
+                cursor.Current,
+                new(OpCodes.Ldarg_1),
+                new(OpCodes.Ldarg_2),
+                new(OpCodes.Ldloc_S, cursor.Current.operand),
+                new(OpCodes.Call, typeof(VisibleFish).MethodNamed(nameof(GetUseNameAt))),
+                new(OpCodes.Stloc_S, cursor.Current.operand)
+            };
         }
     }
 }

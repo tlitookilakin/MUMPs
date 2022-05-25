@@ -25,28 +25,24 @@ namespace MUMPs.Props
             {
                 if(!split.ToRect(out Rectangle rect, i))
                 {
-                    ModEntry.monitor.Log("Failed to parse CamRegion map property @ " + loc.Name + ": could not convert to number.", LogLevel.Warn);
+                    ModEntry.monitor.Log($"Failed to parse CamRegion map property @ '{loc.Name}': could not convert to number.", LogLevel.Warn);
                     regions.Value.Clear();
                     return;
                 }
                 regions.Value.Add(rect);
             }
         }
-        public static void Cleanup()
-        {
-            regions.ResetAllScreens();
-        }
+        public static void Cleanup() => regions.ResetAllScreens();
 
         [HarmonyPatch(typeof(Game1), "UpdateViewPort")]
         [HarmonyPrefix]
-        public static bool UpdateCamera(bool overrideFreeze, ref Point centerPoint)
+        public static void UpdateCamera(bool overrideFreeze, ref Point centerPoint)
         {
             if (Game1.currentLocation.forceViewportPlayerFollow || (!overrideFreeze && Game1.viewportFreeze))
-                return true;
+                return;
 
             Point tileCenter = new(centerPoint.X / 64, centerPoint.Y / 64);
             foreach(var region in regions.Value)
-            {
                 if (region.Contains(tileCenter))
                 {
                     centerPoint.X = (Game1.viewport.Width >= region.Width) ? region.X + region.Width / 2 :
@@ -55,8 +51,6 @@ namespace MUMPs.Props
                         Math.Clamp(centerPoint.Y, region.Y + Game1.viewport.Height / 2, region.Y + region.Height - Game1.viewport.Height / 2);
                     break;
                 }
-            }
-            return true;
         }
     }
 }

@@ -11,10 +11,8 @@ namespace MUMPs.Props
     {
         private static readonly PerScreen<bool> drawBorders = new(() => false);
 
-        public static void ChangeLocation(GameLocation loc)
-        {
-            drawBorders.Value = loc.getMapProperty("DrawBorders") != null;
-        }
+        public static void ChangeLocation(GameLocation loc) 
+            => drawBorders.Value = !string.IsNullOrEmpty(loc.getMapProperty("DrawBorders"));
         public static void Draw(SpriteBatch b)
         {
             if (!drawBorders.Value || Game1.currentLocation == null)
@@ -32,9 +30,6 @@ namespace MUMPs.Props
             if (view.Right > map.Width)
                 b.Draw(Game1.staminaRect, new Rectangle(map.Width - view.X, 0, view.Right - map.Width, view.Height), Color.Black);
         }
-        public static void Cleanup()
-        {
-            drawBorders.ResetAllScreens();
-        }
+        public static void Cleanup() => drawBorders.ResetAllScreens();
     }
 }

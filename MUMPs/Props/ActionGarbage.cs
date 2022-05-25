@@ -6,9 +6,7 @@ using StardewValley.Characters;
 using StardewValley.Locations;
 using StardewValley.Objects;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 using System.Linq;
 
 namespace MUMPs.Props
@@ -46,27 +44,22 @@ namespace MUMPs.Props
 			Random garbageRandom = new Random((int)Game1.uniqueIDForThisGame / 2 + (int)Game1.stats.DaysPlayed + 777 + (index.GetHashCode() % 16) * 77);
 			int prewarm = garbageRandom.Next(0, 100);
 			for (int k = 0; k < prewarm; k++)
-			{
 				garbageRandom.NextDouble();
-			}
+
 			prewarm = garbageRandom.Next(0, 100);
 			for (int j = 0; j < prewarm; j++)
-			{
 				garbageRandom.NextDouble();
-			}
+
 			Game1.stats.incrementStat("trashCansChecked", 1);
 			int xSourceOffset = StardewValley.Utility.getSeasonNumber(Game1.currentSeason) * 17;
 			bool mega = Game1.stats.getStat("trashCansChecked") > 20 && garbageRandom.NextDouble() < 0.01;
 			bool doubleMega = Game1.stats.getStat("trashCansChecked") > 20 && garbageRandom.NextDouble() < 0.002;
 			if (doubleMega)
-			{
 				location.playSound("explosion");
-			}
 			else if (mega)
-			{
 				location.playSound("crit");
-			}
-			List<TemporaryAnimatedSprite> trashCanSprites = new List<TemporaryAnimatedSprite>();
+
+			List<TemporaryAnimatedSprite> trashCanSprites = new();
 			trashCanSprites.Add(new TemporaryAnimatedSprite("LooseSprites\\Cursors2", new Rectangle(22 + xSourceOffset, 0, 16, 10), new Vector2(x, y) * 64f + new Vector2(0f, -6f) * 4f, flipped: false, 0f, Color.White)
 			{
 				interval = (doubleMega ? 4000 : 1000),
@@ -101,9 +94,8 @@ namespace MUMPs.Props
 				id = 97654f
 			});
 			if (doubleMega)
-			{
 				trashCanSprites.Last().reachedStopCoordinate = trashCanSprites.Last().bounce;
-			}
+
 			trashCanSprites.Add(new TemporaryAnimatedSprite("LooseSprites\\Cursors2", new Rectangle(22 + xSourceOffset, 11, 16, 16), new Vector2(x, y) * 64f + new Vector2(0f, -5f) * 4f, flipped: false, 0f, Color.White)
 			{
 				interval = (doubleMega ? 999999 : 1000),
@@ -130,8 +122,8 @@ namespace MUMPs.Props
             Character c = StardewValley.Utility.isThereAFarmerOrCharacterWithinDistance(new Vector2(x, y), 7, location);
 			if (c != null && c is NPC && !(c is Horse))
 			{
-				multiplayer.globalChatInfoMessage("TrashCan", Game1.player.Name, c.name);
-				if (c.name.Equals("Linus"))
+				multiplayer.globalChatInfoMessage("TrashCan", Game1.player.Name, c.Name);
+				if (c.Name.Equals("Linus"))
 				{
 					c.doEmote(32);
 					(c as NPC).setNewDialogue(Game1.content.LoadString("Data\\ExtraDialogue:Town_DumpsterDiveComment_Linus"), add: true, clearOnMovement: true);
@@ -159,9 +151,7 @@ namespace MUMPs.Props
 				Game1.drawDialogue(c as NPC);
 			}
 			if (doubleMega)
-			{
 				who.addItemByMenuIfNecessary(new Hat(66));
-			}
 			else if (mega || garbageRandom.NextDouble() < 0.2 + who.DailyLuck)
 			{
 				int item = 168;
@@ -199,9 +189,7 @@ namespace MUMPs.Props
 						break;
 				}
 				if (Game1.random.NextDouble() <= 0.25 && Game1.player.team.SpecialOrderRuleActive("DROP_QI_BEANS"))
-				{
 					item = 890;
-				}
 				Vector2 origin = new Vector2(x + 0.5f, y - 1) * 64f;
 				Game1.createItemDebris(new StardewValley.Object(item, 1), origin, 2, location, (int)origin.Y + 64);
 			}

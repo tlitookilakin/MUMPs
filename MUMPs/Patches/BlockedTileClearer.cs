@@ -14,7 +14,7 @@ namespace MUMPs.Patches
         public static void ClearBlockedTilesIn(GameLocation loc)
         {
             //don't run in farmhouse, it interacts weirdly with house upgrades
-            if (loc?.map == null || loc is FarmHouse)
+            if (loc is null || loc.map == null || loc is FarmHouse || !loc.map.Properties.ContainsKey("ClearBlockedTiles"))
                 return;
 
             List<Vector2> objPositions = loc.Objects.Keys.ToList();

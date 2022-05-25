@@ -4,12 +4,6 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
-using xTile.Layers;
 
 namespace MUMPs
 {
@@ -21,14 +15,6 @@ namespace MUMPs
         {
             mpField = ModEntry.helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer");
         }
-        public static IList<T> TransformItems<T>(this IList<T> list, Func<T, T> transformer)
-        {
-            for(int i = 0; i < list.Count; i++)
-            {
-                list[i] = transformer(list[i]);
-            }
-            return list;
-        }
         public static void BroadcastReloadRequest(string name)
         {
             models.MessageRepairEvent msg = new(name);
@@ -37,22 +23,17 @@ namespace MUMPs
         }
         public static void ReceiveReloadRequest(models.MessageRepairEvent ev)
         {
-            if(ev.LocationName == Game1.currentLocation.name)
-            {
-                ReloadCurrentLocation(Game1.currentLocation.mapPath, Game1.player.getTileLocation(), ev.LocationName);
-            }
+            if(ev.LocationName == Game1.currentLocation.Name)
+                ReloadCurrentLocation(Game1.currentLocation.mapPath.Value, Game1.player.getTileLocation(), ev.LocationName);
         }
         public static void ReloadCurrentLocation(string path, Vector2 coords, string name)
         {
-            ModEntry.helper.Content.InvalidateCache(path);
-            if (Game1.currentLocation.mapPath == path)
-                Utility.warpToTempMap("EventVoid", Game1.player);
+            ModEntry.helper.GameContent.InvalidateCache(path);
+            if (Game1.currentLocation.mapPath.Value == path)
+                warpToTempMap("EventVoid", Game1.player);
             Game1.warpFarmer(name, (int)coords.X, (int)coords.Y, false);
         }
-        public static Multiplayer GetMultiplayer()
-        {
-            return mpField.GetValue();
-        }
+        public static Multiplayer GetMultiplayer() => mpField.GetValue();
         public static void warpToTempMap(string path, Farmer who)
         {
             GameLocation temp = new(PathUtilities.NormalizeAssetName("Maps/"+path), "Temp");

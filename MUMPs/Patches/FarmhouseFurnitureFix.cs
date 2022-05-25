@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using AeroCore.Utils;
+using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Locations;
@@ -20,18 +21,23 @@ namespace MUMPs.Patches
         [HarmonyPostfix]
         public static void FixFurniture(FarmHouse __instance)
         {
-            furnitureData = ModEntry.helper.Content.Load<Dictionary<int, string>>("Data/Furniture", ContentSource.GameContent);
+            if (__instance.modData.ContainsKey("tlitoo.mumps.fixedFurniture"))
+                return;
+
+            furnitureData = ModEntry.helper.GameContent.Load<Dictionary<int, string>>("Data/Furniture");
             __instance.furniture.TransformItems(Replace);
+            __instance.modData.Add("tlitoo.mumps.fixedFurniture", "T");
         }
         public static Furniture Replace(Furniture orig)
         {
-            if (Props.SpawnObject.TVIDs.Contains(orig.parentSheetIndex))
-                return (orig is TV) ? orig : new TV(orig.parentSheetIndex, orig.tileLocation);
-            else if (furnitureData.TryGetValue(orig.parentSheetIndex, out string data))
-                switch (data.Split('/')[1].Split(' ')[0])
-                {
+            if (Props.SpawnObject.TVIDs.Contains(orig.ParentSheetIndex))
+                return (orig is TV) ? orig : new TV(orig.ParentSheetIndex, orig.TileLocation);
+            else if (furnitureData.TryGetValue(orig.ParentSheetIndex, out string data))
+                switch (data.GetChunk('/', 1).GetChunk(' ', 0)) {
                     case "fishtank":
-                        return (orig is FishTankFurniture) ? orig : new FishTankFurniture(orig.parentSheetIndex, orig.tileLocation, orig.currentRotation);
+                        return (orig is FishTankFurniture) ? orig : new FishTankFurniture(orig.ParentSheetIndex, orig.TileLocation, orig.currentRotation.Value);
+                    case "bed":
+                        return (orig is BedFurniture) ? orig : new BedFurniture(orig.ParentSheetIndex, orig.TileLocation);
                 }
             return orig;
         }

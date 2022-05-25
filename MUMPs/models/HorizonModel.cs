@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore.Utils;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System;
@@ -6,7 +7,7 @@ using System.Collections.Generic;
 
 namespace MUMPs.models
 {
-    class HorizonModel : IDrawableWorldLayer
+    class HorizonModel : IDisposable
     {
         public List<HorizonLayer> Layers { set; get; } = new();
         public bool DrawSky { set; get; } = true;
@@ -25,6 +26,7 @@ namespace MUMPs.models
             foreach(var layer in Layers)
                 layer.Draw(b, center, millis);
         }
+		public void Dispose() => Layers.DisposeAll();
 		public void drawSky(SpriteBatch b)
         {
 			float alpha = 1f;

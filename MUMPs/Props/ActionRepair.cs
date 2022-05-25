@@ -17,9 +17,7 @@ namespace MUMPs.Props
         public static void Draw(SpriteBatch b)
         {
             foreach(var spot in currentSet.Value)
-            {
                 spot.Draw(b);
-            }
         }
         public static void ChangeLocation(GameLocation loc)
         {
@@ -35,15 +33,10 @@ namespace MUMPs.Props
                     continue;
 
                 if (action.ToString().Trim().StartsWith("Repair"))
-                {
                     currentSet.Value.Add(new(x, y));
-                }
             }
         }
-        public static void Cleanup()
-        {
-            currentSet.ResetAllScreens();
-        }
+        public static void Cleanup() => currentSet.ResetAllScreens();
         public static void DoAction(Farmer who, string action, Point _)
         {
             if (who.currentLocation.Name == "Temp")
@@ -62,11 +55,9 @@ namespace MUMPs.Props
             string name = info.GetChunk('/', 0);
             object templ = new{ what = split[0] + "x " + name};
             if (!who.hasItemInInventory(id, count))
-            {
                 Game1.drawObjectDialogue(Game1.parseText(ModEntry.helper.Translation.Get("repair.need",templ)));
-                return;
-            }
-            who.currentLocation.createQuestionDialogue(Game1.parseText(ModEntry.helper.Translation.Get("repair.use", templ)),MakeResponses(action),AnswerYesNo);
+            else
+                who.currentLocation.createQuestionDialogue(Game1.parseText(ModEntry.i18n.Get("repair.use", templ)),MakeResponses(action),AnswerYesNo);
         }
         public static void AnswerYesNo(Farmer who, string answer)
         {
@@ -104,7 +95,7 @@ namespace MUMPs.Props
                 {
                 }
             }
-            string path = loc.mapPath;
+            string path = loc.mapPath.Value;
             Vector2 coords = Game1.player.getTileLocation();
 
             Events.afterFadeQueue.Value.Add(() =>
@@ -117,9 +108,7 @@ namespace MUMPs.Props
                         {
                             Utility.ReloadCurrentLocation(path, coords, msg.LocationName);
                             if (Context.IsMainPlayer)
-                            {
                                 Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
-                            }
                         }
                     });
                 }
@@ -127,9 +116,7 @@ namespace MUMPs.Props
                 {
                     Utility.ReloadCurrentLocation(path, coords, msg.LocationName);
                     if (Context.IsMainPlayer)
-                    {
                         Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
-                    }
                 }
             });
             Game1.fadeScreenToBlack();
