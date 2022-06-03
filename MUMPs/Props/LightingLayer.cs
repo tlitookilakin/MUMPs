@@ -19,9 +19,15 @@ using AeroCore.API;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class LightingLayer
     {
         private static Dictionary<TileSheet, Texture2D> sheets;
+
+        internal static void Init()
+        {
+            ModEntry.AeroAPI.LightingEvent += Draw;
+        }
         public static void Reload()
         {
             if (ModEntry.helper.ModRegistry.IsLoaded("Platonymous.Toolkit"))
@@ -49,10 +55,10 @@ namespace MUMPs.Props
             float scale = ev.scale * 4f;
             var size = Game1.lightmap.Bounds.Size;
             int tilesize = (int)(scale * 16f);
-            Point offset = new((int)(origin.X % tilesize), (int)(origin.Y % tilesize));
             Color color = ev.intensity * Color.White;
-            int tx = -(int)Math.Ceiling(origin.X / tilesize);
-            int ty = -(int)Math.Ceiling(origin.Y / tilesize);
+            Point offset = new(-((int)origin.X % tilesize), -((int)origin.Y % tilesize));
+            int tx = (int)Math.Ceiling(origin.X / tilesize);
+            int ty = (int)Math.Ceiling(origin.Y / tilesize);
 
             for (int x = offset.X; x < size.X && tx < layer.LayerWidth; x += tilesize)
             {
@@ -62,7 +68,7 @@ namespace MUMPs.Props
                     ty++;
                 }
                 tx++;
-                ty = -(int)(origin.Y / tilesize);
+                ty = (int)(origin.Y / tilesize);
             }
         }
         public static void DrawTile(SpriteBatch b, Tile tile, int x, int y, float scale, Color color)

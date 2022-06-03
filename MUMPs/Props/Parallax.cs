@@ -36,8 +36,8 @@ namespace MUMPs.Props
         }
         public static void ChangeLocation(GameLocation loc)
         {
-            currentBackground.Value.Dispose();
-            currentForeground.Value.Dispose();
+            currentBackground.Value?.Dispose();
+            currentForeground.Value?.Dispose();
             currentBackground.Value = null;
             currentForeground.Value = null;
 
@@ -56,8 +56,8 @@ namespace MUMPs.Props
         public static void DrawAfter(SpriteBatch b) => currentForeground.Value?.Draw(b, true, foregroundOffset.Value);
         public static void Cleanup()
         {
-            currentBackground.Value.Dispose();
-            currentForeground.Value.Dispose();
+            currentBackground.Value?.Dispose();
+            currentForeground.Value?.Dispose();
             currentBackground.ResetAllScreens();
             currentForeground.ResetAllScreens();
             backgroundOffset.ResetAllScreens();

@@ -28,9 +28,6 @@ namespace MUMPs.Props
                 fog.Value = new(radius, col);
             }
         }
-        public static void Draw(SpriteBatch b)
-        {
-            fog.Value?.Draw(b);
-        }
+        public static void Draw(SpriteBatch b) => fog.Value?.Draw(b);
     }
 }

@@ -39,6 +39,8 @@ namespace MUMPs.Props
         public static void Cleanup() => currentSet.ResetAllScreens();
         public static void DoAction(Farmer who, string action, Point _)
         {
+            ModEntry.monitor.Log(action);
+
             if (who.currentLocation.Name == "Temp")
                 return;
 

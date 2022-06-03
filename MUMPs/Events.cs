@@ -29,9 +29,7 @@ namespace MUMPs
                 foreach (GameLocation loc in Game1.locations)
                 {
                     if (loc.Name != "Woods")
-                    {
                         Props.Stumps.SpawnMapStumps(loc);
-                    }
                     Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
                 }
             }
