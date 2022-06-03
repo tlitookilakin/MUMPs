@@ -51,35 +51,26 @@ namespace MUMPs.Props
                 return;
 
             var batch = Game1.spriteBatch;
-            Vector2 origin = Game1.viewport.Location.toPoint().ToVector2();
-            float scale = ev.scale * 4f;
-            var size = Game1.lightmap.Bounds.Size;
-            int tilesize = (int)(scale * 16f);
             Color color = ev.intensity * Color.White;
-            Point offset = new(-((int)origin.X % tilesize), -((int)origin.Y % tilesize));
-            int tx = (int)Math.Ceiling(origin.X / tilesize);
-            int ty = (int)Math.Ceiling(origin.Y / tilesize);
+            float scale = ev.scale * 4f;
+            int tilesize = (int)(scale * 16f);
+            var port = Game1.viewport.toRect();
+            Point offset = new((int)(port.X % 64 * ev.scale), (int)(port.Y % 64 * ev.scale));
+            port = new(port.X / 64, port.Y / 64, port.Width / 64 + 1, port.Height / 64 + 1);
 
-            for (int x = offset.X; x < size.X && tx < layer.LayerWidth; x += tilesize)
-            {
-                for(int y = offset.Y; y < size.Y && ty < layer.LayerHeight; y += tilesize)
-                {
-                    DrawTile(batch, layer.Tiles[new(tx, ty)], x, y, scale, color);
-                    ty++;
-                }
-                tx++;
-                ty = (int)(origin.Y / tilesize);
-            }
+            for(int x = 0; x < port.Width; x++)
+                for(int y = 0; y < port.Height; y++)
+                    DrawTile(batch, layer.Tiles[new(x + port.X, y + port.Y)], x * tilesize - offset.X, y * tilesize - offset.Y, scale, color);
         }
-        public static void DrawTile(SpriteBatch b, Tile tile, int x, int y, float scale, Color color)
+        private static void DrawTile(SpriteBatch b, Tile tile, int x, int y, float scale, Color color)
         {
             if(tile != null)
             {
-                var src = tile.TileSheet.GetTileImageBounds(tile.TileIndex);
                 Texture2D tex = sheets[tile.TileSheet];
                 if (!tex.IsDisposed)
                 {
-                    b.Draw(tex, new Vector2(x, y), new Rectangle(src.X, src.Y, src.Width, src.Height), color, 0f, Vector2.Zero, scale, SpriteEffects.None, .9f);
+                    b.Draw(tex, new Vector2(x, y), tile.TileSheet.GetTileImageBounds(tile.TileIndex).toRect(),
+                        color, 0f, Vector2.Zero, scale, SpriteEffects.None, .9f);
                 }
             }
         }
