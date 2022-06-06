@@ -1,4 +1,5 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -10,10 +11,16 @@ using System.Collections.Generic;
 namespace MUMPs.Props
 {
     [HarmonyPatch]
+    [ModInit]
     class CamRegion
     {
         private static readonly PerScreen<List<Rectangle>> regions = new(() => new());
-        public static void ChangeLocation(GameLocation loc)
+        internal static void Init()
+        {
+            ModEntry.OnChangeLocation += ChangeLocation;
+            ModEntry.OnCleanup += Cleanup;
+        }
+        private static void ChangeLocation(GameLocation loc)
         {
             regions.Value.Clear();
             string[] split = loc.getMapProperty("CamRegions")?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -32,11 +39,11 @@ namespace MUMPs.Props
                 regions.Value.Add(rect);
             }
         }
-        public static void Cleanup() => regions.ResetAllScreens();
+        private static void Cleanup() => regions.ResetAllScreens();
 
         [HarmonyPatch(typeof(Game1), "UpdateViewPort")]
         [HarmonyPrefix]
-        public static void UpdateCamera(bool overrideFreeze, ref Point centerPoint)
+        internal static void UpdateCamera(bool overrideFreeze, ref Point centerPoint)
         {
             if (Game1.currentLocation.forceViewportPlayerFollow || (!overrideFreeze && Game1.viewportFreeze))
                 return;

@@ -1,4 +1,5 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -7,11 +8,19 @@ using System.Collections.Generic;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class MusicRegion
     {
         public static readonly Dictionary<Rectangle, string> regions = new();
         private static string lastCue = "";
-        public static void ChangeLocation(GameLocation loc)
+
+        internal static void Init()
+        {
+            ModEntry.OnChangeLocation += ChangeLocation;
+            ModEntry.OnCleanup += Cleanup;
+            ModEntry.OnTick += Update;
+        }
+        private static void ChangeLocation(GameLocation loc)
         {
             if (!Context.IsMainPlayer)
                 return;
@@ -22,7 +31,7 @@ namespace MUMPs.Props
             lastCue = "";
             UpdateRegions(loc);
         }
-        public static void UpdateRegions(GameLocation loc)
+        private static void UpdateRegions(GameLocation loc)
         {
             string[] data = loc.getMapProperty("MusicRegions")?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if (data == null)
@@ -41,13 +50,14 @@ namespace MUMPs.Props
                 }
             }
         }
-        public static void Cleanup()
+        private static void Cleanup()
         {
             regions.Clear();
             lastCue = "";
         }
-        public static void Update(Farmer who)
+        private static void Update()
         {
+            var who = Game1.player;
             if (who.currentLocation == null || Context.IsSplitScreen && !Context.IsMainPlayer)
                 return;
 

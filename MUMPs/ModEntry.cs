@@ -7,6 +7,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,6 +24,11 @@ namespace MUMPs
         internal static string ModID;
         internal static API API = new();
         internal static AeroCore.API.API AeroAPI;
+
+        internal static event Action<SpriteBatch> OnDraw;
+        internal static event Action<GameLocation> OnChangeLocation;
+        internal static event Action OnCleanup;
+        internal static event Action OnTick;
 
         private static string[] LocalHorizons = {"Empty", "Default"};
 
@@ -43,17 +49,8 @@ namespace MUMPs
         {
             AeroAPI = AeroCore.ModEntry.GetStaticApi();
             harmony.PatchAll();
-            AeroAPI.InitAll(typeof(ModEntry));
-            RegisterActions();
+            AeroAPI.InitAll();
             monitor.Log(i18n.Get("startup"), LogLevel.Debug);
-        }
-        public static void RegisterActions()
-        {
-            AeroAPI.RegisterAction("Image",Props.ActionImage.show, 5);
-            AeroAPI.RegisterAction("Repair", Props.ActionRepair.DoAction, 6);
-            AeroAPI.RegisterAction("WarpList", Props.ActionWarpList.display);
-            if (!helper.ModRegistry.IsLoaded("furyx639.GarbageDay"))
-                AeroAPI.RegisterAction("Garbage", Props.ActionGarbage.HandleAction);
         }
         public static void LoadAssets(object _, AssetRequestedEventArgs ev)
         {

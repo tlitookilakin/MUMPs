@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using AeroCore;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -12,11 +13,17 @@ using System.Linq;
 namespace MUMPs.Props
 {
     [HarmonyPatch]
+	[ModInit]
     class ActionGarbage
     {
-        public static readonly PerScreen<Dictionary<GameLocation, HashSet<string>>> checkedCans = new(() => new());
+        private static readonly PerScreen<Dictionary<GameLocation, HashSet<string>>> checkedCans = new(() => new());
 
-        public static void HandleAction(Farmer who, string action, Point tile)
+		internal static void Init()
+		{
+			if (!ModEntry.helper.ModRegistry.IsLoaded("furyx639.GarbageDay"))
+				ModEntry.AeroAPI.RegisterAction("Garbage", HandleAction);
+		}
+		private static void HandleAction(Farmer who, string action, Point tile)
         {
             if(who.currentLocation == null || who.currentLocation is Town)
                 return;
@@ -34,11 +41,8 @@ namespace MUMPs.Props
                 DoGarbage(who.currentLocation, tile.X, tile.Y, who, action);
             }
         }
-		public static void Cleanup()
-        {
-			checkedCans.ResetAllScreens();
-        }
-        public static void DoGarbage(GameLocation location, int x, int y, Farmer who, string index)
+		private static void Cleanup() => checkedCans.ResetAllScreens();
+        private static void DoGarbage(GameLocation location, int x, int y, Farmer who, string index)
         {
 
 			Random garbageRandom = new Random((int)Game1.uniqueIDForThisGame / 2 + (int)Game1.stats.DaysPlayed + 777 + (index.GetHashCode() % 16) * 77);

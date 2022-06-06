@@ -11,10 +11,16 @@ using System.Reflection.Emit;
 namespace MUMPs.Props
 {
     [HarmonyPatch(typeof(GameLocation), "_updateAmbientLighting")]
+    [ModInit]
     class OverrideLighting
     {
         private static readonly PerScreen<bool> force = new(() => false);
         internal static void ChangeLocation(GameLocation loc) => force.Value = loc is not Woods && loc.getMapProperty("OverrideLighting") != null;
+
+        internal static void Init()
+        {
+            ModEntry.OnCleanup += Cleanup;
+        }
 
         internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => patcher.Run(instructions);
         private static readonly ILHelper patcher = new ILHelper(ModEntry.monitor, "Override Lighting")
@@ -31,6 +37,6 @@ namespace MUMPs.Props
                 new(OpCodes.Or)
             })
             .Finish();
-        public static void Cleanup() => force.ResetAllScreens();
+        private static void Cleanup() => force.ResetAllScreens();
     }
 }

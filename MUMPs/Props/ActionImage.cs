@@ -1,4 +1,5 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,10 +10,15 @@ using System;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class ActionImage
     {
-        public static string DirPath = ModEntry.ContentDir + "MapImages" + PathUtilities.PreferredAssetSeparator;
-        public static void show(Farmer who, string action, Point _)
+        internal static void Init()
+        {
+            ModEntry.AeroAPI.RegisterAction("Image", show, 5);
+        }
+        private static string DirPath = ModEntry.ContentDir + "MapImages" + PathUtilities.PreferredAssetSeparator;
+        private static void show(Farmer who, string action, Point _)
         {
             if(Misc.TryLoadAsset<Texture2D>(ModEntry.monitor, ModEntry.helper, DirPath + action, out var tex))
                 Game1.activeClickableMenu = new UI.ImageDisplay(tex);

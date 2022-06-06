@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AeroCore;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -12,12 +13,20 @@ using xTile.Tiles;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class Birds
     {
         private static readonly PerScreen<PerchingBirds> birds = new();
         private static readonly Vector2 origin = new(8f, 14f);
 
-        public static void EnterLocation(GameLocation location)
+        internal static void Init()
+        {
+            ModEntry.OnChangeLocation += EnterLocation;
+            ModEntry.OnCleanup += Cleanup;
+            ModEntry.OnDraw += DrawAbove;
+            ModEntry.OnTick += Update;
+        }
+        private static void EnterLocation(GameLocation location)
         {
             birds.Value = null;
             string prop = location.getMapProperty("Birds");
@@ -41,12 +50,12 @@ namespace MUMPs.Props
             for(int i = 0; i < count; i++)
                 birds.Value.AddBird((Game1.currentSeason == "fall") ? 10 : Game1.random.Next(0, 4));
         }
-        public static void Cleanup() => birds.ResetAllScreens();
-        public static void DrawAbove(SpriteBatch batch) => birds.Value?.Draw(batch);
-        public static void Update(GameTime time) => birds.Value?.Update(time);
-        public static (Point[] perch, Point[] roost) GetSpotsFor(GameLocation location)
+        private static void Cleanup() => birds.ResetAllScreens();
+        private static void DrawAbove(SpriteBatch batch) => birds.Value?.Draw(batch);
+        private static void Update() => birds.Value?.Update(Game1.currentGameTime);
+        private static (Point[] perch, Point[] roost) GetSpotsFor(GameLocation location)
             => location is null ? (Array.Empty<Point>(), Array.Empty<Point>()) : ScanForSpots(location.map);
-        public static (Point[] perch, Point[] roost) ScanForSpots(Map map)
+        private static (Point[] perch, Point[] roost) ScanForSpots(Map map)
         {
             ModEntry.monitor.Log("Scanning for perches....");
             if (map == null)
@@ -75,7 +84,7 @@ namespace MUMPs.Props
                     }
                 }
             }
-            ModEntry.monitor.Log("Found " + perches.Count.ToString() + " perches and " + roosts.Count.ToString() + " roosts.");
+            ModEntry.monitor.Log($"Found {perches.Count} perches and {roosts.Count} roosts.");
             return (perches.ToArray(), roosts.ToArray());
         }
     }

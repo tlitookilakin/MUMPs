@@ -13,7 +13,7 @@ namespace MUMPs.Props
         {
             string[] stumpList = Maps.MapPropertyArray(location, "Stumps");
             if(stumpList.Length > 0)
-                ModEntry.monitor.Log("Adding stumps to " + location.Name + ".", LogLevel.Trace);
+                ModEntry.monitor.Log($"Adding stumps to {location.Name}.", LogLevel.Trace);
             for(int i = 0; i + 2 < stumpList.Length; i += 3)
                 if (stumpList.ToPoint(out Point pos, i) && location.isAreaClear(new Rectangle(pos, stumpArea))) //x, y, unused
                     location.addResourceClumpAndRemoveUnderlyingTerrain(600, 2, 2, pos.ToVector2());

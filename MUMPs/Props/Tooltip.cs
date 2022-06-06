@@ -3,14 +3,21 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 using AeroCore.Utils;
+using AeroCore;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class Tooltip
     {
         private static readonly Point offset = new(48, 48);
         private static readonly Rectangle bgSrc = new(403, 373, 9, 9);
-        public static void Draw(SpriteBatch b)
+
+        internal static void Init()
+        {
+            ModEntry.OnDraw += Draw;
+        }
+        private static void Draw(SpriteBatch b)
         {
             if (Game1.currentLocation == null || Game1.activeClickableMenu != null)
                 return;
@@ -26,7 +33,7 @@ namespace MUMPs.Props
 
             DrawTip(b, tip);
         }
-        public static void DrawTip(SpriteBatch b, string tip)
+        private static void DrawTip(SpriteBatch b, string tip)
         {
             var ms = Game1.getMousePositionRaw();
             var size = Game1.smallFont.MeasureString(tip);

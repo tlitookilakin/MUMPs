@@ -1,4 +1,5 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Utilities;
@@ -7,13 +8,20 @@ using System;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class DrawBorder
     {
         private static readonly PerScreen<bool> drawBorders = new(() => false);
 
-        public static void ChangeLocation(GameLocation loc) 
+        internal static void Init()
+        {
+            ModEntry.OnChangeLocation += ChangeLocation;
+            ModEntry.OnCleanup += Cleanup;
+            ModEntry.OnDraw += Draw;
+        }
+        private static void ChangeLocation(GameLocation loc) 
             => drawBorders.Value = !string.IsNullOrEmpty(loc.getMapProperty("DrawBorders"));
-        public static void Draw(SpriteBatch b)
+        private static void Draw(SpriteBatch b)
         {
             if (!drawBorders.Value || Game1.currentLocation == null)
                 return;
@@ -30,6 +38,6 @@ namespace MUMPs.Props
             if (view.Right > map.Width)
                 b.Draw(Game1.staminaRect, new Rectangle(map.Width - view.X, 0, view.Right - map.Width, view.Height), Color.Black);
         }
-        public static void Cleanup() => drawBorders.ResetAllScreens();
+        private static void Cleanup() => drawBorders.ResetAllScreens();
     }
 }

@@ -1,11 +1,17 @@
-﻿using HarmonyLib;
+﻿using AeroCore;
+using HarmonyLib;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 namespace MUMPs.Props
 {
+    [ModInit]
     class Butterflies
     {
-        public static void EnterLocation(GameLocation location)
+        internal static void Init()
+        {
+            ModEntry.OnChangeLocation += EnterLocation;
+        }
+        private static void EnterLocation(GameLocation location)
         {
             if (!int.TryParse(location.getMapProperty("Butterflies"), out int count))
                 return;
@@ -14,9 +20,7 @@ namespace MUMPs.Props
 
             location.instantiateCrittersList();
             for(int i = 0; i < count; i++)
-            {
                 location.addCritter(new Butterfly(location.getRandomTile(), isIsland).setStayInbounds(true));
-            }
         }
     }
 }

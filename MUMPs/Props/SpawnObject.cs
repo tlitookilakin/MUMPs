@@ -1,4 +1,5 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class SpawnObject
     {
         private static Dictionary<string, Action<GameLocation, Vector2, string>> generators = new() {
@@ -22,7 +24,11 @@ namespace MUMPs.Props
         };
         private static Dictionary<int, string> furnitureData;
 
-        public static void ChangeLocation(GameLocation loc)
+        internal static void Init()
+        {
+            ModEntry.OnChangeLocation += ChangeLocation;
+        }
+        private static void ChangeLocation(GameLocation loc)
         {
             furnitureData = ModEntry.helper.GameContent.Load<Dictionary<int, string>>("Data/Furniture");
 
@@ -33,7 +39,7 @@ namespace MUMPs.Props
 
             Generate(loc);
         }
-        public static void Generate(GameLocation loc)
+        private static void Generate(GameLocation loc)
         {
             foreach ((var tile, int x, int y) in Maps.tilesInLayer(loc.map, "Back"))
             {
@@ -45,14 +51,14 @@ namespace MUMPs.Props
                 }
             }
         }
-        public static void GenerateAt(GameLocation loc, Vector2 pos, string type, string item)
+        private static void GenerateAt(GameLocation loc, Vector2 pos, string type, string item)
         {
             if (generators.TryGetValue(type.ToLowerInvariant(), out var gen))
                 gen(loc, pos, item);
             else
                 ModEntry.monitor.Log("Could not spawn object type: '" + type + "'.", LogLevel.Warn);
         }
-        public static void AddFurniture(GameLocation loc, Vector2 pos, string str)
+        private static void AddFurniture(GameLocation loc, Vector2 pos, string str)
         {
             string[] data = str.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if (!int.TryParse(data[0], out int id))
@@ -76,7 +82,7 @@ namespace MUMPs.Props
                 }
             return (rot >= 0) ? new Furniture(id, pos, rot) : new Furniture(id, pos);
         }
-        public static void AddObject(GameLocation loc, Vector2 pos, string str)
+        private static void AddObject(GameLocation loc, Vector2 pos, string str)
         {
             if (!int.TryParse(str, out int id))
                 return;
@@ -88,7 +94,7 @@ namespace MUMPs.Props
                 obj = new(pos, id, null, false, true, false, true);
             loc.dropObject(obj, pos * 64f, Game1.viewport, true);
         }
-        public static void AddBigCraftable(GameLocation loc, Vector2 pos, string str)
+        private static void AddBigCraftable(GameLocation loc, Vector2 pos, string str)
         {
             if (!int.TryParse(str, out int id))
                 return;
@@ -167,7 +173,7 @@ namespace MUMPs.Props
             loc.objects[pos] = obj;
             
         }
-        public static void AddFruitTree(GameLocation loc, Vector2 pos, string str)
+        private static void AddFruitTree(GameLocation loc, Vector2 pos, string str)
         {
             if (!int.TryParse(str, out int id))
                 return;

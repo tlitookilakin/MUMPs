@@ -1,5 +1,4 @@
 ﻿using AeroCore.Models;
-using AeroCore;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,15 +6,12 @@ using StardewModdingAPI;
 using StardewValley;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using xTile.Display;
 using xTile.Layers;
 using xTile.Tiles;
 using AeroCore.Utils;
 using AeroCore.API;
+using AeroCore;
 
 namespace MUMPs.Props
 {
@@ -28,7 +24,7 @@ namespace MUMPs.Props
         {
             ModEntry.AeroAPI.LightingEvent += Draw;
         }
-        public static void Reload()
+        internal static void Reload()
         {
             if (ModEntry.helper.ModRegistry.IsLoaded("Platonymous.Toolkit"))
                 try {
@@ -44,7 +40,7 @@ namespace MUMPs.Props
                 GetField("m_tileSheetTextures", BindingFlags.NonPublic | BindingFlags.Instance).
                 GetValue(Game1.mapDisplayDevice);
         }
-        public static void Draw(ILightingEventArgs ev)
+        private static void Draw(ILightingEventArgs ev)
         {
             Layer layer = Game1.currentLocation?.map?.GetLayer("Lighting");
             if (layer == null)

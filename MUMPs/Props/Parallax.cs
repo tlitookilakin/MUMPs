@@ -6,17 +6,26 @@ using HarmonyLib;
 using StardewModdingAPI.Utilities;
 using Microsoft.Xna.Framework;
 using AeroCore.Utils;
+using AeroCore;
 
 namespace MUMPs.Props
 {
     [HarmonyPatch]
+    [ModInit]
     class Parallax
     {
         private static readonly PerScreen<HorizonModel> currentBackground = new();
         private static readonly PerScreen<HorizonModel> currentForeground = new();
         private static readonly PerScreen<Vector2> backgroundOffset = new();
         private static readonly PerScreen<Vector2> foregroundOffset = new();
-        public static HorizonModel getTemplate(string prop, out Vector2 offset)
+
+        internal static void Init()
+        {
+            ModEntry.OnChangeLocation += ChangeLocation;
+            ModEntry.OnDraw += DrawAfter;
+            ModEntry.OnCleanup += Cleanup;
+        }
+        private static HorizonModel getTemplate(string prop, out Vector2 offset)
         {
             string[] props = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             offset = Vector2.Zero;
@@ -34,7 +43,7 @@ namespace MUMPs.Props
             else
                 return null;
         }
-        public static void ChangeLocation(GameLocation loc)
+        private static void ChangeLocation(GameLocation loc)
         {
             currentBackground.Value?.Dispose();
             currentForeground.Value?.Dispose();
@@ -52,9 +61,9 @@ namespace MUMPs.Props
 
         [HarmonyPatch(typeof(GameLocation), "drawBackground")]
         [HarmonyPrefix]
-        public static void DrawBackgroundPrefix(ref SpriteBatch b) => currentBackground.Value?.Draw(b, false, backgroundOffset.Value);
-        public static void DrawAfter(SpriteBatch b) => currentForeground.Value?.Draw(b, true, foregroundOffset.Value);
-        public static void Cleanup()
+        internal static void DrawBackgroundPrefix(ref SpriteBatch b) => currentBackground.Value?.Draw(b, false, backgroundOffset.Value);
+        private static void DrawAfter(SpriteBatch b) => currentForeground.Value?.Draw(b, true, foregroundOffset.Value);
+        private static void Cleanup()
         {
             currentBackground.Value?.Dispose();
             currentForeground.Value?.Dispose();

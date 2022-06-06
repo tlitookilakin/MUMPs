@@ -1,4 +1,5 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Utilities;
@@ -7,11 +8,17 @@ using System;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class Fog
     {
-        public static PerScreen<models.FogModel> fog = new();
+        private static PerScreen<models.FogModel> fog = new();
 
-        public static void ChangeLocation(GameLocation loc)
+        internal static void Init()
+        {
+            ModEntry.OnChangeLocation += ChangeLocation;
+            ModEntry.OnDraw += Draw;
+        }
+        private static void ChangeLocation(GameLocation loc)
         {
             fog.Value = null;
 
@@ -28,6 +35,6 @@ namespace MUMPs.Props
                 fog.Value = new(radius, col);
             }
         }
-        public static void Draw(SpriteBatch b) => fog.Value?.Draw(b);
+        private static void Draw(SpriteBatch b) => fog.Value?.Draw(b);
     }
 }

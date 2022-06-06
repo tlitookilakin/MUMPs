@@ -23,15 +23,19 @@ namespace MUMPs.Patches
                 new(OpCodes.Ldarg_0),
                 new(OpCodes.Ldfld, typeof(FarmerSprite).GetField("owner", BindingFlags.NonPublic | BindingFlags.Instance)),
                 new(OpCodes.Ldarg_0),
-                new(OpCodes.Call, typeof(SplashySteps).GetMethod("shouldUseSplash")),
+                new(OpCodes.Call, typeof(SplashySteps).GetMethod(nameof(shouldUseSplash))),
                 new(OpCodes.Stloc_2)
             })
             .Finish();
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => patcher.Run(instructions);
-        public static string shouldUseSplash(Farmer who, FarmerSprite sprite)
+        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => patcher.Run(instructions);
+        private static string shouldUseSplash(Farmer who, FarmerSprite sprite)
         {
             var pos = who.getTileLocationPoint();
-            return (who.currentLocation is not BoatTunnel && who.currentLocation.doesTileHaveProperty(pos.X, pos.Y, "Water", "Back") != null && who.currentLocation.getTileIndexAt(pos, "Buildings") == -1) ? "slosh" : sprite.currentStep;
+            return (who.currentLocation is not BoatTunnel && 
+                who.currentLocation.doesTileHaveProperty(pos.X, pos.Y, "Water", "Back") != null && 
+                who.currentLocation.getTileIndexAt(pos, "Buildings") == -1 &&
+                !Game1.eventUp
+                ) ? "slosh" : sprite.currentStep;
         }
     }
 }

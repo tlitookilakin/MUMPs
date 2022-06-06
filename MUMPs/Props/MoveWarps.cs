@@ -1,18 +1,20 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class MoveWarps
     {
-        public static void CorrectWarp(WarpedEventArgs ev)
+        internal static void Init()
+        {
+            ModEntry.helper.Events.Player.Warped += CorrectWarp;
+        }
+        private static void CorrectWarp(object _, WarpedEventArgs ev)
         {
             string[] warps = Maps.MapPropertyArray(ev.NewLocation,"MoveWarps");
             Point pos = ev.Player.getTileLocationPoint();
@@ -23,11 +25,11 @@ namespace MUMPs.Props
                     if(warps.ToVec2(out Vector2 to, i + 2))
                     {
                         ev.Player.setTileLocation(to);
-                        ModEntry.monitor.Log("Redirected player from " + point.ToString() + " to " + to.ToString() + ".", LogLevel.Trace);
+                        ModEntry.monitor.Log($"Redirected player from {point} to {to}.", LogLevel.Trace);
                         return;
                     } else
                     {
-                        ModEntry.monitor.Log("Could not read MoveWarps property @ " + ev.NewLocation.Name + ", invalid format.", LogLevel.Warn);
+                        ModEntry.monitor.Log($"Could not read MoveWarps property @ {ev.NewLocation.Name}, invalid format.", LogLevel.Warn);
                         return;
                     }
                 }

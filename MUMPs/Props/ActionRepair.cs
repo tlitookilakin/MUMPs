@@ -1,4 +1,5 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,15 +12,23 @@ using System.Collections.Generic;
 
 namespace MUMPs.Props
 {
+    [ModInit]
     class ActionRepair
     {
         private static readonly PerScreen<List<RepairSpot>> currentSet = new(() => new());
-        public static void Draw(SpriteBatch b)
+        internal static void Init()
+        {
+            ModEntry.AeroAPI.RegisterAction("Repair", DoAction, 6);
+            ModEntry.OnDraw += Draw;
+            ModEntry.OnCleanup += Cleanup;
+            ModEntry.OnChangeLocation += ChangeLocation;
+        }
+        private static void Draw(SpriteBatch b)
         {
             foreach(var spot in currentSet.Value)
                 spot.Draw(b);
         }
-        public static void ChangeLocation(GameLocation loc)
+        private static void ChangeLocation(GameLocation loc)
         {
             currentSet.Value.Clear();
             var map = loc.map;
@@ -36,15 +45,14 @@ namespace MUMPs.Props
                     currentSet.Value.Add(new(x, y));
             }
         }
-        public static void Cleanup() => currentSet.ResetAllScreens();
-        public static void DoAction(Farmer who, string action, Point _)
+        private static void Cleanup() => currentSet.ResetAllScreens();
+        private static void DoAction(Farmer who, string action, Point _)
         {
-            ModEntry.monitor.Log(action);
 
             if (who.currentLocation.Name == "Temp")
                 return;
 
-            var split = action.SafeSplitList(' ');
+            var split = action.SafeSplit(' ');
             if (split.Count < 3)
                 return;
 
@@ -61,7 +69,7 @@ namespace MUMPs.Props
             else
                 who.currentLocation.createQuestionDialogue(Game1.parseText(ModEntry.i18n.Get("repair.use", templ)),MakeResponses(action),AnswerYesNo);
         }
-        public static void AnswerYesNo(Farmer who, string answer)
+        private static void AnswerYesNo(Farmer who, string answer)
         {
             if (answer.ToLower() == "no")
                 return;
@@ -78,7 +86,7 @@ namespace MUMPs.Props
             EventAndReload(msg);
             ModEntry.helper.Multiplayer.SendMessage(msg, "RepairEvent", new string[]{ModEntry.ModID});
         }
-        public static void EventAndReload(MessageRepairEvent msg)
+        internal static void EventAndReload(MessageRepairEvent msg)
         {
             GameLocation loc = Game1.getLocationFromName(msg.LocationName);
 
@@ -123,7 +131,7 @@ namespace MUMPs.Props
             });
             Game1.fadeScreenToBlack();
         }
-        public static Response[] MakeResponses(string val)
+        private static Response[] MakeResponses(string val)
         {
             var responses = Game1.currentLocation.createYesNoResponses();
             responses[0].responseKey = val;

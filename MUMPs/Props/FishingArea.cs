@@ -13,11 +13,11 @@ using System.Runtime.CompilerServices;
 namespace MUMPs.Props
 {
     [HarmonyPatch]
+    [ModInit]
     class FishingArea
     {
-        public static readonly PerScreen<Dictionary<Rectangle, int>> idRegions = new(() => new());
-        public static readonly PerScreen<Dictionary<Rectangle, string>> locRegions = new(() => new());
-
+        private static readonly PerScreen<Dictionary<Rectangle, int>> idRegions = new(() => new());
+        private static readonly PerScreen<Dictionary<Rectangle, string>> locRegions = new(() => new());
         private static readonly ILHelper fishPatch = new ILHelper(ModEntry.monitor, "GetFish")
             .Add(new CodeInstruction[]{
                 new(OpCodes.Ldarg_S, 6),
@@ -27,7 +27,12 @@ namespace MUMPs.Props
             })
             .Finish();
 
-        public static void ChangeLocation(GameLocation loc)
+        internal static void Init()
+        {
+            ModEntry.OnChangeLocation += ChangeLocation;
+            ModEntry.OnCleanup += Cleanup;
+        }
+        private static void ChangeLocation(GameLocation loc)
         {
             idRegions.Value.Clear();
             locRegions.Value.Clear();
@@ -51,8 +56,7 @@ namespace MUMPs.Props
             }
             ModEntry.monitor.Log("Fishing: Found " + idRegions.Value.Count.ToString() + " ID regions and " + locRegions.Value.Count.ToString() + " Location regions.", LogLevel.Trace);
         }
-
-        public static void Cleanup()
+        private static void Cleanup()
         {
             idRegions.ResetAllScreens();
             locRegions.ResetAllScreens();
@@ -60,11 +64,11 @@ namespace MUMPs.Props
 
         [HarmonyPatch(typeof(GameLocation), "getFish")]
         [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> GetFish(IEnumerable<CodeInstruction> instructions) => fishPatch.Run(instructions);
+        internal static IEnumerable<CodeInstruction> GetFish(IEnumerable<CodeInstruction> instructions) => fishPatch.Run(instructions);
 
         [HarmonyPatch(typeof(Farm), "getFish")]
         [HarmonyPrefix]
-        public static bool FarmGetFish(Farm __instance, ref Object __result, float millisecondsAfterNibble, int bait, int waterDepth, Farmer who, double baitPotency, Vector2 bobberTile, string location)
+        internal static bool FarmGetFish(Farm __instance, ref Object __result, float millisecondsAfterNibble, int bait, int waterDepth, Farmer who, double baitPotency, Vector2 bobberTile, string location)
         {
             if (bobberTile != Vector2.Zero)
                 foreach (Building b in __instance.buildings)
@@ -86,10 +90,9 @@ namespace MUMPs.Props
         [HarmonyReversePatch]
         [HarmonyPatch(typeof(GameLocation), "getFish")]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static Object FarmBaseGetFish(Farm instance, float millisecondsAfterNibble, int bait, int waterDepth, Farmer who, 
+        private static Object FarmBaseGetFish(Farm instance, float millisecondsAfterNibble, int bait, int waterDepth, Farmer who, 
             double baitPotency, Vector2 bobberTile, string location = null) { return null; }
-
-        public static string SwapPool(Vector2 bobber, string location)
+        private static string SwapPool(Vector2 bobber, string location)
         {
             if (location != null)
                 return location;
@@ -99,10 +102,9 @@ namespace MUMPs.Props
                     return loc;
             return null;
         }
-
         [HarmonyPatch(typeof(GameLocation), "getFishingLocation")]
         [HarmonyPrefix]
-        public static bool GetFishingLocationPatch(ref Vector2 tile, ref int __result)
+        internal static bool GetFishingLocationPatch(ref Vector2 tile, ref int __result)
         {
             foreach((var region, int id) in idRegions.Value)
                 if (region.Contains(tile))
