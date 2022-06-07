@@ -30,9 +30,9 @@ namespace MUMPs
         internal static event Action OnCleanup;
         internal static event Action OnTick;
 
-        private static string[] LocalHorizons = {"Empty", "Default"};
+        private static readonly string[] LocalHorizons = {"Empty", "Default"};
 
-        public static Dictionary<string, string> strings;
+        internal static Dictionary<string, string> strings;
         public override void Entry(IModHelper helper)
         {
             monitor = Monitor;
@@ -43,6 +43,10 @@ namespace MUMPs
             strings = helper.ModContent.Load<Dictionary<string, string>>("assets/strings.json");
             helper.Events.GameLoop.GameLaunched += Init;
             helper.Events.Content.AssetRequested += LoadAssets;
+            helper.Events.Display.RenderedWorld += (s, a) => OnDraw?.Invoke(a.SpriteBatch);
+            helper.Events.Player.Warped += (s, a) => OnChangeLocation?.Invoke(a.NewLocation);
+            helper.Events.GameLoop.ReturnedToTitle += (s, a) => OnCleanup?.Invoke();
+            helper.Events.GameLoop.UpdateTicked += (s, a) => OnTick?.Invoke();
         }
         public override object GetApi() => API;
         private void Init(object _, GameLaunchedEventArgs ev)

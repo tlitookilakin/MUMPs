@@ -17,8 +17,8 @@ namespace MUMPs.Props
         {
             ModEntry.AeroAPI.RegisterAction("Image", show, 5);
         }
-        private static string DirPath = ModEntry.ContentDir + "MapImages" + PathUtilities.PreferredAssetSeparator;
-        private static void show(Farmer who, string action, Point _)
+        internal static string DirPath = ModEntry.ContentDir + "MapImages" + PathUtilities.PreferredAssetSeparator;
+        private static void show(Farmer who, string action, Point _, GameLocation where)
         {
             if(Misc.TryLoadAsset<Texture2D>(ModEntry.monitor, ModEntry.helper, DirPath + action, out var tex))
                 Game1.activeClickableMenu = new UI.ImageDisplay(tex);

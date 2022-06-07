@@ -36,7 +36,7 @@ namespace MUMPs.Props
                 return;
             var buildings = map.GetLayer("Buildings");
 
-            foreach((var tile, int x, int y) in Maps.tilesInLayer(buildings))
+            foreach((var tile, int x, int y) in Maps.TilesInLayer(buildings))
             {
                 if (!tile.Properties.TryGetValue("Action", out var action) && !tile.TileIndexProperties.TryGetValue("Action", out action))
                     continue;
@@ -46,10 +46,10 @@ namespace MUMPs.Props
             }
         }
         private static void Cleanup() => currentSet.ResetAllScreens();
-        private static void DoAction(Farmer who, string action, Point _)
+        private static void DoAction(Farmer who, string action, Point _, GameLocation where)
         {
 
-            if (who.currentLocation.Name == "Temp")
+            if (where.Name == "Temp")
                 return;
 
             var split = action.SafeSplit(' ');

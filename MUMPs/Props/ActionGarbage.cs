@@ -22,8 +22,9 @@ namespace MUMPs.Props
 		{
 			if (!ModEntry.helper.ModRegistry.IsLoaded("furyx639.GarbageDay"))
 				ModEntry.AeroAPI.RegisterAction("Garbage", HandleAction);
+			ModEntry.OnCleanup += Cleanup;
 		}
-		private static void HandleAction(Farmer who, string action, Point tile)
+		private static void HandleAction(Farmer who, string action, Point tile, GameLocation where)
         {
             if(who.currentLocation == null || who.currentLocation is Town)
                 return;

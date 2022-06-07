@@ -26,7 +26,7 @@ namespace MUMPs.Props
             if (!drawBorders.Value || Game1.currentLocation == null)
                 return;
 
-            Rectangle view = Game1.viewport.toRect();
+            Rectangle view = Game1.viewport.ToRect();
             Rectangle map = new(0, 0, Game1.currentLocation.map.DisplayWidth, Game1.currentLocation.map.DisplayHeight);
 
             if (view.Y < 0)

@@ -41,7 +41,7 @@ namespace MUMPs.Props
         }
         private static void Generate(GameLocation loc)
         {
-            foreach ((var tile, int x, int y) in Maps.tilesInLayer(loc.map, "Back"))
+            foreach ((var tile, int x, int y) in Maps.TilesInLayer(loc.map, "Back"))
             {
                 if (tile.TileHasProperty("SpawnObject", out string prop))
                 {
@@ -51,7 +51,7 @@ namespace MUMPs.Props
                 }
             }
         }
-        private static void GenerateAt(GameLocation loc, Vector2 pos, string type, string item)
+        internal static void GenerateAt(GameLocation loc, Vector2 pos, string type, string item)
         {
             if (generators.TryGetValue(type.ToLowerInvariant(), out var gen))
                 gen(loc, pos, item);

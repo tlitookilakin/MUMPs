@@ -13,7 +13,7 @@ namespace MUMPs.Props
         {
             ModEntry.AeroAPI.RegisterAction("WarpList", display);
         }
-        private static void display(Farmer who, string action, Point _)
+        private static void display(Farmer who, string action, Point _, GameLocation where)
         {
             var split = action.SafeSplit(' ');
             List<Response> opts = new();

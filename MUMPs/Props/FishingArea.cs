@@ -16,8 +16,8 @@ namespace MUMPs.Props
     [ModInit]
     class FishingArea
     {
-        private static readonly PerScreen<Dictionary<Rectangle, int>> idRegions = new(() => new());
-        private static readonly PerScreen<Dictionary<Rectangle, string>> locRegions = new(() => new());
+        internal static readonly PerScreen<Dictionary<Rectangle, int>> idRegions = new(() => new());
+        internal static readonly PerScreen<Dictionary<Rectangle, string>> locRegions = new(() => new());
         private static readonly ILHelper fishPatch = new ILHelper(ModEntry.monitor, "GetFish")
             .Add(new CodeInstruction[]{
                 new(OpCodes.Ldarg_S, 6),

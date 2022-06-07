@@ -50,7 +50,7 @@ namespace MUMPs.Props
             Color color = ev.intensity * Color.White;
             float scale = ev.scale * 4f;
             int tilesize = (int)(scale * 16f);
-            var port = Game1.viewport.toRect();
+            var port = Game1.viewport.ToRect();
             Point offset = new((int)(port.X % 64 * ev.scale), (int)(port.Y % 64 * ev.scale));
             port = new(port.X / 64, port.Y / 64, port.Width / 64 + 1, port.Height / 64 + 1);
 
@@ -65,7 +65,7 @@ namespace MUMPs.Props
                 Texture2D tex = sheets[tile.TileSheet];
                 if (!tex.IsDisposed)
                 {
-                    b.Draw(tex, new Vector2(x, y), tile.TileSheet.GetTileImageBounds(tile.TileIndex).toRect(),
+                    b.Draw(tex, new Vector2(x, y), tile.TileSheet.GetTileImageBounds(tile.TileIndex).ToRect(),
                         color, 0f, Vector2.Zero, scale, SpriteEffects.None, .9f);
                 }
             }
