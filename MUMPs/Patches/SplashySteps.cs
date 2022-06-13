@@ -1,4 +1,5 @@
 ﻿using AeroCore;
+using AeroCore.Utils;
 using HarmonyLib;
 using StardewValley;
 using StardewValley.Locations;
@@ -15,15 +16,15 @@ namespace MUMPs.Patches
         private static ILHelper patcher = new ILHelper(ModEntry.monitor, "Splashy Steps")
             .SkipTo(new CodeInstruction[]{
                 new(OpCodes.Ldarg_0),
-                new(OpCodes.Ldfld, typeof(FarmerSprite).GetField("currentStep")),
+                new(OpCodes.Ldfld, typeof(FarmerSprite).FieldNamed("currentStep")),
                 new(OpCodes.Stloc_2)
             })
             .Skip(3)
             .Add(new CodeInstruction[]{
                 new(OpCodes.Ldarg_0),
-                new(OpCodes.Ldfld, typeof(FarmerSprite).GetField("owner", BindingFlags.NonPublic | BindingFlags.Instance)),
+                new(OpCodes.Ldfld, typeof(FarmerSprite).FieldNamed("owner")),
                 new(OpCodes.Ldarg_0),
-                new(OpCodes.Call, typeof(SplashySteps).GetMethod(nameof(shouldUseSplash))),
+                new(OpCodes.Call, typeof(SplashySteps).MethodNamed(nameof(shouldUseSplash))),
                 new(OpCodes.Stloc_2)
             })
             .Finish();
