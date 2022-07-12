@@ -22,6 +22,7 @@ namespace MUMPs.Props
 
         internal static void Init()
         {
+            ModEntry.helper.Events.GameLoop.SaveLoaded += (s, ev) => Reload();
             ModEntry.AeroAPI.LightingEvent += Draw;
         }
         internal static void Reload()

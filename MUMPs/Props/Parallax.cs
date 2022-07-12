@@ -33,7 +33,7 @@ namespace MUMPs.Props
             if (props.Length == 0)
                 return null;
 
-            if (props.ToVec2(out Vector2 vec, 1))
+            if (props.ToVector2(out Vector2 vec, 1))
                 offset = vec;
             else
                 offset = Vector2.Zero;

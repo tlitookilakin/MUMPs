@@ -22,7 +22,7 @@ namespace MUMPs.Props
             {
                 if(warps.ToPoint(out Point point, i) && pos == point)
                 {
-                    if(warps.ToVec2(out Vector2 to, i + 2))
+                    if(warps.ToVector2(out Vector2 to, i + 2))
                     {
                         ev.Player.setTileLocation(to);
                         ModEntry.monitor.Log($"Redirected player from {point} to {to}.", LogLevel.Trace);
