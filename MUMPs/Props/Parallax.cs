@@ -45,8 +45,6 @@ namespace MUMPs.Props
         }
         private static void ChangeLocation(GameLocation loc)
         {
-            currentBackground.Value?.Dispose();
-            currentForeground.Value?.Dispose();
             currentBackground.Value = null;
             currentForeground.Value = null;
 
@@ -57,6 +55,9 @@ namespace MUMPs.Props
             backgroundOffset.Value = off;
             currentForeground.Value = getTemplate(loc.getMapProperty("Foreground"), out off);
             foregroundOffset.Value = off;
+
+            currentBackground.Value?.Init();
+            currentForeground.Value?.Init();
         }
 
         [HarmonyPatch(typeof(GameLocation), "drawBackground")]
@@ -65,8 +66,6 @@ namespace MUMPs.Props
         private static void DrawAfter(SpriteBatch b) => currentForeground.Value?.Draw(b, true, foregroundOffset.Value);
         private static void Cleanup()
         {
-            currentBackground.Value?.Dispose();
-            currentForeground.Value?.Dispose();
             currentBackground.ResetAllScreens();
             currentForeground.ResetAllScreens();
             backgroundOffset.ResetAllScreens();

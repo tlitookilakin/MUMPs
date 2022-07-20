@@ -7,12 +7,18 @@ using System.Collections.Generic;
 
 namespace MUMPs.models
 {
-    class HorizonModel : IDisposable
+    class HorizonModel
     {
         public List<HorizonLayer> Layers { set; get; } = new();
         public bool DrawSky { set; get; } = true;
 
 		private Color c = Color.White;
+
+		public void Init()
+        {
+			foreach(var layer in Layers)
+				layer.Init();
+        }
         public void Draw(SpriteBatch b, bool isForeground, Vector2 offset = default)
         {
             if(!isForeground && DrawSky)
@@ -26,7 +32,6 @@ namespace MUMPs.models
             foreach(var layer in Layers)
                 layer.Draw(b, center, millis);
         }
-		public void Dispose() => Layers.DisposeAll();
 		public void drawSky(SpriteBatch b)
         {
 			float alpha = 1f;

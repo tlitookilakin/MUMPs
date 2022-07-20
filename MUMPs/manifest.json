@@ -6,5 +6,5 @@
   "UniqueID": "tlitookilakin.mumps",
   "EntryDll": "MUMPs.dll",
   "MinimumApiVersion": "3.13",
-  "UpdateKeys": [ "Nexus:" ]
+  "UpdateKeys": [ "GitHub:tlitookilakin/MUMPs" ]
 }
