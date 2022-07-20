@@ -18,6 +18,8 @@ namespace MUMPs.Props
     {
         internal static readonly PerScreen<Dictionary<Rectangle, int>> idRegions = new(() => new());
         internal static readonly PerScreen<Dictionary<Rectangle, string>> locRegions = new(() => new());
+        internal static readonly PerScreen<int> defaultRegion = new(() => -1);
+        internal static readonly PerScreen<string> defaultRegionName = new();
         private static readonly ILHelper fishPatch = new ILHelper(ModEntry.monitor, "GetFish")
             .Add(new CodeInstruction[]{
                 new(OpCodes.Ldarg_S, 6),
@@ -37,29 +39,28 @@ namespace MUMPs.Props
             idRegions.Value.Clear();
             locRegions.Value.Clear();
 
-            string[] data = Maps.MapPropertyArray(loc, "FishingRegions");
+            string[] data = Maps.MapPropertyArray(loc, "FishingAreaCorners");
             for (int i = 0; i + 4 < data.Length; i += 5)
             {
-                if (data.ToRect(out var rect, i))
+                if (data.FromCorners(out var rect, i))
                 {
-                    if (int.TryParse(data[i + 4], out int id))
-                        idRegions.Value[rect] = id;
-                    else
-                        locRegions.Value[rect] = data[i + 4];
-                } else
-                {
-                    ModEntry.monitor.Log("Invalid region specified in FishingRegions @ " + loc.Name + ".", LogLevel.Warn);
-                    idRegions.Value.Clear();
-                    locRegions.Value.Clear();
-                    return;
+                    locRegions.Value[rect] = data[i + 4];
+                    if (int.TryParse(data[i + 5], out int region))
+                        idRegions.Value[rect] = region;
                 }
             }
-            ModEntry.monitor.Log("Fishing: Found " + idRegions.Value.Count.ToString() + " ID regions and " + locRegions.Value.Count.ToString() + " Location regions.", LogLevel.Trace);
+            string[] defaults = Maps.MapPropertyArray(loc, "DefaultFishingArea");
+                defaultRegionName.Value = defaults.Length > 0 ? defaults[0] : loc.Name;
+            defaultRegion.Value = defaults.Length > 1 && int.TryParse(defaults[1], out int def) ?
+                 def : -1;
+            ModEntry.monitor.Log($"Fishing: Found {idRegions.Value.Count} ID regions and {locRegions.Value.Count} Location regions.", LogLevel.Trace);
         }
         private static void Cleanup()
         {
             idRegions.ResetAllScreens();
             locRegions.ResetAllScreens();
+            defaultRegion.ResetAllScreens();
+            defaultRegionName.ResetAllScreens();
         }
 
         [HarmonyPatch(typeof(GameLocation), "getFish")]
@@ -100,7 +101,7 @@ namespace MUMPs.Props
             foreach ((var region, string loc) in locRegions.Value)
                 if (region.Contains(bobber))
                     return loc;
-            return null;
+            return defaultRegionName.Value;
         }
         [HarmonyPatch(typeof(GameLocation), "getFishingLocation")]
         [HarmonyPrefix]
@@ -112,7 +113,8 @@ namespace MUMPs.Props
                     __result = id;
                     return false;
                 }
-            return true;
+            __result = defaultRegion.Value;
+            return false;
         }
     }
 }
