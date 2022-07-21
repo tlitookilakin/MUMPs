@@ -52,8 +52,8 @@ namespace MUMPs
         private void Init(object _, GameLaunchedEventArgs ev)
         {
             AeroAPI = AeroCore.ModEntry.GetStaticApi();
-            harmony.PatchAll();
             AeroAPI.InitAll();
+            harmony.PatchAll();
             monitor.Log(i18n.Get("startup"), LogLevel.Debug);
         }
         public static void LoadAssets(object _, AssetRequestedEventArgs ev)
