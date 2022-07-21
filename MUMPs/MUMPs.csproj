@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <Reference Include="AeroCore">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\STARDEW_CURRENT\Mods\AeroCore\AeroCore.dll</HintPath>
+      <HintPath>$(GamePath)\Mods\AeroCore\AeroCore.dll</HintPath>
     </Reference>
   </ItemGroup>
 
