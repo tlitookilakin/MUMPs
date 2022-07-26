@@ -23,7 +23,6 @@ namespace MUMPs
         internal static IModHelper helper;
         internal static Harmony harmony;
         internal static string ModID;
-        internal static API API = new();
         internal static AeroCore.API.API AeroAPI;
 
         internal static event Action<SpriteBatch> OnDraw;
@@ -49,7 +48,7 @@ namespace MUMPs
             helper.Events.GameLoop.ReturnedToTitle += (s, a) => OnCleanup?.Invoke();
             helper.Events.GameLoop.UpdateTicked += (s, a) => OnTick?.Invoke();
         }
-        public override object GetApi() => API;
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void Init(object _, GameLaunchedEventArgs ev)
         {
