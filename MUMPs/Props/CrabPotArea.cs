@@ -34,7 +34,7 @@ namespace MUMPs.Props
         internal static IEnumerable<CodeInstruction> RunPatch(ILGenerator Generator, IEnumerable<CodeInstruction> instructions)
             => CrabPotDayUpdatePatcher.Run(instructions, Generator);
 
-        private static ILHelper CrabPotDayUpdatePatcher = new ILHelper(ModEntry.monitor, "crab pot day update")
+        private static readonly ILHelper CrabPotDayUpdatePatcher = new ILHelper(ModEntry.monitor, "crab pot day update")
             .SkipTo(new CodeInstruction(OpCodes.Ldarg_0))
             .Add(new CodeInstruction[]
             {
@@ -49,7 +49,7 @@ namespace MUMPs.Props
                 new(OpCodes.Ldc_I4_0)
             })
             .Skip(4)
-            .LoadLocal("zone", typeof(IList<string>))
+            .LoadLocal("zone")
             .Add(new CodeInstruction[]
             {
                 new(OpCodes.Ldloc_S, 9),

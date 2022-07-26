@@ -17,6 +17,11 @@ namespace MUMPs.Props
         {
             ModEntry.OnChangeLocation += ChangeLocation;
             ModEntry.OnDraw += Draw;
+            ModEntry.OnCleanup += Cleanup;
+        }
+        private static void Cleanup()
+        {
+            fog.ResetAllScreens();
         }
         private static void ChangeLocation(GameLocation loc)
         {

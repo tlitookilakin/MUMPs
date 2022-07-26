@@ -1,42 +1,59 @@
-﻿using AeroCore.Utils;
+﻿using AeroCore;
+using AeroCore.Utils;
 using HarmonyLib;
-using StardewValley.Locations;
+using Microsoft.Xna.Framework;
 using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection.Emit;
+using SObject = StardewValley.Object;
 
 namespace MUMPs.Patches
 {
-    [HarmonyPatch]
+    [HarmonyPatch(typeof(SObject), nameof(SObject.placementAction))]
     class FarmhouseFurnitureFix
     {
-        private static Dictionary<int, string> furnitureData; 
-        internal static string[] TVIDs = {"1466", "1468", "1680", "2326"};
+        [HarmonyTranspiler]
+        internal static IEnumerable<CodeInstruction> Patch(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+            => patcher.Run(instructions, generator);
 
-        [HarmonyPatch(typeof(FarmHouse), MethodType.Constructor, new Type[]{typeof(string), typeof(string)})]
-        [HarmonyPostfix]
-        public static void FixFurniture(FarmHouse __instance)
+        private static readonly ILHelper patcher = new ILHelper(ModEntry.monitor, "Furniture placement fix")
+            .SkipTo(new CodeInstruction(OpCodes.Call, typeof(Furniture).MethodNamed(nameof(Furniture.GetFurnitureInstance))))
+            .Skip(1)
+            .RemoveTo(new CodeInstruction[]
+            {
+                new(OpCodes.Isinst, typeof(Furniture)),
+                new(OpCodes.Callvirt, typeof(Furniture).MethodNamed(nameof(Furniture.updateRotation))),
+                new(OpCodes.Ldc_I4_1)
+            })
+            .Remove(3)
+            .Add(new CodeInstruction[]
+            {
+                new(OpCodes.Ldloca_S, 31),
+                new(OpCodes.Call, typeof(FarmhouseFurnitureFix).MethodNamed(nameof(FixFurniture)))
+            })
+            .Finish();
+
+        private static bool FixFurniture(Furniture instance, ref SObject original)
         {
-            if (__instance.modData.ContainsKey("tlitoo.mumps.fixedFurniture"))
-                return;
-
-            furnitureData = ModEntry.helper.GameContent.Load<Dictionary<int, string>>("Data/Furniture");
-            __instance.furniture.TransformItems(Replace);
-            __instance.modData.Add("tlitoo.mumps.fixedFurniture", "T");
+            if (instance.GetType() == original.GetType())
+                return false;
+            instance.currentRotation.Value = ((Furniture)original).currentRotation.Value;
+            instance.updateRotation();
+            original = instance;
+            return true;
         }
-        public static Furniture Replace(Furniture orig)
+
+        private static IEnumerable<CodeInstruction> replaceLocals(ILHelper.ILEnumerator cursor)
         {
-            if (TVIDs.Contains(orig.GetStringID()))
-                return (orig is TV) ? orig : new TV(orig.ParentSheetIndex, orig.TileLocation);
-            else if (furnitureData.TryGetValue(orig.ParentSheetIndex, out string data))
-                switch (data.GetChunk('/', 1).GetChunk(' ', 0)) {
-                    case "fishtank":
-                        return (orig is FishTankFurniture) ? orig : new FishTankFurniture(orig.ParentSheetIndex, orig.TileLocation, orig.currentRotation.Value);
-                    case "bed":
-                        return (orig is BedFurniture) ? orig : new BedFurniture(orig.ParentSheetIndex, orig.TileLocation);
-                }
-            return orig;
+            yield return cursor.source.Current;
+            while (cursor.source.MoveNext())
+            {
+                var c = cursor.source.Current;
+                if (c.opcode == OpCodes.Ldloc_S && ((LocalBuilder)c.operand).LocalIndex == 31)
+                    c.operand = cursor.GetLocal("inst");
+                yield return c;
+            }
         }
     }
 }
