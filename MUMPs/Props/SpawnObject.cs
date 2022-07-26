@@ -2,178 +2,73 @@
 using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 using System;
 using System.Collections.Generic;
+using SObject = StardewValley.Object;
 
 namespace MUMPs.Props
 {
     [ModInit]
     class SpawnObject
     {
-        private static Dictionary<string, Action<GameLocation, Vector2, string>> generators = new() {
-            {"item", AddObject},
-            {"furniture", AddFurniture},
-            {"bigcraftable",AddBigCraftable},
-            {"fruittree",AddFruitTree}
-        };
-        internal static HashSet<int> TVIDs = new() {
-            1466, 1468, 1680, 2326
-        };
-        private static Dictionary<int, string> furnitureData;
 
         internal static void Init()
         {
-            ModEntry.OnChangeLocation += ChangeLocation;
+            ModEntry.helper.Events.GameLoop.DayStarted += DayUpdate;
         }
-        private static void ChangeLocation(GameLocation loc)
+        private static void DayUpdate(object _, DayStartedEventArgs ev)
         {
-            furnitureData = ModEntry.helper.GameContent.Load<Dictionary<int, string>>("Data/Furniture");
-
-            if (loc.modData.ContainsKey("tlitookilakin.mumps.generatedObjects"))
+            if (!Context.IsMainPlayer)
                 return;
 
-            loc.modData.Add("tlitookilakin.mumps.generatedObjects", "y");
-
-            Generate(loc);
+            foreach (var loc in Game1.locations)
+                Generate(loc);
         }
         private static void Generate(GameLocation loc)
         {
+            if (loc.modData.ContainsKey("tlitookilakin.mumps.generatedObjects"))
+                return;
+            loc.modData.Add("tlitookilakin.mumps.generatedObjects", "y");
+
             foreach ((var tile, int x, int y) in Maps.TilesInLayer(loc.map, "Back"))
             {
+                if (tile.TileHasProperty("FruitTree", out string tree))
+                    AddFruitTree(loc, new(x, y), tree);
                 if (tile.TileHasProperty("SpawnObject", out string prop))
-                {
-                    string[] props = prop.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                    if (props.Length > 1)
-                        GenerateAt(loc, new(x, y), props[0], props[1]);
-                }
+                    GenerateAt(loc, new(x, y), prop);
             }
         }
-        internal static void GenerateAt(GameLocation loc, Vector2 pos, string type, string item)
+        internal static void GenerateAt(GameLocation loc, Vector2 pos, string id)
         {
-            if (generators.TryGetValue(type.ToLowerInvariant(), out var gen))
-                gen(loc, pos, item);
-            else
-                ModEntry.monitor.Log("Could not spawn object type: '" + type + "'.", LogLevel.Warn);
-        }
-        private static void AddFurniture(GameLocation loc, Vector2 pos, string str)
-        {
-            string[] data = str.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if (!int.TryParse(data[0], out int id))
+            string[] split = id.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            if (split.Length == 0)
                 return;
-
-            if (data.Length < 2 || !int.TryParse(data[1], out int rot))
-                rot = -1;
-            loc.furniture.Add(CreateFurniture(id, pos, rot));
-        }
-        public static Furniture CreateFurniture(int id, Vector2 pos, int rot = -1)
-        {
-            if (TVIDs.Contains(id))
-                return new TV(id, pos);
-            else if(furnitureData.TryGetValue(id,out string data))
-                switch (data.Split('/')[1].Split(' ')[0])
-                {
-                    case "bed":
-                        return (rot >= 0) ? new BedFurniture(id, pos, rot) : new BedFurniture(id, pos);
-                    case "fishtank":
-                        return (rot >= 0) ? new FishTankFurniture(id, pos, rot) : new FishTankFurniture(id, pos);
-                }
-            return (rot >= 0) ? new Furniture(id, pos, rot) : new Furniture(id, pos);
-        }
-        private static void AddObject(GameLocation loc, Vector2 pos, string str)
-        {
-            if (!int.TryParse(str, out int id))
-                return;
-
-            StardewValley.Object obj;
-            if (id == 93 || id == 94) //torch fix
-                obj = new Torch(pos, 1, id);
-            else
-                obj = new(pos, id, null, false, true, false, true);
-            loc.dropObject(obj, pos * 64f, Game1.viewport, true);
-        }
-        private static void AddBigCraftable(GameLocation loc, Vector2 pos, string str)
-        {
-            if (!int.TryParse(str, out int id))
-                return;
-            StardewValley.Object obj;
-            switch (id)
+            if (!split[0].TryGetItem(out var item))
+                ModEntry.monitor.Log($"Could not spawn item '{id}' @ ({pos.X},{pos.Y}) in location '{loc.Name}'", LogLevel.Warn);
+            if (item is SObject obj)
             {
-                case 62:
-                    obj = new IndoorPot(pos); break;
-                case 37:
-                case 38:
-                case 39:
-                    obj = new Sign(pos, id); break;
-                case 130:
-                case 232:
-                    obj = new Chest(true, pos, id); break;
-                case 165:
-                    obj = new(pos, id);
-                    obj.heldObject.Value = new Chest();
-                    break;
-                case 163:
-                    obj = new Cask(pos); break;
-                case 208:
-                    obj = new Workbench(pos); break;
-                case 209:
-                    obj = new MiniJukebox(pos);
-                    loc.objects[pos] = obj;
-                    (obj as MiniJukebox).RegisterToLocation(loc);
-                    return;
-                case 211:
-                    obj = new WoodChipper(pos);
+                if (obj.bigCraftable.Value || obj is Furniture)
                     obj.placementAction(loc, (int)pos.X, (int)pos.Y);
-                    break;
-                case 214:
-                    obj = new Phone(pos); break;
-                case 216:
-                    obj = new Chest(id, pos, 217, 2);
-                    (obj as Chest).fridge.Value = true;
-                    break;
-                case 105:
-                case 264:
-                    if (loc.terrainFeatures[pos] is Tree tree)
-                    {
-                        obj = new(id, 1);
-                        obj.TileLocation = pos;
-                        loc.objects[pos] = obj;
-                        tree.tapped.Value = true;
-                        tree.UpdateTapperProduct(obj);
-                        return;
-                    }
-                    obj = new(pos, id);
-                    break;
-                case 248:
-                    obj = new Chest(playerChest: true, pos, id)
-                    {
-                        SpecialChestType = Chest.SpecialChestTypes.MiniShippingBin
-                    }; break;
-                case 256:
-                    obj = new Chest(playerChest: true, pos, id)
-                    {
-                        SpecialChestType = Chest.SpecialChestTypes.JunimoChest
-                    }; break;
-                case 275:
-                    obj = new Chest(true, pos, id)
-                    {
-                        SpecialChestType = Chest.SpecialChestTypes.AutoLoader
-                    };
-                    (obj as Chest).lidFrameCount.Value = 2;
-                    break;
-                case >= 143 and <= 153: //torch fix
-                    obj = new Torch(pos, id, true);
-                    break;
-                default:
-                    obj = new(pos, id);
-                    break;
+                else
+                    loc.objects[pos] = obj;
+                if (obj is Furniture furn && split.Length > 1 && int.TryParse(split[1], out int rot))
+                {
+                    rot = furn.rotations.Value == 4 ? rot : rot * 2;
+                    furn.currentRotation.Value = Math.Clamp(rot, 0, furn.rotations.Value - 1);
+                    furn.updateRotation();
+                }
+                return;
             }
-            loc.objects[pos] = obj;
-            
+            if (split.Length > 1 && int.TryParse(split[1], out int ind) && ind >= 0)
+                loc.objects[pos] = new Chest(0, new() { item }, pos, true, ind);
+            else
+                loc.objects[pos] = new Chest(0, new() { item }, pos);
         }
-        private static void AddFruitTree(GameLocation loc, Vector2 pos, string str)
+        internal static void AddFruitTree(GameLocation loc, Vector2 pos, string str)
         {
             if (!int.TryParse(str, out int id))
                 return;

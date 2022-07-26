@@ -51,9 +51,9 @@ namespace MUMPs.Props
             if(loc is null)
                 return;
 
-            currentBackground.Value = getTemplate(loc.getMapProperty("Background"), out Vector2 off);
+            currentBackground.Value = getTemplate(loc.getMapProperty("DepthBackground"), out Vector2 off);
             backgroundOffset.Value = off;
-            currentForeground.Value = getTemplate(loc.getMapProperty("Foreground"), out off);
+            currentForeground.Value = getTemplate(loc.getMapProperty("DepthForeground"), out off);
             foregroundOffset.Value = off;
 
             currentBackground.Value?.Init();

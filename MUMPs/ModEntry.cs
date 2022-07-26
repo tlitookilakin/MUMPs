@@ -10,6 +10,7 @@ using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace MUMPs
 {
@@ -49,6 +50,7 @@ namespace MUMPs
             helper.Events.GameLoop.UpdateTicked += (s, a) => OnTick?.Invoke();
         }
         public override object GetApi() => API;
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void Init(object _, GameLaunchedEventArgs ev)
         {
             AeroAPI = AeroCore.ModEntry.GetStaticApi();

@@ -101,7 +101,7 @@ namespace MUMPs.Props
                 }
                 i += 4;
                 List<string> ids = new();
-                while (!int.TryParse(split[i], out var _) && i < split.Length)
+                while (!int.TryParse(split[i], out _) && i < split.Length)
                 {
                     ids.Add(split[i]);
                     i++;
