@@ -8,6 +8,7 @@ using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SObject = StardewValley.Object;
 
 namespace MUMPs.Props
@@ -18,7 +19,8 @@ namespace MUMPs.Props
 
         internal static void Init()
         {
-            ModEntry.helper.Events.GameLoop.DayStarted += DayUpdate;
+            //ModEntry.helper.Events.GameLoop.DayStarted += DayUpdate;
+            ModEntry.OnChangeLocation += Generate;
         }
         private static void DayUpdate(object _, DayStartedEventArgs ev)
         {
@@ -48,13 +50,18 @@ namespace MUMPs.Props
             if (split.Length == 0)
                 return;
             if (!split[0].TryGetItem(out var item))
+            {
                 ModEntry.monitor.Log($"Could not spawn item '{id}' @ ({pos.X},{pos.Y}) in location '{loc.Name}'", LogLevel.Warn);
+                return;
+            }
             if (item is SObject obj)
             {
-                if (obj.bigCraftable.Value || obj is Furniture)
-                    obj.placementAction(loc, (int)pos.X, (int)pos.Y);
-                else
+                if (obj.isSapling() || !obj.placementAction(loc, (int)pos.X * 64, (int)pos.Y * 64, Game1.player))
+                {
                     loc.objects[pos] = obj;
+                    obj.TileLocation = pos;
+                }
+                obj.CanBeGrabbed = true;
                 if (obj is Furniture furn && split.Length > 1 && int.TryParse(split[1], out int rot))
                 {
                     rot = furn.rotations.Value == 4 ? rot : rot * 2;
