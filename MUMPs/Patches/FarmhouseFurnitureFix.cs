@@ -13,7 +13,8 @@ namespace MUMPs.Patches
     [HarmonyPatch]
     class FarmhouseFurnitureFix
     {
-        private static Dictionary<int, string> furnitureData;
+        private static Dictionary<int, string> furnitureData; 
+        internal static int[] TVIDs = {1466, 1468, 1680, 2326};
 
         [HarmonyPatch(typeof(FarmHouse), MethodType.Constructor, new Type[]{typeof(string), typeof(string)})]
         [HarmonyPostfix]
@@ -28,7 +29,7 @@ namespace MUMPs.Patches
         }
         public static Furniture Replace(Furniture orig)
         {
-            if (Props.SpawnObject.TVIDs.Contains(orig.ParentSheetIndex))
+            if (TVIDs.Contains(orig.ParentSheetIndex))
                 return (orig is TV) ? orig : new TV(orig.ParentSheetIndex, orig.TileLocation);
             else if (furnitureData.TryGetValue(orig.ParentSheetIndex, out string data))
                 switch (data.GetChunk('/', 1).GetChunk(' ', 0)) {
