@@ -243,11 +243,11 @@ namespace MUMPs.Props
 					}
 				}
 			}
-			if (item != null && int.TryParse(item, out int id))
+			if (item != null && item.TryGetItem(out Item loot))
 			{
 				Vector2 origin = new Vector2(x + 0.5f, y - 1) * 64f;
 				for (int i = 0; i < stack; i++)
-					Game1.createItemDebris(new StardewValley.Object(id, 1), origin, 2, location, (int)origin.Y + 64);
+					Game1.createItemDebris(loot, origin, 2, location, (int)origin.Y + 64);
 			}
 		}
     }

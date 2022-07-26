@@ -56,30 +56,33 @@ namespace MUMPs.Props
             if (split.Count < 3)
                 return;
 
-            if (!int.TryParse(split[0], out int count) || count <= 0 || !int.TryParse(split[1], out int id) || id < 0)
+            if (!int.TryParse(split[0], out int count) || count <= 0 || !split[1].TryGetItem(out Item what))
                 return;
 
-            if (!Game1.objectInformation.TryGetValue(id, out string info))
-                return;
+            object templ = new{ what = $"{split[0]}x {what.DisplayName}"};
 
-            string name = info.GetChunk('/', 0);
-            object templ = new{ what = split[0] + "x " + name};
-            if (!who.hasItemInInventory(id, count))
-                Game1.drawObjectDialogue(Game1.parseText(ModEntry.helper.Translation.Get("repair.need",templ)));
+            // uses name and not direct match in case multiple items have the same name
+            // and it confuses the player
+
+            if (!who.HasItemNamed(what.Name, count))
+                Game1.drawObjectDialogue(Game1.parseText(ModEntry.i18n.Get("repair.need",templ)));
             else
-                who.currentLocation.createQuestionDialogue(Game1.parseText(ModEntry.i18n.Get("repair.use", templ)),MakeResponses(action),AnswerYesNo);
+                who.currentLocation.createQuestionDialogue(
+                    Game1.parseText(ModEntry.i18n.Get("repair.use", templ)),
+                    MakeResponses(action),AnswerYesNo);
         }
         private static void AnswerYesNo(Farmer who, string answer)
         {
             if (answer.ToLower() == "no")
                 return;
 
-            var split = answer.Split(' ');
+            var split = answer.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
 
-            if (!int.TryParse(split[0], out int count) || !int.TryParse(split[1], out int id) || count < 1 || id < 0)
+            if (split.Length < 2 || !int.TryParse(split[0], out int count) || count < 1 || !split[1].TryGetItem(out Item what))
                 return;
 
-            who.removeItemsFromInventory(id, count);
+            what.Stack = count;
+            who.RemoveNamedItemsFromInventory(what.Name, count);
             Game1.addMail(split[2], true, true);
 
             MessageRepairEvent msg = new(who.currentLocation.Name, (split.Length > 3) ? split[3] : null);
