@@ -11,7 +11,7 @@ namespace MUMPs.Props
     {
         internal static void Init()
         {
-            ModEntry.AeroAPI.RegisterTouchAction("PlaySound", HandleTouchAction);
+            ModEntry.AeroAPI.RegisterTouchAction("playSound", HandleTouchAction);
         }
         private static void HandleTouchAction(Farmer who, string what, Point tile, GameLocation where)
         {

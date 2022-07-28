@@ -85,10 +85,8 @@ namespace MUMPs.Props
         }
         internal static void AddFruitTree(GameLocation loc, Vector2 pos, string str)
         {
-            if (!int.TryParse(str, out int id))
+            if (!str.TryGetFruitTree(out var tree, 4))
                 return;
-
-            FruitTree tree = new(id, 4);
             tree.daysUntilMature.Value = 0;
             loc.terrainFeatures[pos] = tree;
         }
