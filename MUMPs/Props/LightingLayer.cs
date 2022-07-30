@@ -12,6 +12,7 @@ using xTile.Tiles;
 using AeroCore.Utils;
 using AeroCore.API;
 using AeroCore;
+using xTile.ObjectModel;
 
 namespace MUMPs.Props
 {
@@ -43,8 +44,13 @@ namespace MUMPs.Props
         }
         private static void Draw(ILightingEventArgs ev)
         {
-            Layer layer = Game1.currentLocation?.map?.GetLayer("Lighting");
-            if (layer == null)
+            if (Game1.currentLocation?.map is null)
+                return;
+            List<Layer> layers = new();
+            foreach(var l in Game1.currentLocation.map.Layers)
+                if(l.Id.StartsWith("Lighting"))
+                    layers.Add(l);
+            if (layers.Count == 0)
                 return;
 
             var batch = Game1.spriteBatch;
@@ -57,19 +63,43 @@ namespace MUMPs.Props
 
             for(int x = 0; x < port.Width; x++)
                 for(int y = 0; y < port.Height; y++)
-                    DrawTile(batch, layer.Tiles[new(x + port.X, y + port.Y)], x * tilesize - offset.X, y * tilesize - offset.Y, scale, color);
+                    foreach(var layer in layers)
+                        DrawTile(batch, layer.Tiles[new(x + port.X, y + port.Y)], x * tilesize - offset.X, y * tilesize - offset.Y, scale, color);
         }
         private static void DrawTile(SpriteBatch b, Tile tile, int x, int y, float scale, Color color)
         {
             if(tile != null)
             {
                 Texture2D tex = sheets[tile.TileSheet];
+                var bounds = tile.TileSheet.GetTileImageBounds(tile.TileIndex).ToRect();
+                var origin = new Vector2(bounds.Width / 2f, bounds.Height / 2f);
                 if (!tex.IsDisposed)
-                {
-                    b.Draw(tex, new Vector2(x, y), tile.TileSheet.GetTileImageBounds(tile.TileIndex).ToRect(),
-                        color, 0f, Vector2.Zero, scale, SpriteEffects.None, .9f);
-                }
+                    b.Draw(tex, new Vector2(x + origin.X * 4, y + origin.Y * 4), bounds,
+                        color, GetRotation(tile), origin, scale, GetSpriteEffects(tile), .9f);
             }
+        }
+
+        // copied from SMAPI. Thanks pathos :P
+
+        /// <summary>Get the sprite effects to apply for a tile.</summary>
+        /// <param name="tile">The tile being drawn.</param>
+        private static SpriteEffects GetSpriteEffects(Tile tile)
+            => tile.Properties.TryGetValue("@Flip", out PropertyValue propertyValue) && int.TryParse(propertyValue, out int value)
+                ? (SpriteEffects)value
+                : SpriteEffects.None;
+
+        /// <summary>Get the draw rotation to apply for a tile.</summary>
+        /// <param name="tile">The tile being drawn.</param>
+        private static float GetRotation(Tile tile)
+        {
+            if (!tile.Properties.TryGetValue("@Rotation", out PropertyValue propertyValue) || !int.TryParse(propertyValue, out int value))
+                return 0;
+
+            value %= 360;
+            if (value == 0)
+                return 0;
+
+            return (float)(Math.PI / (180.0 / value));
         }
     }
 }
