@@ -34,12 +34,12 @@ namespace MUMPs.Props
                 foreach (var loc in Game1.locations)
                     Spawn(loc, newSeason);
         }
-        private static void Spawn(GameLocation loc, bool isNewSeason)
+        internal static void Spawn(GameLocation loc, bool isNewSeason)
         {
             int season = loc.GetSeasonIndexForLocation();
             foreach((var tile, var x, var y) in loc.Map.TilesInLayer("Back"))
             {
-                if (!tile.TileHasProperty("SpawnCrop", out var prop))
+                if (!tile.TileHasProperty("Crop", out var prop))
                     continue;
                 Vector2 pos = new(x, y);
                 HoeDirt dirt;
@@ -55,13 +55,19 @@ namespace MUMPs.Props
                 dirt.state.Value = 1; // water it
 
                 var split = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (season == -1)
+                    season = StardewValley.Utility.getSeasonNumber(Game1.currentSeason);
                 string id;
-                switch (split.Length)
-                {
-                    case 2: id = split[1]; break;
-                    case 5: id = split[season + 1]; break;
-                    default: continue;
-                }
+                if (split.Length == 2)
+                    id = split[1];
+                else if (season + 1 < split.Length)
+                    id = split[season + 1];
+                else
+                    continue;
+
+                // if the crop is valid, and either the dirt is empty or it's a new season with different crops
+                // will not work with forage crops
+
                 if (id.TryGetCrop(x, y, out var crop) && (dirt.crop is null || 
                     (isNewSeason && dirt.crop.netSeedIndex.Value != crop.netSeedIndex.Value)))
                     dirt.crop = crop;

@@ -6,10 +6,8 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Objects;
-using StardewValley.TerrainFeatures;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using SObject = StardewValley.Object;
 
@@ -32,7 +30,7 @@ namespace MUMPs.Props
             foreach (var loc in Game1.locations)
                 Generate(loc);
         }
-        private static void Generate(GameLocation loc)
+        internal static void Generate(GameLocation loc)
         {
             if (loc.modData.ContainsKey("tlitookilakin.mumps.generatedObjects"))
                 return;
@@ -48,6 +46,8 @@ namespace MUMPs.Props
         }
         internal static void GenerateAt(GameLocation loc, Vector2 pos, string id)
         {
+            if (loc.Objects.ContainsKey(pos) || loc.GetFurnitureAt(pos) is not null)
+                return;
             string[] split = id.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
             if (split.Length == 0)
                 return;
@@ -85,6 +85,8 @@ namespace MUMPs.Props
         }
         internal static void AddFruitTree(GameLocation loc, Vector2 pos, string str)
         {
+            if (loc.terrainFeatures.ContainsKey(pos))
+                return;
             if (!str.TryGetFruitTree(out var tree, 4))
                 return;
             tree.daysUntilMature.Value = 0;
@@ -95,7 +97,7 @@ namespace MUMPs.Props
         internal static IEnumerable<CodeInstruction> PersistPatch(IEnumerable<CodeInstruction> codes, ILGenerator gen)
             => patcher.Run(codes, gen);
 
-        private static ILHelper patcher = new ILHelper(ModEntry.monitor, "spawnable persistance")
+        private static readonly ILHelper patcher = new ILHelper(ModEntry.monitor, "spawnable persistance")
             .SkipTo(new CodeInstruction(OpCodes.Ldfld, typeof(SObject).FieldNamed(nameof(SObject.isSpawnedObject))))
             .Skip(2)
             .Transform(addCheck)
