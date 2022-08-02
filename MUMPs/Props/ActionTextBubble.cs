@@ -47,7 +47,7 @@ namespace MUMPs.Props
             }
             if (!currentPage.Value.TryGetValue(tile, out int ind))
                 ind = 0;
-            bubbles.Value.Add(new(dlg[ind], new(tile.X * 64f, tile.Y * 64f)));
+            bubbles.Value.Add(new(Game1.parseText(dlg[ind]), new(tile.X * 64f, tile.Y * 64f)));
             currentPage.Value[tile] = (ind + 1) % dlg.Length;
         }
         private static void Draw(SpriteBatch b)
