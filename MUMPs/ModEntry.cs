@@ -45,6 +45,7 @@ namespace MUMPs
             helper.Events.Content.AssetRequested += LoadAssets;
             helper.Events.Display.RenderedWorld += (s, a) => OnDraw?.Invoke(a.SpriteBatch);
             helper.Events.Player.Warped += (s, a) => OnChangeLocation?.Invoke(a.NewLocation);
+            helper.Events.GameLoop.SaveLoaded += (s, a) => OnChangeLocation?.Invoke(Game1.currentLocation);
             helper.Events.GameLoop.ReturnedToTitle += (s, a) => OnCleanup?.Invoke();
             helper.Events.GameLoop.UpdateTicked += (s, a) => OnTick?.Invoke();
         }
