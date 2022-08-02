@@ -1,4 +1,5 @@
 ﻿using AeroCore;
+using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -54,9 +55,10 @@ namespace MUMPs.Props
         private static void DrawAbove(SpriteBatch batch) => birds.Value?.Draw(batch);
         private static void Update() => birds.Value?.Update(Game1.currentGameTime);
         private static (Point[] perch, Point[] roost) GetSpotsFor(GameLocation location)
-            => location is null ? (Array.Empty<Point>(), Array.Empty<Point>()) : ScanForSpots(location.map);
-        private static (Point[] perch, Point[] roost) ScanForSpots(Map map)
+            => location is null ? (Array.Empty<Point>(), Array.Empty<Point>()) : ScanForSpots(location);
+        private static (Point[] perch, Point[] roost) ScanForSpots(GameLocation loc)
         {
+            Map map = loc.Map;
             ModEntry.monitor.Log("Scanning for perches....");
             if (map == null)
                 return (Array.Empty<Point>(), Array.Empty<Point>());
@@ -77,10 +79,26 @@ namespace MUMPs.Props
                     Tile tile = paths.Tiles[new(x, y)];
                     if (tile != null)
                     {
-                        if (tile.Properties.ContainsKey("Perch"))
+                        if (tile.TileHasProperty("Perch", out _))
                             perches.Add(new(x, y));
-                        if (tile.Properties.ContainsKey("Roost"))
+                        if (tile.TileHasProperty("Roost", out _))
                             roosts.Add(new(x, y));
+                    }
+                }
+            }
+            string p = null;
+            foreach (var f in loc.furniture)
+            {
+                var fw = f.getTilesWide();
+                var fh = f.getTilesHigh();
+                for(int x = (int)f.TileLocation.X; x < fw; x++)
+                {
+                    for(int y = (int)f.TileLocation.Y; y < fh; y++)
+                    {
+                        if (f.DoesTileHaveProperty(x, y, "Perch", "Paths", ref p))
+                            perches.Add(new(x, y));
+                        if (f.DoesTileHaveProperty(x, y, "Roost", "Paths", ref p))
+                            perches.Add(new(x, y));
                     }
                 }
             }
