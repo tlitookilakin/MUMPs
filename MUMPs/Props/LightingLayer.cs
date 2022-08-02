@@ -74,7 +74,7 @@ namespace MUMPs.Props
                 var bounds = tile.TileSheet.GetTileImageBounds(tile.TileIndex).ToRect();
                 var origin = new Vector2(bounds.Width / 2f, bounds.Height / 2f);
                 if (!tex.IsDisposed)
-                    b.Draw(tex, new Vector2(x + origin.X * 4, y + origin.Y * 4), bounds,
+                    b.Draw(tex, new Vector2(x + origin.X * scale, y + origin.Y * scale), bounds,
                         color, GetRotation(tile), origin, scale, GetSpriteEffects(tile), .9f);
             }
         }

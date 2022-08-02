@@ -23,7 +23,8 @@ namespace MUMPs.models
         {
             Vector2 off = new((int)(center.X * (1f - Depth) + .5f), (int)(center.Y * (1f - Depth) + .5f));
             Image?.Draw(b, center, millis, Depth);
-            Game1.currentLocation?.map?.GetLayer(TileLayer)?.Draw(Game1.mapDisplayDevice, Game1.viewport, new((int)off.X, (int)off.Y), false, 4);
+            if (TileLayer is not null)
+                Game1.currentLocation?.map?.GetLayer(TileLayer)?.Draw(Game1.mapDisplayDevice, Game1.viewport, new((int)off.X, (int)off.Y), false, 4);
             if (pman is not null)
             {
                 pman.Offset = off;
