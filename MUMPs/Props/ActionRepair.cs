@@ -111,7 +111,7 @@ namespace MUMPs.Props
             string path = loc.mapPath.Value;
             Vector2 coords = Game1.player.getTileLocation();
 
-            Events.afterFadeQueue.Value.Add(() =>
+            Events.afterWarpActions.Value.Add(() =>
             {
                 if (ev != null)
                 {
@@ -119,7 +119,7 @@ namespace MUMPs.Props
                     {
                         onEventFinished = () =>
                         {
-                            Utility.ReloadCurrentLocation(path, coords, msg.LocationName);
+                            Events.ReloadCurrentLocation(path, coords, msg.LocationName);
                             if (Context.IsMainPlayer)
                                 Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
                         }
@@ -127,7 +127,7 @@ namespace MUMPs.Props
                 }
                 else
                 {
-                    Utility.ReloadCurrentLocation(path, coords, msg.LocationName);
+                    Events.ReloadCurrentLocation(path, coords, msg.LocationName);
                     if (Context.IsMainPlayer)
                         Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
                 }

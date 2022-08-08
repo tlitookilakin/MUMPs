@@ -1,6 +1,5 @@
 ﻿using AeroCore;
-using AeroCore.API;
-using AeroCore.Models;
+using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -15,12 +14,9 @@ namespace MUMPs
     [ModInit]
     class Events
     {
-        public static readonly PerScreen<List<Action>> afterFadeQueue = new(() => new());
-        private static readonly PerScreen<bool> wasFading = new(() => false);
-        private static readonly PerScreen<bool> fadeWasRun = new(() => false);
-        public static readonly PerScreen<bool> drawVoid = new(() => false);
+        internal static readonly PerScreen<List<Action>> afterWarpActions = new(() => new());
         internal static readonly PerScreen<bool> reloadScreen = new(() => false);
-        public static void DayStarted(object sender, DayStartedEventArgs ev)
+        private static void DayStarted(object sender, DayStartedEventArgs ev)
         {
             if (!Context.IsMainPlayer)
                 return;
@@ -35,41 +31,21 @@ namespace MUMPs
                 }
             }
         }
-        public static void Init()
+        internal static void Init()
         {
-            ModEntry.helper.Events.Player.Warped += 
-                (s, e) => drawVoid.Value = e.NewLocation.mapPath.Value == PathUtilities.NormalizeAssetName("Maps/EventVoid");
             ModEntry.helper.Events.Display.RenderedHud += 
                 (s, e) => DrawVoid(e.SpriteBatch);
-            ModEntry.helper.Events.GameLoop.UpdateTicked += Tick;
             ModEntry.helper.Events.Multiplayer.ModMessageReceived += RecieveMessage;
             ModEntry.helper.Events.GameLoop.DayStarted += DayStarted;
+            ModEntry.helper.Events.Player.Warped += AfterWarp;
         }
-        public static void Tick(object sender, UpdateTickedEventArgs ev)
+        private static void AfterWarp(object _, WarpedEventArgs ev)
         {
-            if (reloadScreen.Value)
-            {
-                reloadScreen.Value = false;
-                drawVoid.Value = Game1.currentLocation.mapPath.Value == PathUtilities.NormalizeAssetName("Maps/EventVoid");
-            }
-            RunFade();
+            foreach (var action in afterWarpActions.Value)
+                action?.Invoke();
+            afterWarpActions.Value.Clear();
         }
-        public static void RunFade()
-        {
-            if (wasFading.Value != Game1.IsFading())
-                fadeWasRun.Value = false;
-
-            if (!Game1.fadeIn && wasFading.Value && !fadeWasRun.Value)
-            {
-                var existingQueue = afterFadeQueue.Value.ToArray();
-                afterFadeQueue.Value.Clear();
-                foreach (var action in existingQueue)
-                    action();
-                fadeWasRun.Value = true;
-            }
-            wasFading.Value = Game1.IsFading();
-        }
-        public static void RecieveMessage(object sender, ModMessageReceivedEventArgs ev)
+        private static void RecieveMessage(object sender, ModMessageReceivedEventArgs ev)
         {
             if (ev.FromModID != ModEntry.ModID)
                 return;
@@ -79,15 +55,33 @@ namespace MUMPs
                 case "RepairEvent":
                     Props.ActionRepair.EventAndReload(ev.ReadAs<models.MessageRepairEvent>()); break;
                 case "ReloadEvent":
-                    Utility.ReceiveReloadRequest(ev.ReadAs<models.MessageRepairEvent>()); break;
+                    ReceiveReloadRequest(ev.ReadAs<models.MessageRepairEvent>()); break;
                 default:
                     ModEntry.monitor.Log("Unhandled message type: " + ev.Type, LogLevel.Warn); break;
             }
         }
-        public static void DrawVoid(SpriteBatch b)
+        private static void DrawVoid(SpriteBatch b)
         {
-            if (drawVoid.Value)
+            if (Game1.currentLocation.mapPath.Value.Contains("EventVoid"))
                 b.Draw(Game1.staminaRect, new Rectangle(0, 0, Game1.viewport.Width, Game1.viewport.Height), Color.Black);
+        }
+        internal static void BroadcastReloadRequest(string name)
+        {
+            models.MessageRepairEvent msg = new(name);
+            ReceiveReloadRequest(msg);
+            ModEntry.helper.Multiplayer.SendMessage(msg, "RepairEvent", new string[] { ModEntry.ModID });
+        }
+        internal static void ReceiveReloadRequest(models.MessageRepairEvent ev)
+        {
+            if (ev.LocationName == Game1.currentLocation.Name)
+                ReloadCurrentLocation(Game1.currentLocation.mapPath.Value, Game1.player.getTileLocation(), ev.LocationName);
+        }
+        internal static void ReloadCurrentLocation(string path, Vector2 coords, string name)
+        {
+            ModEntry.helper.GameContent.InvalidateCache(path);
+            if (Game1.currentLocation.mapPath.Value == path)
+                Maps.WarpToTempMap("EventVoid", Game1.player);
+            Game1.warpFarmer(name, (int)coords.X, (int)coords.Y, false);
         }
     }
 }

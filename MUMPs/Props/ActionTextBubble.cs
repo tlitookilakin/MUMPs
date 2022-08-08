@@ -21,7 +21,7 @@ namespace MUMPs.Props
             new(ModEntry.helper, static () => "Strings/StringsFromMaps", false);
         internal static void Init()
         {
-            ModEntry.AeroAPI.RegisterAction("TextBubble", Handle);
+            ModEntry.AeroAPI.RegisterAction("TextBubble", Handle, 4);
             ModEntry.OnDraw += Draw;
             ModEntry.OnCleanup += Cleanup;
             ModEntry.OnChangeLocation += ChangeLocation;

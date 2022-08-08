@@ -202,24 +202,24 @@ namespace MUMPs.Props
 			{
 				if (mega || garbage_random.NextDouble() < 0.2 + who.DailyLuck)
 				{
-					item = "168";
+					item = "(O)168";
 					switch ((!mega) ? garbage_random.Next(10) : garbage_random.Next(5, 10))
 					{
-						case 0: item = "168"; break;
-						case 1: item = "167"; break;
-						case 2: item = "170"; break;
-						case 3: item = "171"; break;
-						case 4: item = "172"; break;
-						case 5: item = "216"; break;
+						case 0: item = "(O)168"; break;
+						case 1: item = "(O)167"; break;
+						case 2: item = "(O)170"; break;
+						case 3: item = "(O)171"; break;
+						case 4: item = "(O)172"; break;
+						case 5: item = "(O)216"; break;
 						case 6:
 							item = SUtility.getRandomItemFromSeason(location.GetSeasonForLocation(), x * 653 + y * 777, forQuest: false).ToString();
 							break;
-						case 7: item = "403"; break;
-						case 8: item = (309 + garbage_random.Next(3)).ToString(); break;
-						case 9: item = "153"; break;
+						case 7: item = "(O)403"; break;
+						case 8: item = $"(O){309 + garbage_random.Next(3)}"; break;
+						case 9: item = "(O)153"; break;
 					}
 					if (Game1.random.NextDouble() <= 0.25 && Game1.player.team.SpecialOrderRuleActive("DROP_QI_BEANS"))
-						item = "890";
+						item = "(O)890";
 				}
 				if (item_lists_split.Length > 3)
 				{

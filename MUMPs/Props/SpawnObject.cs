@@ -6,6 +6,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Objects;
+using StardewValley.TerrainFeatures;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
@@ -56,13 +57,20 @@ namespace MUMPs.Props
                 ModEntry.monitor.Log($"Could not spawn item '{id}' @ ({pos.X},{pos.Y}) in location '{loc.Name}'", LogLevel.Warn);
                 return;
             }
+            HoeDirt dirt = null;
+            if (loc.terrainFeatures.TryGetValue(pos, out var tf))
+                dirt = tf as HoeDirt;
+            bool interact = split.Length > 1 && split[1].StartsWith("T", StringComparison.OrdinalIgnoreCase);
+            loc.terrainFeatures.Remove(pos);
             if (item is SObject obj)
             {
-                if (split.Length > 1 && obj is Furniture furn && int.TryParse(split[1], out int rot))
+                if (split.Length > 2 && obj is Furniture furn && int.TryParse(split[2], out int rot))
                 {
                     rot = furn.rotations.Value == 4 ? rot : rot * 2;
                     furn.currentRotation.Value = Math.Clamp(rot, 0, furn.rotations.Value - 1);
                     furn.updateRotation();
+                    if (!interact)
+                        furn.modData["tlitookilakin.mumps.noInteract"] = "T";
                 }
                 if (obj.isSapling() || obj.Category is -74 or -19 || 
                     !obj.placementAction(loc, (int)pos.X * 64, (int)pos.Y * 64, Game1.player))
@@ -72,13 +80,24 @@ namespace MUMPs.Props
                 }
                 if (loc.Objects.TryGetValue(pos, out obj) && obj is not null)
                 {
-                    obj.CanBeGrabbed = true;
-                    obj.IsSpawnedObject = true;
-                    obj.modData["tlitookilakin.mumps.persist"] = "T";
+                    if (!obj.bigCraftable.Value)
+                    {
+                        obj.CanBeGrabbed = true;
+                        obj.IsSpawnedObject = true;
+                        obj.modData["tlitookilakin.mumps.persist"] = "T";
+                    }
+                    if (obj is IndoorPot pot && dirt is not null)
+                        pot.hoeDirt.Value = dirt;
+                    if (!interact)
+                        obj.modData["tlitookilakin.mumps.noInteract"] = "T";
+                } else if (loc.terrainFeatures.TryGetValue(pos, out tf) && !interact)
+                {
+                    tf.modData["tlitookilakin.mumps.noInteract"] = "T";
                 }
                 return;
             }
-            if (split.Length > 1 && int.TryParse(split[1], out int ind) && ind >= 0)
+            // interact field is ignored for unplaceable items
+            if (split.Length > 2 && int.TryParse(split[2], out int ind) && ind >= 0)
                 loc.objects[pos] = new Chest(0, new() { item }, pos, true, ind);
             else
                 loc.objects[pos] = new Chest(0, new() { item }, pos);
@@ -87,9 +106,12 @@ namespace MUMPs.Props
         {
             if (loc.terrainFeatures.ContainsKey(pos))
                 return;
-            if (!str.TryGetFruitTree(out var tree, 4))
+            var split = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (split.Length == 0 || !split[0].TryGetFruitTree(out var tree, 4))
                 return;
             tree.daysUntilMature.Value = 0;
+            if (split.Length > 1 && !split[1].StartsWith("T", StringComparison.OrdinalIgnoreCase))
+                tree.modData["tlitookilakin.mumps.noInteract"] = "T";
             loc.terrainFeatures[pos] = tree;
         }
 

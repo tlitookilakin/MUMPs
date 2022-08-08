@@ -7,26 +7,13 @@ using StardewValley.TerrainFeatures;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using HarmonyLib;
+using StardewValley.Objects;
 
 namespace MUMPs.Props
 {
     [ModInit]
     internal class SpawnCrops
     {
-        internal static void Init()
-        {
-            ModEntry.helper.Events.GameLoop.DayStarted += NewDay;
-            HarmonyMethod patch = new(typeof(SpawnCrops).MethodNamed(nameof(NoHarvest)));
-            ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.performToolAction)), patch);
-            ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.performUseAction)), patch);
-            ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.readyForHarvest)), patch);
-        }
-        private static bool NoHarvest(HoeDirt __instance, ref bool __result)
-        {
-            bool noHarvest = __instance.modData.ContainsKey("tlitookilakin.mumps.noHarvest");
-            __result = !noHarvest && __result;
-            return !noHarvest;
-        }
         private static void NewDay(object _, DayStartedEventArgs ev)
         {
             bool newSeason = Game1.dayOfMonth == 1;
@@ -42,12 +29,19 @@ namespace MUMPs.Props
                 if (!tile.TileHasProperty("Crop", out var prop))
                     continue;
                 Vector2 pos = new(x, y);
+                if (loc.ResourceClumpAt(pos) is not null)
+                    continue;
                 HoeDirt dirt;
                 if (loc.terrainFeatures.TryGetValue(pos, out var tf))
                     if (tf is not HoeDirt)
                         continue;
                     else
                         dirt = tf as HoeDirt;
+                else if (loc.Objects.TryGetValue(pos, out var sobj))
+                    if (sobj is IndoorPot pot)
+                        dirt = pot.hoeDirt.Value;
+                    else
+                        continue;
                 else
                     loc.terrainFeatures.Add(pos, dirt = new(1, loc));
                 if (dirt.crop is not null && dirt.crop.dead.Value)
@@ -71,10 +65,10 @@ namespace MUMPs.Props
                 if (id.TryGetCrop(x, y, out var crop) && (dirt.crop is null || 
                     (isNewSeason && dirt.crop.netSeedIndex.Value != crop.netSeedIndex.Value)))
                     dirt.crop = crop;
-                if (split[0].ToUpperInvariant()[0] != 'T')
-                    dirt.modData["tlitookilakin.mumps.noHarvest"] = "T";
+                if (!split[0].StartsWith("T", StringComparison.OrdinalIgnoreCase))
+                    dirt.modData["tlitookilakin.mumps.noInteract"] = "T";
                 else
-                    dirt.modData.Remove("tlitookilakin.mumps.noHarvest");
+                    dirt.modData.Remove("tlitookilakin.mumps.noInteract");
                 dirt.paddyWaterCheck(loc, pos);
                 dirt.updateNeighbors(loc, pos);
             }
