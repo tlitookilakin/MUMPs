@@ -131,7 +131,7 @@ namespace MUMPs.Props
             if (split.Length < 1 || !split[0].TryGetItem(out Item fished) || fished is not SObject fobj)
                 return;
 
-            Farmer address = split.Length < 3 ? Game1.player : who; // whether instanced or not
+            Farmer address = split.Length < 3 ? Game1.MasterPlayer : who; // whether instanced or not
             if (split.Length < 2)
             {
                 __result = fobj;

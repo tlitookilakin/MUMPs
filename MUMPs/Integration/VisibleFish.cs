@@ -1,5 +1,6 @@
 ﻿using AeroCore;
 using AeroCore.Models;
+using AeroCore.ReflectedValue;
 using AeroCore.Utils;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
@@ -7,7 +8,9 @@ using StardewModdingAPI;
 using StardewValley;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
+using SObject = StardewValley.Object;
 
 namespace MUMPs.Integration
 {
@@ -15,6 +18,7 @@ namespace MUMPs.Integration
     class VisibleFish
     {
         private static (double chance, string loc)? farmFishOverride = null;
+        private static ValueChain addTrash;
 
         internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codes, ILGenerator gen) => patcher.Run(codes, gen);
         private static readonly ILHelper patcher = new ILHelper(ModEntry.monitor, "Visible Fish Integration")
@@ -32,9 +36,36 @@ namespace MUMPs.Integration
         internal static void Init()
         {
             ModEntry.monitor.Log("Attempting to patch Visible Fish mod for integration...", LogLevel.Debug);
-            var method = AccessTools.TypeByName("showFishInWater.FishManager").MethodNamed("getFishAt");
-            ModEntry.harmony.Patch(method, transpiler: new HarmonyMethod(typeof(VisibleFish), "Transpiler"));
             ModEntry.helper.Events.GameLoop.DayStarted += (s, e) => DayStart();
+
+            var manager = AccessTools.TypeByName("showFishInWater.FishManager");
+            if (manager is null)
+            {
+                ModEntry.monitor.Log("Could not find FishManager; failed to patch", LogLevel.Debug);
+                return;
+            }
+            if (!ModEntry.harmony.TryPatch(manager.MethodNamed("getFishAt"), transpiler: new(typeof(VisibleFish), nameof(Transpiler))))
+                ModEntry.monitor.Log("Could not find target method 'getFishAt'; failed to patch.", LogLevel.Debug);
+            if (!ModEntry.harmony.TryPatch(manager.MethodNamed("SpawnSpecialObjects"), postfix: new(typeof(VisibleFish), nameof(SpawnObjects))))
+                ModEntry.monitor.Log("Could not find target method 'SpawnSpecialObjects'; failed to patch.", LogLevel.Debug);
+            addTrash = manager.ValueRef("fishTank")?.MethodRef<object>("addTrash", typeof(SObject), typeof(int), typeof(int), typeof(bool));
+        }
+
+        private static void SpawnObjects(GameLocation location, object __instance)
+        {
+            if (location?.Map is null || addTrash is null)
+                return;
+
+            foreach ((var tile, int x, int y) in location.Map.TilesInLayer("Back"))
+            {
+                if (!tile.TileHasProperty("FishingTreasure", out var prop))
+                    continue;
+                var split = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (split.Length < 1 || !split[0].TryGetItem(out Item fished) || fished is not SObject fobj)
+                    continue;
+                if (split.Length < 2 || !(split.Length < 3 ? Game1.MasterPlayer : Game1.player).hasOrWillReceiveMail(split[1]))
+                    addTrash.Call(__instance, null, fobj, x, y, false);
+            }
         }
 
         private static void DayStart()
