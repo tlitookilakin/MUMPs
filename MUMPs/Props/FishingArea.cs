@@ -5,10 +5,11 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using StardewValley.Buildings;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
+using SObject = StardewValley.Object;
 
 namespace MUMPs.Props
 {
@@ -24,7 +25,7 @@ namespace MUMPs.Props
             .Add(new CodeInstruction[]{
                 new(OpCodes.Ldarg_S, 6),
                 new(OpCodes.Ldarg_S, 7),
-                new(OpCodes.Call, typeof(FishingArea).MethodNamed("SwapPool")),
+                new(OpCodes.Call, typeof(FishingArea).MethodNamed(nameof(SwapPool))),
                 new(OpCodes.Starg_S, 7)
             })
             .Finish();
@@ -50,7 +51,7 @@ namespace MUMPs.Props
                 }
             }
             string[] defaults = Maps.MapPropertyArray(loc, "DefaultFishingArea");
-                defaultRegionName.Value = defaults.Length > 0 ? defaults[0] : loc.Name;
+                defaultRegionName.Value = defaults.Length > 0 ? defaults[0] : null;
             defaultRegion.Value = defaults.Length > 1 && int.TryParse(defaults[1], out int def) ?
                  def : -1;
             ModEntry.monitor.Log($"Fishing: Found {idRegions.Value.Count} ID regions and {locRegions.Value.Count} Location regions.", LogLevel.Trace);
@@ -63,36 +64,44 @@ namespace MUMPs.Props
             defaultRegionName.ResetAllScreens();
         }
 
-        [HarmonyPatch(typeof(GameLocation), "getFish")]
+        [HarmonyPatch(typeof(GameLocation), nameof(GameLocation.getFish))]
         [HarmonyTranspiler]
         internal static IEnumerable<CodeInstruction> GetFish(IEnumerable<CodeInstruction> instructions) => fishPatch.Run(instructions);
 
-        [HarmonyPatch(typeof(Farm), "getFish")]
-        [HarmonyPrefix]
-        internal static bool FarmGetFish(Farm __instance, ref Object __result, float millisecondsAfterNibble, int bait, int waterDepth, Farmer who, double baitPotency, Vector2 bobberTile, string location)
+        [HarmonyPatch(typeof(Farm), nameof(Farm.getFish))]
+        [HarmonyTranspiler]
+        internal static IEnumerable<CodeInstruction> GetFarmFish(IEnumerable<CodeInstruction> instructions)
         {
-            if (bobberTile != Vector2.Zero)
-                foreach (Building b in __instance.buildings)
-                    if (b is FishPond && b.isTileFishable(bobberTile))
-                    {
-                        __result = (b as FishPond).CatchFish();
-                        return false;
-                    }
-            location = SwapPool(bobberTile, location);
-            
-            if (location != null)
+            CodeInstruction prev = null;
+            var getFish = typeof(GameLocation).MethodNamed(nameof(GameLocation.getFish));
+            var swapFish = typeof(FishingArea).MethodNamed(nameof(FarmSwapPool));
+            foreach (var code in instructions)
             {
-                __result = FarmBaseGetFish(__instance, millisecondsAfterNibble, bait, waterDepth, who, baitPotency, bobberTile, location);
-                return false;
+                if (prev is not null) 
+                {
+                    if (code.opcode == OpCodes.Call && (code.operand as MethodInfo) == getFish)
+                    {
+                        yield return new(OpCodes.Ldarg_S, 6);
+                        yield return prev;
+                        yield return new(OpCodes.Call, swapFish);
+                        yield return code;
+                    } else
+                    {
+                        yield return prev;
+                        yield return code;
+                    }
+                    prev = null;
+                }
+                else if (code.opcode == OpCodes.Ldstr)
+                {
+                    prev = code;
+                }
+                else
+                {
+                    yield return code;
+                }
             }
-            return true;
         }
-
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(GameLocation), "getFish")]
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private static Object FarmBaseGetFish(Farm instance, float millisecondsAfterNibble, int bait, int waterDepth, Farmer who, 
-            double baitPotency, Vector2 bobberTile, string location = null) { return null; }
         private static string SwapPool(Vector2 bobber, string location)
         {
             if (location != null)
@@ -103,7 +112,38 @@ namespace MUMPs.Props
                     return loc;
             return defaultRegionName.Value;
         }
-        [HarmonyPatch(typeof(GameLocation), "getFishingLocation")]
+        private static string FarmSwapPool(Vector2 bobber, string location)
+        {
+            foreach ((var region, string loc) in locRegions.Value)
+                if (region.Contains(bobber))
+                    return loc;
+            return location ?? defaultRegionName.Value;
+        }
+
+        [HarmonyPatch(typeof(GameLocation), nameof(GameLocation.getFish))]
+        [HarmonyPostfix]
+        internal static void CatchTreasure(Vector2 bobber, GameLocation __instance, Farmer who, ref SObject __result)
+        {
+            var prop = __instance.doesTileHaveProperty((int)bobber.X, (int)bobber.Y, "FishingTreasure", "Back");
+            if (prop is null)
+                return;
+            var split = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (split.Length < 1 || !split[0].TryGetItem(out Item fished) || fished is not SObject fobj)
+                return;
+
+            Farmer address = split.Length < 3 ? Game1.player : who; // whether instanced or not
+            if (split.Length < 2)
+            {
+                __result = fobj;
+            }
+            else if (!address.hasOrWillReceiveMail(split[1]))
+            {
+                address.mailReceived.Add(split[1]);
+                __result = fobj;
+            }
+        }
+
+        [HarmonyPatch(typeof(GameLocation), nameof(GameLocation.getFishingLocation))]
         [HarmonyPrefix]
         internal static bool GetFishingLocationPatch(ref Vector2 tile, ref int __result)
         {

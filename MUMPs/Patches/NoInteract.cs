@@ -45,12 +45,11 @@ namespace MUMPs.Patches
             ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.performUseAction)), terrainSkip);
             ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.readyForHarvest)), terrainSkip);
             ModEntry.harmony.Patch(typeof(FishTankFurniture).MethodNamed(nameof(FishTankFurniture.CanBeDeposited)), objectPatch);
-            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.minutesElapsed)), objectPatch);
             ModEntry.harmony.Patch(typeof(Fence).MethodNamed(nameof(Fence.minutesElapsed)), objectPickup);
             ModEntry.harmony.Patch(typeof(Crop).MethodNamed(nameof(Crop.newDay)),
                 postfix: new(typeof(NoInteract).MethodNamed(nameof(PropogateToGiant))));
-            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.DayUpdate)),
-                postfix: cancelCraftable);
+            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.minutesElapsed)),
+                prefix: objectPatch, postfix: cancelCraftable);
         }
         private static bool NoInteractObject(SObject __instance, ref bool __result)
         {
