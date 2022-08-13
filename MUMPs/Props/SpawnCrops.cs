@@ -6,7 +6,6 @@ using System;
 using StardewValley.TerrainFeatures;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
-using HarmonyLib;
 using StardewValley.Objects;
 
 namespace MUMPs.Props
@@ -24,13 +23,15 @@ namespace MUMPs.Props
         internal static void Spawn(GameLocation loc, bool isNewSeason)
         {
             int season = loc.GetSeasonIndexForLocation();
-            foreach((var tile, var x, var y) in loc.Map.TilesInLayer("Back"))
+            if (season == -1)
+                season = Utility.getSeasonNumber(Game1.currentSeason);
+            foreach ((var tile, var x, var y) in loc.Map.TilesInLayer("Back"))
             {
+                if (AddGiantCrop(tile, x, y, loc, isNewSeason, season))
+                    continue;
                 if (!tile.TileHasProperty("Crop", out var prop))
                     continue;
                 Vector2 pos = new(x, y);
-                if (loc.ResourceClumpAt(pos) is not null)
-                    continue;
                 HoeDirt dirt;
                 if (loc.terrainFeatures.TryGetValue(pos, out var tf))
                     if (tf is not HoeDirt)
@@ -49,15 +50,9 @@ namespace MUMPs.Props
                 dirt.state.Value = 1; // water it
 
                 var split = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (season == -1)
-                    season = StardewValley.Utility.getSeasonNumber(Game1.currentSeason);
-                string id;
-                if (split.Length == 2)
-                    id = split[1];
-                else if (season + 1 < split.Length)
-                    id = split[season + 1];
-                else
+                if (split.Length < 2)
                     continue;
+                string id = split.Length > season + 1 ? split[season + 1] : split.Length > 2 ? string.Empty : split[1];
 
                 // if the crop is valid, and either the dirt is empty or it's a new season with different crops
                 // will not work with forage crops
@@ -72,6 +67,39 @@ namespace MUMPs.Props
                 dirt.paddyWaterCheck(loc, pos);
                 dirt.updateNeighbors(loc, pos);
             }
+        }
+        private static bool AddGiantCrop(xTile.Tiles.Tile tile, int x, int y, GameLocation loc, bool newSeason, int season)
+        {
+            if (!tile.TileHasProperty("GiantCrop", out var prop))
+                return false;
+            var split = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (split.Length < 2)
+                return false;
+            var clump = loc.ResourceClumpIntersecting(x, y);
+            if (clump is not null)
+            {
+                if (!newSeason)
+                {
+                    if (split[0].StartsWith("T", StringComparison.OrdinalIgnoreCase))
+                        clump.modData.Remove("tlitookilakin.mumps.noInteract");
+                    else
+                        clump.modData["tlitookilakin.mumps.noInteract"] = "T";
+                    return true;
+                }
+                loc.resourceClumps.Remove(clump);
+            }
+            string which = split.Length > season + 1 ? split[season + 1] : split.Length > 2 ? string.Empty : split[1];
+            if (!int.TryParse(which, out var id))
+                return false;
+            for (int tx = 0; tx < 3; tx++)
+                for (int ty = 0; ty < 3; ty++)
+                    if (loc.terrainFeatures[new(tx + x, ty + y)] is HoeDirt dirt)
+                        dirt.crop = null;
+            var giant = new GiantCrop(id, new(x, y));
+            if (!split[0].StartsWith("T", StringComparison.OrdinalIgnoreCase))
+                giant.modData["tlitookilakin.mumps.noInteract"] = "T";
+            loc.resourceClumps.Add(giant);
+            return true;
         }
     }
 }
