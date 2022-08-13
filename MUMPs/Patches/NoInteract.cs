@@ -14,42 +14,43 @@ namespace MUMPs.Patches
         internal static void Init()
         {
             HarmonyMethod terrainSkip = new(typeof(NoInteract).MethodNamed(nameof(NoInteractTerrainFeature)));
-            ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.performToolAction)), terrainSkip);
-            ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.performUseAction)), terrainSkip);
-            ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.readyForHarvest)), terrainSkip);
-            ModEntry.harmony.Patch(typeof(Crop).MethodNamed(nameof(Crop.newDay)), 
-                postfix: new(typeof(NoInteract).MethodNamed(nameof(PropogateToGiant))));
-            ModEntry.harmony.Patch(typeof(FruitTree).MethodNamed(nameof(FruitTree.performToolAction)), terrainSkip);
-            ModEntry.harmony.Patch(typeof(GiantCrop).MethodNamed(nameof(GiantCrop.performToolAction)), terrainSkip);
-            ModEntry.harmony.Patch(typeof(Flooring).MethodNamed(nameof(Flooring.performToolAction)), terrainSkip);
-            ModEntry.harmony.Patch(typeof(CosmeticPlant).MethodNamed(nameof(CosmeticPlant.performToolAction)), terrainSkip);
-            ModEntry.harmony.Patch(typeof(Tree).MethodNamed(nameof(Tree.performToolAction)), terrainSkip);
-
+            HarmonyMethod furnitureSkip = new(typeof(NoInteract).MethodNamed(nameof(CancelFurniture)));
             HarmonyMethod objectPatch = new(typeof(NoInteract).MethodNamed(nameof(NoInteractObject)));
             HarmonyMethod objectPickup = new(typeof(NoInteract).MethodNamed(nameof(NoPickupObject)));
-            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.performObjectDropInAction)), objectPatch);
-            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.performToolAction)), objectPickup);
-            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.checkForAction)), objectPatch);
-            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.minutesElapsed)), objectPatch);
-            ModEntry.harmony.Patch(typeof(Workbench).MethodNamed(nameof(Workbench.checkForAction)), objectPatch);
-            ModEntry.harmony.Patch(typeof(CrabPot).MethodNamed(nameof(CrabPot.checkForAction)), objectPatch);
-            ModEntry.harmony.Patch(typeof(CrabPot).MethodNamed(nameof(CrabPot.performObjectDropInAction)), objectPatch);
-            ModEntry.harmony.Patch(typeof(WoodChipper).MethodNamed(nameof(WoodChipper.performObjectDropInAction)), objectPatch);
-            ModEntry.harmony.Patch(typeof(Fence).MethodNamed(nameof(Fence.performToolAction)), objectPickup);
-            ModEntry.harmony.Patch(typeof(Fence).MethodNamed(nameof(Fence.minutesElapsed)), objectPickup);
-            ModEntry.harmony.Patch(typeof(Cask).MethodNamed(nameof(Cask.performToolAction)), objectPickup);
-            ModEntry.harmony.Patch(typeof(Cask).MethodNamed(nameof(Cask.performObjectDropInAction)), objectPickup);
-            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.DayUpdate)), 
-                postfix: new(typeof(NoInteract).MethodNamed(nameof(CraftableCancelProduce))));
+            HarmonyMethod cancelCraftable = new(typeof(NoInteract).MethodNamed(nameof(CraftableCancelProduce)));
 
-            HarmonyMethod furnitureSkip = new(typeof(NoInteract).MethodNamed(nameof(CancelFurniture)));
-            ModEntry.harmony.Patch(typeof(Furniture).MethodNamed(nameof(Furniture.canBeRemoved)), objectPickup);
-            ModEntry.harmony.Patch(typeof(Furniture).MethodNamed(nameof(Furniture.checkForAction)), objectPatch);
-            ModEntry.harmony.Patch(typeof(Furniture).MethodNamed(nameof(Furniture.rotate)), furnitureSkip);
-            ModEntry.harmony.Patch(typeof(Furniture).MethodNamed(nameof(Furniture.hoverAction)), furnitureSkip);
-            ModEntry.harmony.Patch(typeof(StorageFurniture).MethodNamed(nameof(StorageFurniture.checkForAction)), objectPatch);
-            ModEntry.harmony.Patch(typeof(FishTankFurniture).MethodNamed(nameof(FishTankFurniture.checkForAction)), objectPatch);
+            foreach (var type in Reflection.GetAllKnownTypes()) 
+            {
+                if (type.IsAssignableTo(typeof(TerrainFeature))) 
+                {
+                    ModEntry.harmony.TryPatch(AccessTools.DeclaredMethod(type,"performToolAction"), prefix: terrainSkip);
+                } 
+                else
+                {
+                    if (type.IsAssignableTo(typeof(Furniture)))
+                    {
+                        ModEntry.harmony.TryPatch(AccessTools.DeclaredMethod(type,"rotate"), furnitureSkip);
+                        ModEntry.harmony.TryPatch(AccessTools.DeclaredMethod(type,"hoverAction"), furnitureSkip);
+                        ModEntry.harmony.TryPatch(AccessTools.DeclaredMethod(type, "canBeRemoved"), objectPickup);
+                    } 
+                    if (type.IsAssignableTo(typeof(SObject)))
+                    {
+                        ModEntry.harmony.TryPatch(AccessTools.DeclaredMethod(type,"performToolAction"), prefix: objectPickup);
+                        ModEntry.harmony.TryPatch(AccessTools.DeclaredMethod(type,"performObjectDropInAction"), prefix: objectPatch);
+                        ModEntry.harmony.TryPatch(AccessTools.DeclaredMethod(type,"checkForAction"), prefix: objectPatch);
+                    }
+                }
+            }
+
+            ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.performUseAction)), terrainSkip);
+            ModEntry.harmony.Patch(typeof(HoeDirt).MethodNamed(nameof(HoeDirt.readyForHarvest)), terrainSkip);
             ModEntry.harmony.Patch(typeof(FishTankFurniture).MethodNamed(nameof(FishTankFurniture.CanBeDeposited)), objectPatch);
+            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.minutesElapsed)), objectPatch);
+            ModEntry.harmony.Patch(typeof(Fence).MethodNamed(nameof(Fence.minutesElapsed)), objectPickup);
+            ModEntry.harmony.Patch(typeof(Crop).MethodNamed(nameof(Crop.newDay)),
+                postfix: new(typeof(NoInteract).MethodNamed(nameof(PropogateToGiant))));
+            ModEntry.harmony.Patch(typeof(SObject).MethodNamed(nameof(SObject.DayUpdate)),
+                postfix: cancelCraftable);
         }
         private static bool NoInteractObject(SObject __instance, ref bool __result)
         {
@@ -66,10 +67,7 @@ namespace MUMPs.Patches
         private static void CraftableCancelProduce(SObject __instance)
         {
             if (__instance.modData.ContainsKey("tlitookilakin.mumps.noInteract"))
-            {
                 __instance.readyForHarvest.Value = false;
-                __instance.heldObject.Value = null;
-            }
         }
         private static bool CancelFurniture(Furniture __instance)
             => !__instance.modData.ContainsKey("tlitookilakin.mumps.noInteract");
