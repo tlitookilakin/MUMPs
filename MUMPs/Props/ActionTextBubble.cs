@@ -39,7 +39,7 @@ namespace MUMPs.Props
         private static void Handle(Farmer who, string what, Point tile, GameLocation where)
         {
             if (!pages.Value.TryGetValue(tile, out var dlg) && mapStrings.Value.TryGetValue(what, out var s))
-                pages.Value.Add(tile, dlg = s.Split('|', StringSplitOptions.RemoveEmptyEntries));
+                pages.Value.Add(tile, dlg = s.Split('/', StringSplitOptions.RemoveEmptyEntries));
             if (dlg is null || dlg.Length == 0)
             {
                 ModEntry.monitor.Log($"Map strings does not contain key '{what}'; could not display text bubble.", LogLevel.Warn);

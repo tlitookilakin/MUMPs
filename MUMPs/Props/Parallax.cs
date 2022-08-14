@@ -38,7 +38,7 @@ namespace MUMPs.Props
             else
                 offset = Vector2.Zero;
 
-            if (Misc.TryLoadAsset<HorizonModel>(ModEntry.monitor, ModEntry.helper, "Mods/Mumps/Backgrounds/" + props[0], out var ret))
+            if (Assets.Backdrops.TryGetValue(props[0], out var ret))
                 return ret;
             else
                 return null;
