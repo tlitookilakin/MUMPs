@@ -29,7 +29,7 @@ namespace MUMPs.Props
         }
         private static void showAdvanced(Farmer who, string action, Point tile, GameLocation where)
         {
-            if (Assets.Animatons.TryGetValue(action, out var anim))
+            if (Assets.Animations.TryGetValue(action, out var anim))
                 Game1.activeClickableMenu = new UI.AdvancedImageDisplay(anim);
             else
                 ModEntry.monitor.Log($"Could not find image data for entry '{action}' in Image action @ [{tile.X},{tile.Y}] in '{where.Name}'.");

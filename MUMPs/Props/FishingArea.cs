@@ -138,7 +138,10 @@ namespace MUMPs.Props
             }
             else if (!address.hasOrWillReceiveMail(split[1]))
             {
-                address.mailReceived.Add(split[1]);
+                if (split.Length > 2)
+                    address.mailForTomorrow.Add(split[1]);
+                else
+                    address.mailReceived.Add(split[1]);
                 __result = fobj;
             }
         }

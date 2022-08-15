@@ -43,17 +43,5 @@ namespace MUMPs.Patches
             original = instance;
             return true;
         }
-
-        private static IEnumerable<CodeInstruction> replaceLocals(ILHelper.ILEnumerator cursor)
-        {
-            yield return cursor.source.Current;
-            while (cursor.source.MoveNext())
-            {
-                var c = cursor.source.Current;
-                if (c.opcode == OpCodes.Ldloc_S && ((LocalBuilder)c.operand).LocalIndex == 31)
-                    c.operand = cursor.GetLocal("inst");
-                yield return c;
-            }
-        }
     }
 }
