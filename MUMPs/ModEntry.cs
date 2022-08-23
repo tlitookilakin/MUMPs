@@ -30,8 +30,6 @@ namespace MUMPs
         internal static event Action OnCleanup;
         internal static event Action OnTick;
 
-        private static readonly string[] LocalHorizons = {"Empty", "Default"};
-
         internal static Dictionary<string, string> strings;
         public override void Entry(IModHelper helper)
         {
@@ -64,12 +62,6 @@ namespace MUMPs
                 ev.LoadFromModFile<xTile.Map>("assets/eventvoid.tbin", AssetLoadPriority.Medium);
             else if (ev.Name.IsEquivalentTo("Mods/Mumps/Fog"))
                 ev.LoadFromModFile<Texture2D>("assets/fog.png", AssetLoadPriority.Medium);
-            else if (ev.Name.IsDirectlyUnderPath("Mods/Mumps/Backgrounds"))
-            {
-                var n = ev.Name.WithoutPath("Mods/Mumps/Backgrounds");
-                if (LocalHorizons.Contains(n))
-                    ev.LoadFromModFile<HorizonModel>($"assets/backgrounds/{n}.json", AssetLoadPriority.Low);
-            }
         }
     }
 }

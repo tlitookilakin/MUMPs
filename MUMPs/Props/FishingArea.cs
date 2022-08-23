@@ -122,9 +122,9 @@ namespace MUMPs.Props
 
         [HarmonyPatch(typeof(GameLocation), nameof(GameLocation.getFish))]
         [HarmonyPostfix]
-        internal static void CatchTreasure(Vector2 bobber, GameLocation __instance, Farmer who, ref SObject __result)
+        internal static void CatchTreasure(Vector2 bobberTile, GameLocation __instance, Farmer who, ref SObject __result)
         {
-            var prop = __instance.doesTileHaveProperty((int)bobber.X, (int)bobber.Y, "FishingTreasure", "Back");
+            var prop = __instance.doesTileHaveProperty((int)bobberTile.X, (int)bobberTile.Y, "FishingTreasure", "Back");
             if (prop is null)
                 return;
             var split = prop.Split(' ', StringSplitOptions.RemoveEmptyEntries);

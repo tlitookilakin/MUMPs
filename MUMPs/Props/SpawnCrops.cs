@@ -13,6 +13,10 @@ namespace MUMPs.Props
     [ModInit]
     internal class SpawnCrops
     {
+        internal static void Init()
+        {
+            ModEntry.helper.Events.GameLoop.DayStarted += NewDay;
+        }
         private static void NewDay(object _, DayStartedEventArgs ev)
         {
             bool newSeason = Game1.dayOfMonth == 1;

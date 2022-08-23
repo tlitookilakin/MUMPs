@@ -48,7 +48,7 @@ namespace MUMPs.Integration
                 ModEntry.monitor.Log("Could not find target method 'getFishAt'; failed to patch.", LogLevel.Debug);
             if (!ModEntry.harmony.TryPatch(manager.MethodNamed("SpawnSpecialObjects"), postfix: new(typeof(VisibleFish), nameof(SpawnObjects))))
                 ModEntry.monitor.Log("Could not find target method 'SpawnSpecialObjects'; failed to patch.", LogLevel.Debug);
-            addTrash = manager.ValueRef("fishTank")?.MethodRef<object>("addTrash", typeof(SObject), typeof(int), typeof(int), typeof(bool));
+            addTrash = manager.ValueRef("fishTank")?.MethodRef<object>("addTrash", new Type[] { typeof(SObject), typeof(int), typeof(int), typeof(bool) });
         }
 
         private static void SpawnObjects(GameLocation location, object __instance)

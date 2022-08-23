@@ -26,7 +26,7 @@ namespace MUMPs.Props
             foreach ((var tile, int x, int y) in loc.Map?.TilesInLayer("Back"))
             {
                 Vector2 pos = new(x, y);
-                if (tile.TileHasProperty("FruitTree", out string fprop) && loc.terrainFeatures[pos] is FruitTree tree)
+                if (tile.TileHasProperty("FruitTree", out string fprop) && loc.terrainFeatures.TryGetValue(pos, out var tf) && tf is FruitTree tree)
                 {
                     if(fprop.GetChunk(' ', 1).StartsWith("T", StringComparison.OrdinalIgnoreCase))
                         tree.modData.Remove("tlitookilakin.mumps.noInteract");
@@ -61,6 +61,11 @@ namespace MUMPs.Props
                             eo.modData.Remove("tlitookilakin.mumps.noInteract");
                         else
                             eo.modData["tlitookilakin.mumps.noInteract"] = "T";
+                        if (!eo.bigCraftable.Value)
+                        {
+                            eo.IsSpawnedObject = pickup;
+                            eo.CanBeGrabbed = pickup;
+                        }
                     }
                 }
             }
@@ -83,7 +88,7 @@ namespace MUMPs.Props
         }
         internal static void GenerateAt(GameLocation loc, Vector2 pos, string id)
         {
-            string[] split = id.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            string[] split = id.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (split.Length == 0)
                 return;
             bool pickup = split.Length > 1 && split[1].Equals("pickup", StringComparison.OrdinalIgnoreCase);
@@ -97,72 +102,64 @@ namespace MUMPs.Props
             if (loc.terrainFeatures.TryGetValue(pos, out var tf))
                 dirt = tf as HoeDirt;
             loc.terrainFeatures.Remove(pos);
-            if (item is SObject obj)
+            SObject obj = ModEntry.AeroAPI.WrapItem(item);
+            if (split.Length > 2 && obj is Furniture furn && int.TryParse(split[2], out int rot))
             {
-                if (split.Length > 2 && obj is Furniture furn && int.TryParse(split[2], out int rot))
-                {
-                    rot = furn.rotations.Value == 4 ? rot : rot * 2;
-                    furn.currentRotation.Value = Math.Clamp(rot, 0, furn.rotations.Value - 1);
-                    furn.updateRotation();
-                }
-                if (obj.isSapling() || obj.Category is -74 or -19 || 
-                    !obj.placementAction(loc, (int)pos.X * 64, (int)pos.Y * 64, Game1.player))
-                {
-                    loc.objects[pos] = obj;
-                    obj.TileLocation = pos;
-                }
-                if (loc.Objects.TryGetValue(pos, out obj) && obj is not null)
-                {
-                    if (!obj.bigCraftable.Value)
-                    {
-                        obj.CanBeGrabbed = true;
-                        obj.IsSpawnedObject = true;
-                        obj.modData["tlitookilakin.mumps.persist"] = "T";
-                    }
-                    if (obj is IndoorPot pot && dirt is not null)
-                        pot.hoeDirt.Value = dirt;
-                    else if (obj is MiniJukebox juke && split.Length > 3)
-                        juke.OnSongChosen(split[3]);
-                    else if (obj is Chest chest)
-                        for(int i = 3; i < split.Length; i++)
-                            if (split[i].TryGetItem(out var si))
-                                chest.items.Add(si);
-                    if (!interact)
-                        obj.modData["tlitookilakin.mumps.noInteract"] = "T";
-                    if (!pickup)
-                        obj.modData["tlitookilakin.mumps.noPickup"] = "T";
-                    if (obj is Sign && split.Length > 3 && split[3].TryGetItem(out var disp))
-                        obj.heldObject.Value = disp as SObject;
-                } else if (loc.terrainFeatures.TryGetValue(pos, out tf) && !pickup)
-                {
-                    tf.modData["tlitookilakin.mumps.noInteract"] = "T";
-                } else
-                {
-                    var f = loc.GetFurnitureAt(pos);
-                    if (f is not null)
-                    {
-                        if (f is StorageFurniture sf)
-                            for (int i = 3; i < split.Length; i++)
-                                if (split[i].TryGetItem(out var si))
-                                    sf.heldItems.Add(si);
-                                else
-                                    continue;
-                        else if (split.Length > 3 && split[3].TryGetItem(out var si))
-                            f.performObjectDropInAction(si, true, null);
-                        // must be after drop-in, or it might get canceled
-                        if (!interact)
-                            f.modData["tlitookilakin.mumps.noInteract"] = "T";
-                        if (!pickup)
-                            f.modData["tlitookilakin.mumps.noPickup"] = "T";
-                    }
-                }
-                return;
+                rot = furn.rotations.Value == 4 ? rot : rot * 2;
+                furn.currentRotation.Value = Math.Clamp(rot, 0, furn.rotations.Value - 1);
+                furn.updateRotation();
             }
-            // interact field is ignored for unplaceable items
-            if (split.Length > 2 && int.TryParse(split[2], out int ind) && ind >= 0)
-                loc.objects[pos] = new Chest(0, new() { item }, pos, true, ind);
-            else
-                loc.objects[pos] = new Chest(0, new() { item }, pos);
+            if (obj.isSapling() || obj.Category is -74 or -19 || 
+                !obj.placementAction(loc, (int)pos.X * 64, (int)pos.Y * 64, Game1.player))
+            {
+                loc.objects[pos] = obj;
+                obj.TileLocation = pos;
+            }
+            if (loc.Objects.TryGetValue(pos, out obj) && obj is not null)
+            {
+                if (!obj.bigCraftable.Value)
+                {
+                    obj.CanBeGrabbed = pickup;
+                    obj.IsSpawnedObject = pickup;
+                    obj.modData["tlitookilakin.mumps.persist"] = "T";
+                }
+                if (obj is IndoorPot pot && dirt is not null)
+                    pot.hoeDirt.Value = dirt;
+                else if (obj is MiniJukebox juke && split.Length > 3)
+                    juke.OnSongChosen(split[3]);
+                else if (obj is Chest chest)
+                    for(int i = 3; i < split.Length; i++)
+                        if (split[i].TryGetItem(out var si))
+                            chest.items.Add(si);
+                if (!interact)
+                    obj.modData["tlitookilakin.mumps.noInteract"] = "T";
+                if (!pickup)
+                    obj.modData["tlitookilakin.mumps.noPickup"] = "T";
+                if (obj is Sign && split.Length > 3 && split[3].TryGetItem(out var disp))
+                    obj.heldObject.Value = disp as SObject;
+            } else if (loc.terrainFeatures.TryGetValue(pos, out tf) && !pickup)
+            {
+                tf.modData["tlitookilakin.mumps.noInteract"] = "T";
+            } else
+            {
+                var f = loc.GetFurnitureAt(pos);
+                if (f is not null)
+                {
+                    if (f is StorageFurniture sf)
+                        for (int i = 3; i < split.Length; i++)
+                            if (split[i].TryGetItem(out var si))
+                                sf.heldItems.Add(si);
+                            else
+                                continue;
+                    else if (split.Length > 3 && split[3].TryGetItem(out var si))
+                        f.performObjectDropInAction(si, true, null);
+                    // must be after drop-in, or it might get canceled
+                    if (!interact)
+                        f.modData["tlitookilakin.mumps.noInteract"] = "T";
+                    if (!pickup)
+                        f.modData["tlitookilakin.mumps.noPickup"] = "T";
+                }
+            }
         }
         internal static void AddFruitTree(GameLocation loc, Vector2 pos, string str)
         {

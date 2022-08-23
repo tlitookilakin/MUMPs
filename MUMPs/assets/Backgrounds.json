@@ -1,0 +1,52 @@
+﻿{
+	"Default": {
+        "DrawSky": true,
+        "Layers": [
+            {
+                "HMode": "Tile",
+                "VMode": "None",
+                "Depth": 0.9,
+                "Scale": 4.0,
+                "Region": {
+                    "X": 0,
+                    "Y": 1034,
+                    "Width": 639,
+                    "Height": 149
+                },
+                "Texture": "LooseSprites/Cursors"
+            },
+            {
+                "HMode": "Tile",
+                "VMode": "None",
+                "Depth": 0.7,
+                "Scale": 4.0,
+                "OffsetX": 5.0,
+                "Region": {
+                    "X": 0,
+                    "Y": 885,
+                    "Width": 639,
+                    "Height": 149
+                },
+                "Texture": "LooseSprites/Cursors"
+            },
+            {
+                "HMode": "Tile",
+                "VMode": "None",
+                "Depth": 0.5,
+                "Scale": 4.0,
+                "OffsetX": 7.0,
+                "Region": {
+                    "X": 0,
+                    "Y": 736,
+                    "Width": 639,
+                    "Height": 149
+                },
+                "Texture": "LooseSprites/Cursors"
+            }
+        ]
+    },
+    "Empty": {
+        "Layers": [],
+        "DrawSky": true
+    }
+}

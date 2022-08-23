@@ -36,7 +36,7 @@ namespace MUMPs.Patches
                 who.currentLocation.doesTileHaveProperty(pos.X, pos.Y, "Water", "Back") != null && 
                 who.currentLocation.getTileIndexAt(pos, "Buildings") == -1 &&
                 !Game1.eventUp
-                ) ? "slosh" : sprite.currentStep;
+                ) ? "quickSlosh" : sprite.currentStep;
         }
     }
 }
