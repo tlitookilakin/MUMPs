@@ -2,6 +2,7 @@
 using AeroCore.Generics;
 using AeroCore.Models;
 using AeroCore.Utils;
+using MUMPs.Integration;
 using MUMPs.models;
 using StardewModdingAPI.Events;
 using System;
@@ -18,6 +19,7 @@ namespace MUMPs
         internal static Dictionary<string, ParticleDefinition> Particles => particles.Value;
         internal static Dictionary<string, HorizonModel> Backdrops => backdrops.Value;
         internal static Dictionary<string, ForageData> Forage => forage.Value;
+        internal static MiscGameData MiscGameData => miscGameData.Value;
 
         private static readonly LazyAsset<Dictionary<string, AnimatedImage>> animations = 
             new(ModEntry.helper, static () => ContentDir + "Animations");
@@ -27,6 +29,10 @@ namespace MUMPs
             new(ModEntry.helper, static () => ContentDir + "Backgrounds");
         private static readonly LazyAsset<Dictionary<string, ForageData>> forage =
             new(ModEntry.helper, static () => ContentDir + "Forage");
+        private static readonly LazyAsset<MiscGameData> miscGameData =
+            new(ModEntry.helper, static () => "Data/MiscGameData");
+
+        private static readonly string[] dirmap = {null, "up", "right", "down", "left"};
 
         internal static void Init()
         {
@@ -46,6 +52,30 @@ namespace MUMPs
                     case "Forage": ev.LoadFromModFile<Dictionary<string, ForageData>>(local, AssetLoadPriority.Low); break;
                 }
             }
+            if (ev.NameWithoutLocale.IsEquivalentTo("Data/MiscGameData"))
+                ev.LoadFrom(LoadMiscData, AssetLoadPriority.Low);
+        }
+        private static MiscGameData LoadMiscData()
+        {
+            var src = ModEntry.helper.ModContent.Load<MiscGameData>("assets/MiscGameData.json");
+            if (!ModEntry.helper.ModRegistry.IsLoaded("mod.kitchen.minecartpatcher"))
+                return src;
+            var imports = ModEntry.helper.GameContent.Load<Dictionary<string, MinecartPatcherItem>>("MinecartPatcher.Minecarts");
+            foreach((var key, var val) in imports)
+            {
+                if (key.StartsWith("minecartpatcher"))
+                    continue;
+                src.MineCartDestinations.Add(key, new()
+                {
+                    Location = val.LocationName,
+                    Tile = new(val.LandingPointX, val.LandingPointY),
+                    Direction = dirmap[Math.Clamp(val.LandingPointDirection + 1, 0, 4)],
+                    Network = val.NetworkId,
+                    DisplayName = val.DisplayName,
+                    Condition = val.MailCondition is null ? null : $"PLAYER_HAS_FLAG Current {val.MailCondition}"
+                });
+            }
+            return src;
         }
     }
 }

@@ -1,0 +1,49 @@
+﻿{
+    "MineCartCondition": "PLAYER_HAS_READ_LETTER Any ccBoilerRoom",
+    "MineCartDestinations": {
+        "Mines": {
+            "Location": "Mine",
+            "Tile": {
+                "X": 13,
+                "Y": 9
+            },
+            "Direction": "right",
+            "Network": null,
+            "Condition": "PLAYER_HAS_FLAG Any landslideDone",
+            "DisplayName": "[LocalizedText Strings\\Locations:MineCart_Destination_Mines]"
+        },
+        "Town": {
+            "Location": "Town",
+            "Tile": {
+                "X": 105,
+                "Y": 80
+            },
+            "Direction": "right",
+            "Network": null,
+            "Condition": null,
+            "DisplayName": "[LocalizedText Strings\\Locations:MineCart_Destination_Town]"
+        },
+        "Bus": {
+            "Location": "BusStop",
+            "Tile": {
+                "X": 4,
+                "Y": 4
+            },
+            "Direction": "down",
+            "Network": null,
+            "Condition": null,
+            "DisplayName": "[LocalizedText Strings\\Locations:MineCart_Destination_BusStop]"
+        },
+        "Quarry": {
+            "Location": "Mountain",
+            "Tile": {
+                "X": 124,
+                "Y": 12
+            },
+            "Direction": "down",
+            "Network": null,
+            "Condition": "PLAYER_HAS_READ_LETTER Any ccCraftsRoom",
+            "DisplayName": "[LocalizedText Strings\\Locations:MineCart_Destination_Quarry]"
+        }
+    }
+}

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace MUMPs.models
 {
-    internal class DestinationList
+    internal class MiscGameData
     {
-        public Dictionary<string, Destination> MineCartDestinations { get; set; } = new();
+        public Dictionary<string, MinecartLocation> MineCartDestinations { get; set; } = new();
         public string MineCartCondition { get; set; } = string.Empty;
     }
 }
