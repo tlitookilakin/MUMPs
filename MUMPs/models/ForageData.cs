@@ -12,9 +12,9 @@ namespace MUMPs.models
     [ModInit]
     public class ForageData
     {
-        private readonly Dictionary<string, WeightedArray<SObject>> data = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, WeightedArray<Item>> data = new(StringComparer.OrdinalIgnoreCase);
         private bool generated = false;
-        private static readonly Dictionary<string, SObject> idCache = new();
+        private static readonly Dictionary<string, Item> idCache = new();
 
         // key: query string, value: forage pool id
         public Dictionary<string, string> Overrides { get; set; } = new();
@@ -22,20 +22,20 @@ namespace MUMPs.models
         // key: item id, value: metadata
         public Dictionary<string, ForageItem> Items { get; set; } = new();
 
-        public Dictionary<string, WeightedArray<SObject>> GetForage()
+        public Dictionary<string, WeightedArray<Item>> GetForage()
         {
             if (generated)
                 return data;
             data.Clear();
             generated = true;
-            Dictionary<string, List<SObject>> items = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, List<Item>> items = new(StringComparer.OrdinalIgnoreCase);
             Dictionary<string, List<int>> weights = new(StringComparer.OrdinalIgnoreCase);
             foreach((var id, var data) in Items)
             {
                 string sid = id.Trim();
                 if (!idCache.TryGetValue(sid, out var obj))
                     if (sid.TryGetItem(out var item))
-                        idCache.Add(sid, obj = ModEntry.AeroAPI.WrapItem(item, true));
+                        idCache.Add(sid, obj = item);
                     else
                         idCache.Add(sid, obj = null);
 
