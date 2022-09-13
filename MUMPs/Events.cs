@@ -7,6 +7,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.BellsAndWhistles;
 using System;
 using System.Collections.Generic;
 
@@ -17,6 +18,7 @@ namespace MUMPs
     {
         internal static readonly PerScreen<List<Action>> afterWarpActions = new(() => new());
         internal static readonly PerScreen<bool> reloadScreen = new(() => false);
+        private static IReflectedField<ScreenFade> gameFade;
         private static void DayStarted(object sender, DayStartedEventArgs ev)
         {
             if (!Context.IsMainPlayer)
@@ -34,6 +36,7 @@ namespace MUMPs
         }
         internal static void Init()
         {
+            gameFade = ModEntry.helper.Reflection.GetField<ScreenFade>(typeof(Game1), "screenFade", true);
             ModEntry.helper.Events.Display.RenderedHud += 
                 (s, e) => DrawVoid(e.SpriteBatch);
             ModEntry.helper.Events.Multiplayer.ModMessageReceived += RecieveMessage;
@@ -53,10 +56,8 @@ namespace MUMPs
 
             switch (ev.Type)
             {
-                case "RepairEvent":
-                    Props.ActionRepair.EventAndReload(ev.ReadAs<models.MessageRepairEvent>()); break;
                 case "ReloadEvent":
-                    ReceiveReloadRequest(ev.ReadAs<models.MessageRepairEvent>()); break;
+                    ReceiveReloadRequest(ev.ReadAs<string>()); break;
                 default:
                     ModEntry.monitor.Log("Unhandled message type: " + ev.Type, LogLevel.Warn); break;
             }
@@ -68,21 +69,12 @@ namespace MUMPs
         }
         internal static void BroadcastReloadRequest(string name)
         {
-            models.MessageRepairEvent msg = new(name);
-            ReceiveReloadRequest(msg);
-            ModEntry.helper.Multiplayer.SendMessage(msg, "RepairEvent", new string[] { ModEntry.ModID });
+            ReceiveReloadRequest(name);
+            ModEntry.helper.Multiplayer.SendMessage(name, "RepairEvent", new string[] { ModEntry.ModID });
         }
-        internal static void ReceiveReloadRequest(models.MessageRepairEvent ev)
+        internal static void ReceiveReloadRequest(string name)
         {
-            if (ev.LocationName == Game1.currentLocation.Name)
-                ReloadCurrentLocation(Game1.currentLocation.mapPath.Value, Game1.player.getTileLocation(), ev.LocationName);
-        }
-        internal static void ReloadCurrentLocation(string path, Vector2 coords, string name)
-        {
-            ModEntry.helper.GameContent.InvalidateCache(path);
-            if (Game1.currentLocation.mapPath.Value == path)
-                Maps.WarpToTempMap("EventVoid", Game1.player);
-            Game1.warpFarmer(name, (int)coords.X, (int)coords.Y, false);
+            Props.ActionRepair.EventAndReload(name);
         }
     }
 }

@@ -76,63 +76,23 @@ namespace MUMPs.Props
             if (answer.ToLower() == "no")
                 return;
 
-            var split = answer.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            var split = answer.Split(' ', 3, StringSplitOptions.RemoveEmptyEntries);
 
-            if (split.Length < 2 || !int.TryParse(split[0], out int count) || count < 1 || !split[1].TryGetItem(out Item what))
+            if (split.Length < 3 || !int.TryParse(split[0], out int count) || count < 1 || !split[1].TryGetItem(out Item what))
                 return;
 
             what.Stack = count;
             who.RemoveNamedItemsFromInventory(what.Name, count);
             Game1.addMail(split[2], true, true);
-
-            MessageRepairEvent msg = new(who.currentLocation.Name, (split.Length > 3) ? split[3] : null);
-            EventAndReload(msg);
-            ModEntry.helper.Multiplayer.SendMessage(msg, "RepairEvent", new string[]{ModEntry.ModID});
+            Events.BroadcastReloadRequest(who.currentLocation.mapPath.Value);
         }
-        internal static void EventAndReload(MessageRepairEvent msg)
+        internal static void EventAndReload(string location)
         {
-            GameLocation loc = Game1.getLocationFromName(msg.LocationName);
-
-            if (Game1.currentLocation != loc)
+            if (Game1.currentLocation.mapPath.Value != location)
                 return;
 
-            string ev = null;
-
-            if (msg.EventName != null)
-            {
-                try
-                {
-                    ev = loc.GetLocationEvents()[msg.EventName];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            string path = loc.mapPath.Value;
-            Vector2 coords = Game1.player.getTileLocation();
-
-            Events.afterWarpActions.Value.Add(() =>
-            {
-                if (ev != null)
-                {
-                    Game1.currentLocation.startEvent(new(ev)
-                    {
-                        onEventFinished = () =>
-                        {
-                            Events.ReloadCurrentLocation(path, coords, msg.LocationName);
-                            if (Context.IsMainPlayer)
-                                Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
-                        }
-                    });
-                }
-                else
-                {
-                    Events.ReloadCurrentLocation(path, coords, msg.LocationName);
-                    if (Context.IsMainPlayer)
-                        Patches.BlockedTileClearer.ClearBlockedTilesIn(loc);
-                }
-            });
-            Game1.fadeScreenToBlack();
+            ModEntry.helper.GameContent.InvalidateCache(location);
+            Maps.ReloadCurrentLocation();
         }
         private static Response[] MakeResponses(string val)
         {
