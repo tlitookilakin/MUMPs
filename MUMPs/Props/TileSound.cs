@@ -38,7 +38,7 @@ namespace MUMPs.Props
                     continue;
                 var points = data.TryGetValue(c, out var p) ? p : data[c] = new();
                 points.Add(new(x, y));
-                cue.SetVariable("Volume", 0f);
+                cue.Volume = 0f;
                 cue.Play();
             }
             soundSources.Value = data;
@@ -86,7 +86,7 @@ namespace MUMPs.Props
                     cue.Pause(); continue;
                 }
                 nearest = MathF.Min(1f - nearest / 1024, fadeVolume.Value);
-                cue.SetVariable("Volume", nearest * 100f * vol);
+                cue.Volume =  nearest * 100f * vol;
                 cue.Resume();
             }
         }

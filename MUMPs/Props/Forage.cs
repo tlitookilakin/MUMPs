@@ -162,12 +162,8 @@ namespace MUMPs.Props
             if (CanSpawnAt(loc, pos))
             {
                 var obj = ModEntry.AeroAPI.WrapItem(what, true);
-                if (obj.isSapling() || obj.Category is -74 or -19 ||
-                    !obj.placementAction(loc, (int)pos.X * 64, (int)pos.Y * 64, Game1.player))
-                {
-                    loc.objects[pos] = obj;
-                    obj.TileLocation = pos;
-                }
+                loc.objects[pos] = obj;
+                obj.TileLocation = pos;
             }
         }
         internal static bool CanSpawnAt(GameLocation loc, Vector2 pos)
