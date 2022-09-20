@@ -14,54 +14,54 @@ using System.Runtime.CompilerServices;
 
 namespace MUMPs
 {
-    public class ModEntry : Mod
-    {
-        public static readonly string ContentDir = PathUtilities.NormalizeAssetName("Mods/Mumps") + PathUtilities.PreferredAssetSeparator;
+	public class ModEntry : Mod
+	{
+		public static readonly string ContentDir = PathUtilities.NormalizeAssetName("Mods/Mumps") + PathUtilities.PreferredAssetSeparator;
 
-        internal static ITranslationHelper i18n;
-        internal static IMonitor monitor;
-        internal static IModHelper helper;
-        internal static Harmony harmony;
-        internal static string ModID;
-        internal static AeroCore.API.API AeroAPI;
+		internal static ITranslationHelper i18n;
+		internal static IMonitor monitor;
+		internal static IModHelper helper;
+		internal static Harmony harmony;
+		internal static string ModID;
+		internal static AeroCore.API.API AeroAPI;
 
-        internal static event Action<SpriteBatch> OnDraw;
-        internal static event Action<GameLocation> OnChangeLocation;
-        internal static event Action OnCleanup;
-        internal static event Action OnTick;
+		internal static event Action<SpriteBatch> OnDraw;
+		internal static event Action<GameLocation> OnChangeLocation;
+		internal static event Action OnCleanup;
+		internal static event Action OnTick;
 
-        internal static Dictionary<string, string> strings;
-        public override void Entry(IModHelper helper)
-        {
-            monitor = Monitor;
-            ModEntry.helper = Helper;
-            harmony = new(ModManifest.UniqueID);
-            i18n = helper.Translation;
-            ModID = ModManifest.UniqueID;
-            strings = helper.ModContent.Load<Dictionary<string, string>>("assets/strings.json");
-            helper.Events.GameLoop.GameLaunched += Init;
-            helper.Events.Content.AssetRequested += LoadAssets;
-            helper.Events.Display.RenderedWorld += (s, a) => OnDraw?.Invoke(a.SpriteBatch);
-            helper.Events.Player.Warped += (s, a) => OnChangeLocation?.Invoke(a.NewLocation);
-            helper.Events.GameLoop.SaveLoaded += (s, a) => OnChangeLocation?.Invoke(Game1.currentLocation);
-            helper.Events.GameLoop.ReturnedToTitle += (s, a) => OnCleanup?.Invoke();
-            helper.Events.GameLoop.UpdateTicked += (s, a) => OnTick?.Invoke();
-        }
+		internal static Dictionary<string, string> strings;
+		public override void Entry(IModHelper helper)
+		{
+			monitor = Monitor;
+			ModEntry.helper = Helper;
+			harmony = new(ModManifest.UniqueID);
+			i18n = helper.Translation;
+			ModID = ModManifest.UniqueID;
+			strings = helper.ModContent.Load<Dictionary<string, string>>("assets/strings.json");
+			helper.Events.GameLoop.GameLaunched += Init;
+			helper.Events.Content.AssetRequested += LoadAssets;
+			helper.Events.Display.RenderedWorld += (s, a) => OnDraw?.Invoke(a.SpriteBatch);
+			helper.Events.Player.Warped += (s, a) => OnChangeLocation?.Invoke(a.NewLocation);
+			helper.Events.GameLoop.SaveLoaded += (s, a) => OnChangeLocation?.Invoke(Game1.currentLocation);
+			helper.Events.GameLoop.ReturnedToTitle += (s, a) => OnCleanup?.Invoke();
+			helper.Events.GameLoop.UpdateTicked += (s, a) => OnTick?.Invoke();
+		}
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private void Init(object _, GameLaunchedEventArgs ev)
-        {
-            AeroAPI = AeroCore.ModEntry.GetStaticApi();
-            AeroAPI.InitAll();
-            harmony.PatchAll();
-            monitor.Log(i18n.Get("startup"), LogLevel.Debug);
-        }
-        public static void LoadAssets(object _, AssetRequestedEventArgs ev)
-        {
-            if (ev.Name.IsEquivalentTo("Maps/EventVoid"))
-                ev.LoadFromModFile<xTile.Map>("assets/eventvoid.tbin", AssetLoadPriority.Medium);
-            else if (ev.Name.IsEquivalentTo("Mods/Mumps/Fog"))
-                ev.LoadFromModFile<Texture2D>("assets/fog.png", AssetLoadPriority.Medium);
-        }
-    }
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private void Init(object _, GameLaunchedEventArgs ev)
+		{
+			AeroAPI = AeroCore.ModEntry.GetStaticApi();
+			AeroAPI.InitAll();
+			harmony.PatchAll();
+			monitor.Log(i18n.Get("startup"), LogLevel.Debug);
+		}
+		public static void LoadAssets(object _, AssetRequestedEventArgs ev)
+		{
+			if (ev.Name.IsEquivalentTo("Maps/EventVoid"))
+				ev.LoadFromModFile<xTile.Map>("assets/eventvoid.tbin", AssetLoadPriority.Medium);
+			else if (ev.Name.IsEquivalentTo("Mods/Mumps/Fog"))
+				ev.LoadFromModFile<Texture2D>("assets/fog.png", AssetLoadPriority.Medium);
+		}
+	}
 }

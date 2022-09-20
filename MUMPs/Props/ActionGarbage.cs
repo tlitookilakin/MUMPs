@@ -14,11 +14,11 @@ using SUtility = StardewValley.Utility;
 
 namespace MUMPs.Props
 {
-    [HarmonyPatch]
+	[HarmonyPatch]
 	[ModInit]
-    class ActionGarbage
-    {
-        private static readonly PerScreen<Dictionary<GameLocation, HashSet<Point>>> checkedCans = new(() => new());
+	class ActionGarbage
+	{
+		private static readonly PerScreen<Dictionary<GameLocation, HashSet<Point>>> checkedCans = new(() => new());
 
 		internal static void Init()
 		{
@@ -27,24 +27,24 @@ namespace MUMPs.Props
 			ModEntry.OnCleanup += Cleanup;
 		}
 		private static void HandleAction(Farmer who, string action, Point tile, GameLocation where)
-        {
-            if(who.currentLocation == null || who.currentLocation is Town)
-                return;
+		{
+			if(who.currentLocation == null || who.currentLocation is Town)
+				return;
 
-            if (!checkedCans.Value.TryGetValue(who.currentLocation, out var cans))
-            {
-                cans = new();
-                checkedCans.Value.Add(who.currentLocation,cans);
-            }
-            if (!cans.Contains(tile))
-            {
-                cans.Add(tile);
-                DoGarbage(who.currentLocation, tile.X, tile.Y, who, action);
-            }
-        }
+			if (!checkedCans.Value.TryGetValue(who.currentLocation, out var cans))
+			{
+				cans = new();
+				checkedCans.Value.Add(who.currentLocation,cans);
+			}
+			if (!cans.Contains(tile))
+			{
+				cans.Add(tile);
+				DoGarbage(who.currentLocation, tile.X, tile.Y, who, action);
+			}
+		}
 		private static void Cleanup() => checkedCans.ResetAllScreens();
-        private static void DoGarbage(GameLocation location, int x, int y, Farmer who, string action)
-        {
+		private static void DoGarbage(GameLocation location, int x, int y, Farmer who, string action)
+		{
 			string[] item_lists_split = action.Split('/');
 			string[] can_data_split = item_lists_split[0].Split(' ');
 			double double_mega_chance = -1.0;
@@ -228,9 +228,9 @@ namespace MUMPs.Props
 						string[] item_list_split = item_lists_split[j].Split(' ');
 						if (item_list_split.Length < 4)
 							continue;
-                        if (!double.TryParse(item_list_split[0], out double chance))
-                            continue;
-                        if (item_list_split[1] == "true")
+						if (!double.TryParse(item_list_split[0], out double chance))
+							continue;
+						if (item_list_split[1] == "true")
 							chance += who.DailyLuck;
 						if (garbage_random.NextDouble() < chance || mega)
 						{
@@ -250,5 +250,5 @@ namespace MUMPs.Props
 					Game1.createItemDebris(loot, origin, 2, location, (int)origin.Y + 64);
 			}
 		}
-    }
+	}
 }
