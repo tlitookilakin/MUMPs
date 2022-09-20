@@ -2,6 +2,7 @@
 using AeroCore.Utils;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
+using MUMPs.Integration;
 using MUMPs.models;
 using StardewModdingAPI;
 using StardewValley;
@@ -149,12 +150,19 @@ namespace MUMPs.Props
                 if (!CanSpawnAt(loc, tile))
                     continue;
                 var ground = loc.doesTileHaveProperty((int)tile.X, (int)tile.Y, "type", "back");
-                WeightedArray<Item> pool;
+                WeightedArray<string> pool;
                 if (ground is null || ground == string.Empty)
                     pool = pools.Values.ElementAt(Game1.random.Next(pools.Count));
                 else if (!pools.TryGetValue(ground, out pool))
                     continue;
-                SpawnAt(loc, tile, pool.Choose().getOne());
+                var what = pool.Choose();
+                if (what.StartsWith("(RC)"))
+                {
+                    SpawnClump(loc, tile, what[4..]);
+                } else
+                {
+                    SpawnAt(loc, tile, ForageData.idCache[what]);
+                }
             }
         }
         internal static void SpawnAt(GameLocation loc, Vector2 pos, Item what)
@@ -165,6 +173,29 @@ namespace MUMPs.Props
                 loc.objects[pos] = obj;
                 obj.TileLocation = pos;
             }
+        }
+        internal static void SpawnClump(GameLocation loc, Vector2 pos, string id)
+        {
+            var size = ForageData.clumpSizes[id];
+
+            var tile = new Vector2(pos.X, pos.Y);
+            for (int x = 0; x < size.X; x++)
+            {
+                for (int y = 0; y < size.Y; y++)
+                {
+                    if (loc.Objects.ContainsKey(tile) ||
+                        loc.doesEitherTileOrTileIndexPropertyEqual((int)pos.X, (int)pos.Y, "Spawnable", "Back", "F") ||
+                        !loc.isTileLocationTotallyClearAndPlaceable(pos)
+                    )
+                        return;
+                    tile.Y++;
+                }
+                tile.X++;
+            }
+            if (!int.TryParse(id, out int index))
+                CustomResourceClumps.API.TryPlaceClump(loc, id, pos);
+            else
+                loc.resourceClumps.Add(new(index, 2, 2, pos));
         }
         internal static bool CanSpawnAt(GameLocation loc, Vector2 pos)
             => !loc.Objects.ContainsKey(pos) && !loc.doesEitherTileOrTileIndexPropertyEqual((int)pos.X, (int)pos.Y, "Spawnable", "Back", "F") &&
