@@ -18,6 +18,8 @@ namespace MUMPs.Props
         private const string contextName = "_instanceActiveMusicContext";
 
         public static readonly PerScreen<Dictionary<Rectangle, string>> regions = new(() => new());
+        public static readonly PerScreen<string> defaultCue = new(() => "");
+
         private static readonly PerScreen<string> lastCue = new(() => "");
         private static readonly PerScreen<Point> lastPos = new();
         private static readonly PerScreen<bool> locChanged = new();
@@ -49,9 +51,11 @@ namespace MUMPs.Props
         }
         private static void UpdateRegions(GameLocation loc)
         {
+            defaultCue.Value = loc.getMapProperty("DefaultMusicRegion")?.Trim() ?? "";
+
             var reg = regions.Value;
             reg.Clear();
-            string[] data = loc.getMapProperty("MusicRegions")?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            string[] data = loc.getMapProperty("MusicRegions")?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (data == null)
                 return;
 
@@ -67,7 +71,7 @@ namespace MUMPs.Props
                     break;
                 }
             }
-            var knownCues = reg.Values.ToArray();
+            var knownCues = reg.Values.Append(defaultCue.Value).ToArray();
             List<ICue> toRemove = new();
             var cueFade = cueIsFade.Value;
             var old = oldCues.Value;
@@ -98,6 +102,7 @@ namespace MUMPs.Props
         {
             regions.Value.Clear();
             lastCue.Value = "";
+            defaultCue.Value = "";
         }
         private static void UpdateScreenVolume()
         {
@@ -192,7 +197,7 @@ namespace MUMPs.Props
             if (Game1.currentLocation is null || !changed)
                 return;
 
-            lastCue.Value = "";
+            lastCue.Value = defaultCue.Value;
             foreach((var region, string song) in regions.Value)
             {
                 if (region.Contains(pos))
