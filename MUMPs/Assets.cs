@@ -20,6 +20,7 @@ namespace MUMPs
 		internal static Dictionary<string, HorizonModel> Backdrops => backdrops.Value;
 		internal static Dictionary<string, ForageData> Forage => forage.Value;
 		internal static MiscGameData MiscGameData => miscGameData.Value;
+		internal static GarbageData Garbage => garbage.Value;
 
 		private static readonly LazyAsset<Dictionary<string, AnimatedImage>> animations = 
 			new(ModEntry.helper, static () => ContentDir + "Animations");
@@ -31,6 +32,8 @@ namespace MUMPs
 			new(ModEntry.helper, static () => ContentDir + "Forage");
 		private static readonly LazyAsset<MiscGameData> miscGameData =
 			new(ModEntry.helper, static () => "Data/MiscGameData");
+		private static readonly LazyAsset<GarbageData> garbage =
+			new(ModEntry.helper, static () => "Data/GarbageCans");
 
 		private static readonly string[] dirmap = {null, "up", "right", "down", "left"};
 
@@ -54,6 +57,8 @@ namespace MUMPs
 			}
 			if (ev.NameWithoutLocale.IsEquivalentTo("Data/MiscGameData"))
 				ev.LoadFrom(LoadMiscData, AssetLoadPriority.Low);
+			else if (ev.NameWithoutLocale.IsEquivalentTo("data/GarbageData"))
+				ev.LoadFromModFile<GarbageData>("assets/garbage.json", AssetLoadPriority.Low);
 		}
 		private static MiscGameData LoadMiscData()
 		{

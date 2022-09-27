@@ -1,0 +1,230 @@
+﻿{
+	"DefaultBaseChance": 0.2,
+	"BeforeAll": [
+		{
+			"ID": "Base_GarbageHat",
+			"Condition": "PLAYER_STAT Current trashCansChecked 20, RANDOM .002",
+			"ItemId": "(H)66",
+			"RandomItemId": null,
+			"Stack": 1,
+			"Quality": 0,
+			"ToolUpgradeLevel": 0,
+			"IsRecipe": false,
+			"IgnoreBaseChance": true,
+			"IsMegaSuccess": false,
+			"IsDoubleMegaSuccess": true,
+			"AddToInventoryDirectly": true
+		}
+	],
+	"AfterAll": [
+		{
+			"ID": "Base_QiBean",
+			"Condition": "PLAYER_SPECIAL_ORDER_RULE_ACTIVE Current DROP_QI_BEANS, RANDOM 0.25",
+			"ItemId": "(O)890",
+			"RandomItemId": null,
+			"Stack": 1,
+			"Quality": 0,
+			"ToolUpgradeLevel": 0,
+			"IsRecipe": false,
+			"IgnoreBaseChance": false,
+			"IsMegaSuccess": false,
+			"IsDoubleMegaSuccess": false,
+			"AddToInventoryDirectly": false
+		},
+		{
+			"ID": "Base_MegaSuccessFallback",
+			"Condition": "PLAYER_STAT Current trashCansChecked 20, RANDOM .01",
+			"ItemId": null,
+			"RandomItemId": [
+				"(O)153",
+				"(O)216",
+				"(O)403",
+				"(O)309",
+				"(O)310",
+				"(O)311",
+				"RANDOM_BASE_SEASON_ITEM"
+			],
+			"Stack": 1,
+			"Quality": 0,
+			"ToolUpgradeLevel": 0,
+			"IsRecipe": false,
+			"IgnoreBaseChance": true,
+			"IsMegaSuccess": true,
+			"IsDoubleMegaSuccess": false,
+			"AddToInventoryDirectly": false
+		},
+		{
+			"ID": "Base_Fallback",
+			"Condition": null,
+			"ItemId": null,
+			"RandomItemId": [
+				"(O)153",
+				"(O)216",
+				"(O)403",
+				"(O)309",
+				"(O)310",
+				"(O)311",
+				"RANDOM_BASE_SEASON_ITEM",
+				"(O)168",
+				"(O)167",
+				"(O)170",
+				"(O)171",
+				"(O)172"
+			],
+			"Stack": 1,
+			"Quality": 0,
+			"ToolUpgradeLevel": 0,
+			"IsRecipe": false,
+			"IgnoreBaseChance": false,
+			"IsMegaSuccess": false,
+			"IsDoubleMegaSuccess": false,
+			"AddToInventoryDirectly": false
+		}
+	],
+	"GarbageCans": {
+	"Blacksmith": {
+		"BaseChance": -1.0,
+		"Items": [
+			{
+				"ID": "Base_Ore",
+				"Condition": "RANDOM 0.2 @addDailyLuck",
+				"ItemId": null,
+				"RandomItemId": [
+					"(O)378",
+					"(O)380",
+					"(O)382"
+				],
+				"Stack": 1,
+				"Quality": 0,
+				"ToolUpgradeLevel": 0,
+				"IsRecipe": false,
+				"IgnoreBaseChance": false,
+				"IsMegaSuccess": false,
+				"IsDoubleMegaSuccess": false,
+				"AddToInventoryDirectly": false
+			}
+		]
+	},
+	"EmilyAndHaley": {
+		"BaseChance": -1.0,
+		"Items": []
+	},
+	"Evelyn": {
+		"BaseChance": -1.0,
+		"Items": [
+			{
+				"ID": "Base_Cookie",
+				"Condition": "RANDOM 0.2 @addDailyLuck",
+				"ItemId": "(O)223",
+				"RandomItemId": null,
+				"Stack": 1,
+				"Quality": 0,
+				"ToolUpgradeLevel": 0,
+				"IsRecipe": false,
+				"IgnoreBaseChance": false,
+				"IsMegaSuccess": false,
+				"IsDoubleMegaSuccess": false,
+				"AddToInventoryDirectly": false
+			}
+		]
+	},
+	"JodiAndKent": {
+		"BaseChance": -1.0,
+		"Items": []
+	},
+	"JojaMart": {
+		"BaseChance": -1.0,
+		"Items": [
+			{
+				"ID": "Base_MovieTicketOrCorn",
+				"Condition": "SYNCED_DAY_RANDOM garbage_joja 0.2, PLAYER_HAS_FLAG Host ccMovieTheater, !PLAYER_HAS_FLAG Host ccMovieTheaterJoja",
+				"ItemId": null,
+				"RandomItemId": [
+					"(O)809",
+					"(O)270",
+					"(O)270",
+					"(O)270"
+				],
+				"Stack": 1,
+				"Quality": 0,
+				"ToolUpgradeLevel": 0,
+				"IsRecipe": false,
+				"IgnoreBaseChance": false,
+				"IsMegaSuccess": false,
+				"IsDoubleMegaSuccess": false,
+				"AddToInventoryDirectly": false
+			},
+			{
+				"ID": "Base_JojaCola",
+				"Condition": "SYNCED_DAY_RANDOM garbage_joja 0.2, !PLAYER_HAS_SEEN_EVENT Any 191393",
+				"ItemId": "(O)167",
+				"RandomItemId": null,
+				"Stack": 1,
+				"Quality": 0,
+				"ToolUpgradeLevel": 0,
+				"IsRecipe": false,
+				"IgnoreBaseChance": false,
+				"IsMegaSuccess": false,
+				"IsDoubleMegaSuccess": false,
+				"AddToInventoryDirectly": false
+			}
+		]
+	},
+	"Mayor": {
+		"BaseChance": -1.0,
+		"Items": []
+	},
+	"Museum": {
+		"BaseChance": -1.0,
+		"Items": [
+			{
+				"ID": "Base_OmniGeode",
+				"Condition": "SYNCED_DAY_RANDOM garbage_museum_535 0.2 @addDailyLuck, SYNCED_DAY_RANDOM garbage_museum_749 0.05",
+				"ItemId": "(O)749",
+				"RandomItemId": null,
+				"Stack": 1,
+				"Quality": 0,
+				"ToolUpgradeLevel": 0,
+				"IsRecipe": false,
+				"IgnoreBaseChance": false,
+				"IsMegaSuccess": false,
+				"IsDoubleMegaSuccess": false,
+				"AddToInventoryDirectly": false
+			},
+			{
+				"ID": "Base_Geode",
+				"Condition": "SYNCED_DAY_RANDOM garbage_museum_535 0.2 @addDailyLuck",
+				"ItemId": "(O)535",
+				"RandomItemId": null,
+				"Stack": 1,
+				"Quality": 0,
+				"ToolUpgradeLevel": 0,
+				"IsRecipe": false,
+				"IgnoreBaseChance": false,
+				"IsMegaSuccess": false,
+				"IsDoubleMegaSuccess": false,
+				"AddToInventoryDirectly": false
+			}
+		]
+	},
+	"Saloon": {
+		"BaseChance": -1.0,
+		"Items": [
+			{
+				"ID": "Base_DishOfTheDay",
+				"Condition": "SYNCED_DAY_RANDOM garbage_saloon_dish 0.2 @addDailyLuck",
+				"ItemId": "DISH_OF_THE_DAY",
+				"RandomItemId": null,
+				"Stack": 1,
+				"Quality": 0,
+				"ToolUpgradeLevel": 0,
+				"IsRecipe": false,
+				"IgnoreBaseChance": false,
+				"IsMegaSuccess": false,
+				"IsDoubleMegaSuccess": false,
+				"AddToInventoryDirectly": false
+			}
+		]
+	}
+	}
+}
