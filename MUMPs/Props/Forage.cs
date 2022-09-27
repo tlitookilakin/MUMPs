@@ -80,7 +80,7 @@ namespace MUMPs.Props
 					string current = split[i + 4];
 					var forage = GetForageDataAt(current, loc);
 					if (forage is null)
-						ModEntry.monitor.Log($"No forage pol data found for '{current}' in location '{loc.Name}'.");
+						ModEntry.monitor.Log($"No forage pool data found for '{current}' in location '{loc.Name}'.");
 					else
 						SpawnInLocationArea(loc, rect, count, forage);
 				}
