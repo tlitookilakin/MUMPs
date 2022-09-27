@@ -108,12 +108,12 @@ namespace MUMPs.Props
 			if (treasureProp is not null)
 			{
 				var split = treasureProp.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-				if (split.Length >= 1 && split[0].TryGetItem(out Item fished) && fished is SObject fobj)
+				if (split.Length >= 1 && split[0].TryGetItem(out Item fished))
 				{
 					Farmer address = split.Length < 3 ? Game1.MasterPlayer : who; // whether instanced or not
 					if (split.Length < 2)
 					{
-						return fobj;
+						return ModEntry.AeroAPI.WrapItem(fished);
 					}
 					else if (!address.hasOrWillReceiveMail(split[1]))
 					{
@@ -121,7 +121,7 @@ namespace MUMPs.Props
 							address.mailForTomorrow.Add(split[1]);
 						else
 							address.mailReceived.Add(split[1]);
-						return fobj;
+						return ModEntry.AeroAPI.WrapItem(fished);
 					}
 				}
 			}
