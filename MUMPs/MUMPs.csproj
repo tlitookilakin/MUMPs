@@ -14,12 +14,12 @@
 
   <ItemGroup>
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.0.0" />
-    <PackageReference Include="System.Collections" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="AeroCore">
       <HintPath>$(GamePath)\Mods\AeroCore\AeroCore.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
 

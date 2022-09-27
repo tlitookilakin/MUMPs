@@ -172,6 +172,8 @@ namespace MUMPs.Props
 				var obj = ModEntry.AeroAPI.WrapItem(what, true);
 				loc.objects[pos] = obj;
 				obj.TileLocation = pos;
+				obj.IsSpawnedObject = true;
+				obj.CanBeGrabbed = true;
 			}
 		}
 		internal static void SpawnClump(GameLocation loc, Vector2 pos, string id)

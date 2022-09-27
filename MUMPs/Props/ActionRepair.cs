@@ -86,14 +86,6 @@ namespace MUMPs.Props
 			Game1.addMail(split[2], true, true);
 			Events.BroadcastReloadRequest(who.currentLocation.mapPath.Value);
 		}
-		internal static void EventAndReload(string location)
-		{
-			if (Game1.currentLocation.mapPath.Value != location)
-				return;
-
-			ModEntry.helper.GameContent.InvalidateCache(location);
-			Maps.ReloadCurrentLocation();
-		}
 		private static Response[] MakeResponses(string val)
 		{
 			var responses = Game1.currentLocation.createYesNoResponses();

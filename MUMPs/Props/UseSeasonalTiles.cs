@@ -12,9 +12,7 @@ namespace MUMPs.Props
 		public static bool Prefix(GameLocation __instance, xTile.Map map)
 		{
 			map ??= __instance.Map;
-			if (map is null)
-				return false;
-			if (!TryGetNames(map, out var names))
+			if (map is null || !TryGetNames(map, out var names))
 				return true;
 
 			map.DisposeTileSheets(Game1.mapDisplayDevice);

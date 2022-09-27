@@ -82,12 +82,17 @@ namespace MUMPs.Props
 				float nearest = float.PositiveInfinity;
 				foreach (var point in points)
 					nearest = MathF.Min(nearest, Vector2.Distance(point, pos));
-				if (nearest > 1024){
-					cue.Pause(); continue;
+				if (nearest > 1024)
+				{
+					cue.Pause(); 
+					continue;
 				}
 				nearest = MathF.Min(1f - nearest / 1024, fadeVolume.Value);
 				cue.Volume =  nearest * 100f * vol;
-				cue.Resume();
+				if (cue.IsPaused)
+					cue.Resume();
+				else if (!cue.IsPlaying)
+					cue.Play();
 			}
 		}
 	}

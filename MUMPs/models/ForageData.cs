@@ -49,7 +49,7 @@ namespace MUMPs.models
 					{
 						if (ModEntry.helper.ModRegistry.IsLoaded("aedenthorn.CustomResourceClumps"))
 						{
-							var clump = CustomResourceClumps.API.GetResourceClump(rcid, Vector2.Zero);
+							var clump = CustomResourceClumps.API.GetCustomClump(rcid, Vector2.Zero);
 							clumpSizes.Add(rcid, clump is null ? new(2, 2) : new(clump.width.Value, clump.height.Value));
 						} else
 						{

@@ -58,9 +58,7 @@ namespace MUMPs
 		}
 		public static void LoadAssets(object _, AssetRequestedEventArgs ev)
 		{
-			if (ev.Name.IsEquivalentTo("Maps/EventVoid"))
-				ev.LoadFromModFile<xTile.Map>("assets/eventvoid.tbin", AssetLoadPriority.Medium);
-			else if (ev.Name.IsEquivalentTo("Mods/Mumps/Fog"))
+			if (ev.Name.IsEquivalentTo("Mods/Mumps/Fog"))
 				ev.LoadFromModFile<Texture2D>("assets/fog.png", AssetLoadPriority.Medium);
 		}
 	}

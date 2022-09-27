@@ -121,7 +121,7 @@ namespace MUMPs.Props
 				{
 					obj.CanBeGrabbed = pickup;
 					obj.IsSpawnedObject = pickup;
-					obj.modData["tlitookilakin.mumps.persist"] = "T";
+					ModEntry.AeroAPI.PersistSpawnedObject(obj);
 				}
 				if (obj is IndoorPot pot && dirt is not null)
 					pot.hoeDirt.Value = dirt;
@@ -173,29 +173,5 @@ namespace MUMPs.Props
 				tree.modData["tlitookilakin.mumps.noInteract"] = "T";
 			loc.terrainFeatures[pos] = tree;
 		}
-
-		[HarmonyTranspiler]
-		internal static IEnumerable<CodeInstruction> PersistPatch(IEnumerable<CodeInstruction> codes, ILGenerator gen)
-			=> patcher.Run(codes, gen);
-
-		private static readonly ILHelper patcher = new ILHelper(ModEntry.monitor, "spawnable persistance")
-			.SkipTo(new CodeInstruction(OpCodes.Ldfld, typeof(SObject).FieldNamed(nameof(SObject.isSpawnedObject))))
-			.Skip(2)
-			.Transform(addCheck)
-			.Remove(1)
-			.Finish();
-
-		private static IList<CodeInstruction> addCheck(ILHelper.ILEnumerator cursor)
-			=> new[]
-			{
-				cursor.Current,
-				new(OpCodes.Ldarg_0),
-				new(OpCodes.Ldloc_S, 18),
-				new(OpCodes.Call, typeof(SpawnObject).MethodNamed(nameof(check))),
-				new(OpCodes.Brtrue_S, cursor.Current.operand)
-			};
-
-		private static bool check(GameLocation loc, int index)
-			=> loc.Objects.Pairs.ElementAt(index).Value.modData.ContainsKey("tlitookilakin.mumps.persist");
 	}
 }

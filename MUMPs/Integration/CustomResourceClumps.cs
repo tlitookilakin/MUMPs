@@ -8,7 +8,7 @@ namespace MUMPs.Integration
 {
 	public interface IResourceClumpsAPI
 	{
-		public ResourceClump GetResourceClump(string id, Vector2 tile);
+		public ResourceClump GetCustomClump(string id, Vector2 tile);
 		public bool TryPlaceClump(GameLocation location, string id, Vector2 tile);
 		public List<object> GetCustomClumpData();
 		public List<string> GetCustomClumpIDs();
