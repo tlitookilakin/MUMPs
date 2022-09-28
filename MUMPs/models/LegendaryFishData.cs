@@ -1,6 +1,7 @@
 ﻿using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.Tools;
 using System;
 using System.Collections.Generic;
 
@@ -24,11 +25,11 @@ namespace MUMPs.models
 			string season = where.GetSeasonForLocation();
 			if (season is null || season.Length < 1)
 				season = Game1.currentSeason;
-			double chance = bait == 856 ? Chance + Curiosity : Chance;
+			double chance = who?.CurrentTool is FishingRod rod && rod.getBobberAttachmentIndex() == 856 ? Chance + Curiosity : Chance;
 			if (Depth < MinDepth || who.FishingLevel < MinLevel || Game1.random.NextDouble() >= chance || !Seasons.Contains(season))
 				return false;
 			var weather = Weather == "default" ? GetFishData(GetFishIndex()).GetChunk(' ', 7) : Weather;
-			if (weather != "both")
+			if (weather != "both" && bait != 908)
 				if ((weather == "sunny" && Game1.IsRainingHere(where)) || 
 					(weather == "rainy" && !Game1.IsRainingHere(where)))
 					return false;
