@@ -26,9 +26,21 @@ namespace MUMPs.models
 			if (season is null || season.Length < 1)
 				season = Game1.currentSeason;
 			double chance = who?.CurrentTool is FishingRod rod && rod.getBobberAttachmentIndex() == 856 ? Chance + Curiosity : Chance;
-			if (Depth < MinDepth || who.FishingLevel < MinLevel || Game1.random.NextDouble() >= chance || !Seasons.Contains(season))
+			if (Depth < MinDepth || who.FishingLevel < MinLevel || Game1.random.NextDouble() >= chance || (bait != 908 && !Seasons.Contains(season)))
 				return false;
-			var weather = Weather == "default" ? GetFishData(GetFishIndex()).GetChunk(' ', 7) : Weather;
+			int fishID;
+			if (who.team.SpecialOrderRuleActive("LEGENDARY_FAMILY"))
+			{
+				if (Family == 0)
+					return false;
+				fishID = Family;
+			} else
+			{
+				if (Fish == 0 || who.fishCaught.ContainsKey(Fish))
+					return false;
+				fishID = Fish;
+			}
+			var weather = Weather == "default" ? GetFishData(fishID).GetChunk(' ', 7) : Weather;
 			if (weather != "both" && bait != 908)
 				if ((weather == "sunny" && Game1.IsRainingHere(where)) || 
 					(weather == "rainy" && !Game1.IsRainingHere(where)))
@@ -37,7 +49,7 @@ namespace MUMPs.models
 		}
 		internal int GetFishIndex()
 			=> Game1.player.team.SpecialOrderRuleActive("LEGENDARY_FAMILY") ? Fish : Family;
-		private string GetFishData(int which)
+		private static string GetFishData(int which)
 			=> ModEntry.helper.GameContent.Load<Dictionary<int, string>>("Data/Fish")[which];
 	}
 }

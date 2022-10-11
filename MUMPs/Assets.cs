@@ -12,7 +12,7 @@ using System.Linq;
 namespace MUMPs
 {
 	[ModInit]
-	internal class Assets
+	internal static class Assets
 	{
 		const string ContentDir = "Mods/Mumps/";
 		internal static Dictionary<string, AnimatedImage> Animations => animations.Value;

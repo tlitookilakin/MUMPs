@@ -225,8 +225,10 @@ namespace MUMPs.Props
 			}
 			if (!foundCue && id != "")
 			{
-				var cue = Game1.soundBank.GetCue(id);
-				isFade.Add(cue, fade);
+				if (Game1.soundBank.TryGetCue(id, out var cue))
+					isFade.Add(cue, fade);
+				else
+					ModEntry.monitor.Log($"Could not find music track named '{id}' @ {Game1.currentLocation?.mapPath?.Value}", LogLevel.Warn);
 			}
 		}
 	}

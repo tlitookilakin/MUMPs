@@ -2,6 +2,7 @@
 using AeroCore.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -33,10 +34,14 @@ namespace MUMPs.Props
 				if (!tile.TileHasProperty("Sound", out var s))
 					continue;
 				s = s.Trim();
-				ICue cue = soundCache.TryGetValue(s, out var c) ? c : soundCache[s] = Game1.soundBank.GetCue(s);
+				if (!soundCache.TryGetValue(s, out var cue))
+					if (Game1.soundBank.TryGetCue(s, out cue))
+						soundCache[s] = cue;
+					else
+						ModEntry.monitor.Log($"Failed to find cue {s} @ [{x}, {y}] in {where.mapPath.Value}", LogLevel.Warn);
 				if (cue is null)
 					continue;
-				var points = data.TryGetValue(c, out var p) ? p : data[c] = new();
+				var points = data.TryGetValue(cue, out var p) ? p : data[cue] = new();
 				points.Add(new(x, y));
 				cue.Volume = 0f;
 				cue.Play();
