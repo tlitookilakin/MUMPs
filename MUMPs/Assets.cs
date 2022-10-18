@@ -21,6 +21,7 @@ namespace MUMPs
 		internal static Dictionary<string, ForageData> Forage => forage.Value;
 		internal static MiscGameData MiscGameData => miscGameData.Value;
 		internal static GarbageData Garbage => garbage.Value;
+		internal static Dictionary<string, SpawnData> Spawns => spawns.Value;
 
 		private static readonly LazyAsset<Dictionary<string, AnimatedImage>> animations = 
 			new(ModEntry.helper, static () => ContentDir + "Animations");
@@ -34,6 +35,8 @@ namespace MUMPs
 			new(ModEntry.helper, static () => "Data/MiscGameData");
 		private static readonly LazyAsset<GarbageData> garbage =
 			new(ModEntry.helper, static () => "Data/GarbageCans");
+		private static readonly LazyAsset<Dictionary<string, SpawnData>> spawns =
+			new(ModEntry.helper, static () => ContentDir + "MonsterSpawns");
 
 		private static readonly string[] dirmap = {null, "up", "right", "down", "left"};
 
@@ -53,6 +56,7 @@ namespace MUMPs
 					case "Particles": ev.LoadFromModFile<Dictionary<string, ParticleDefinition>>(local, AssetLoadPriority.Low); break;
 					case "Backgrounds": ev.LoadFromModFile<Dictionary<string, HorizonModel>>(local, AssetLoadPriority.Low); break;
 					case "Forage": ev.LoadFromModFile<Dictionary<string, ForageData>>(local, AssetLoadPriority.Low); break;
+					case "MonsterSpawns": ev.LoadFromModFile<Dictionary<string, SpawnData>>(local, AssetLoadPriority.Low); break;
 				}
 			}
 			if (ev.NameWithoutLocale.IsEquivalentTo("Data/MiscGameData"))

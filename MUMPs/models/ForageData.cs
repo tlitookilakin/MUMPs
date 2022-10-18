@@ -7,8 +7,6 @@ using StardewModdingAPI;
 using StardewValley;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using SObject = StardewValley.Object;
 
 namespace MUMPs.models
 {
