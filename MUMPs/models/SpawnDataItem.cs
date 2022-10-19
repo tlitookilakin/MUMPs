@@ -1,15 +1,10 @@
 ﻿using AeroCore.Utils;
-using HarmonyLib;
 using Microsoft.Xna.Framework;
-using Netcode;
 using StardewValley;
 using StardewValley.Monsters;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MUMPs.models
 {
@@ -24,9 +19,9 @@ namespace MUMPs.models
 		private bool typeExists = true;
 
 		private static Dictionary<string, HashSet<string>> badFields = new();
-		private static Dictionary<string, Dictionary<string, FieldInfo>> fieldCache = new();
-		private static Dictionary<string, Dictionary<string, MethodInfo>> propertyCache = new();
-		private static Dictionary<string, Type> typeCache = new();
+		private static readonly Dictionary<string, Dictionary<string, FieldInfo>> fieldCache = new();
+		private static readonly Dictionary<string, Dictionary<string, MethodInfo>> propertyCache = new();
+		private static readonly Dictionary<string, Type> typeCache = new();
 
 		public bool TrySpawnAt(GameLocation loc, Vector2 tile, Farmer who = null)
 		{
@@ -34,8 +29,7 @@ namespace MUMPs.models
 				return false;
 			if (Conditions is not null && !ModEntry.AeroAPI.CheckConditions(Conditions, null, who, null, loc))
 				return false;
-			if (!typeCache.TryGetValue(Type, out var type))
-				typeCache.Add(Type, type = Reflection.TypeNamed(Type));
+			var type = GetTypeNamed(Type, out int SlimeVariant);
 			if (type is null)
 				return typeExists = false;
 
@@ -53,9 +47,33 @@ namespace MUMPs.models
 			if (monster is null)
 				return false;
 			ApplyFields(monster, type);
-			monster.modData["tlitoo.mumps.removeAtNight"] = "T";
+			if (monster is GreenSlime slime)
+			{
+				switch (SlimeVariant)
+				{
+					case 1: slime.makePrismatic(); break;
+					case 2: slime.makeTigerSlime(); break;
+				}
+			}
+			monster.modData[Props.SpawnMonsters.KillFlag] = "T";
 			loc.addCharacter(monster);
 			return true;
+		}
+		private static Type GetTypeNamed(string what, out int SlimeVariant)
+		{
+			SlimeVariant = 0;
+			var ret = typeof(GreenSlime);
+			if (what.Equals("prismaticslime", StringComparison.OrdinalIgnoreCase))
+				SlimeVariant = 1;
+			else if (what.Equals("tigerslime", StringComparison.OrdinalIgnoreCase))
+				SlimeVariant = 2;
+			else
+				if (typeCache.TryGetValue(what, out ret))
+					return ret;
+				else
+					ret = Reflection.TypeNamed(what.Contains(".") ? what : "StardewValley.Monsters." + what);
+			typeCache.Add(what, ret);
+			return ret;
 		}
 		private void ApplyFields(Monster monster, Type type)
 		{

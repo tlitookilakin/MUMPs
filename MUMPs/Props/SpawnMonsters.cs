@@ -15,7 +15,7 @@ namespace MUMPs.Props
 	[ModInit]
 	internal class SpawnMonsters
 	{
-		private const string KillFlag = "tlitookilakin.mumps.spawnedMonster";
+		internal const string KillFlag = "tlitookilakin.mumps.spawnedMonster";
 		private static readonly ConditionalWeakTable<GameLocation, RefInt> spawnedCount = new();
 		internal static void Init()
 		{
