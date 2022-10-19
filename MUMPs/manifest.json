@@ -1,10 +1,20 @@
 ﻿{
   "Name": "MUMPs",
   "Author": "Tlitookilakin",
-  "Version": "1.0.0",
+  "Version": "1.0.0-ALPHA-1",
   "Description": "Adds more map & tile properties for mapmakers.",
   "UniqueID": "tlitookilakin.mumps",
   "EntryDll": "MUMPs.dll",
   "MinimumApiVersion": "3.13",
-  "UpdateKeys": [ "GitHub:tlitookilakin/MUMPs" ]
+  "UpdateKeys": [ "GitHub:tlitookilakin/MUMPs" ],
+  "Dependencies": [
+	  {
+		  "UniqueID": "tlitookilakin.AeroCore",
+		  "IsRequired": true
+	  },
+	  {
+		  "UniqueID": "atravita.GiantCropFertilizer",
+		  "IsRequired": false
+	  }
+  ]
 }
