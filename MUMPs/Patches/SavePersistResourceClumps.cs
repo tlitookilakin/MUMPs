@@ -14,9 +14,6 @@ namespace MUMPs.Patches
 	{
 		internal static void Init()
 		{
-			// GCF already does this
-			if (ModEntry.helper.ModRegistry.IsLoaded("atravita.GiantCropFertilizer"))
-				return;
 
 			ModEntry.harmony.Patch(
 				typeof(GameLocation).MethodNamed(nameof(GameLocation.TransferDataFromSavedLocation)),
@@ -24,35 +21,27 @@ namespace MUMPs.Patches
 			);
 		}
 
-		// thank you to atravita for this code!
+		// a modified version of Atra's code from GiantCropFertilizer
 		private static void Postfix(GameLocation __instance, GameLocation l)
 		{
 			// game handles these two.
-			if (__instance is IslandWest || __instance.Name.Equals("Farm", StringComparison.OrdinalIgnoreCase)
+			if (__instance is IslandWest 
+				|| __instance.Name.Equals("Farm", StringComparison.OrdinalIgnoreCase)
 				|| __instance.resourceClumps.Count >= l.resourceClumps.Count)
-			{
 				return;
-			}
 
 			// We need to avoid accidentally adding duplicates.
 			// Keep track of occupied tiles here.
 			HashSet<Vector2> prev = new(l.resourceClumps.Count);
-
 			foreach (var clump in __instance.resourceClumps)
 				prev.Add(clump.tile.Value);
 
-			// restore previous giant crops.
-			int count = 0;
+			// restore previous resource clumps.
 			foreach (var clump in l.resourceClumps)
-			{
-				if (clump is GiantCrop crop && prev.Add(crop.tile.Value))
-				{
-					count++;
-					__instance.resourceClumps.Add(crop);
-				}
-			}
+				if (prev.Add(clump.tile.Value))
+					__instance.resourceClumps.Add(clump);
 
-			ModEntry.monitor.Log($"Restored {count} giant crops at {__instance.NameOrUniqueName}");
+			ModEntry.monitor.Log($"Restored resource clumps at {__instance.NameOrUniqueName}");
 		}
 	}
 }
