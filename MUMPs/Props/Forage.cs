@@ -42,7 +42,7 @@ namespace MUMPs.Props
 				var size = __instance.Map.GetLayer("Back").LayerSize;
 				var forage = GetForageDataAt(defsplit[0], __instance);
 				if (forage is null)
-					ModEntry.monitor.Log($"No forage pool data found for '{defsplit[0]}' in location '{__instance.Name}'.");
+					ModEntry.monitor.Log($"No forage pool data found for '{defsplit[0]}' in '{__instance.mapPath.Value}'.");
 				else
 					SpawnInLocationArea(__instance, new(0, 0, size.Width, size.Height), count, forage);
 			}
@@ -92,7 +92,7 @@ namespace MUMPs.Props
 					string current = split[i + 4];
 					var forage = GetForageDataAt(current, loc);
 					if (forage is null)
-						ModEntry.monitor.Log($"No forage pool data found for '{current}' in location '{loc.Name}'.");
+						ModEntry.monitor.Log($"No forage pool data found for '{current}' in '{loc.mapPath.Value}'.");
 					else
 						SpawnInLocationArea(loc, rect, count, forage);
 				}

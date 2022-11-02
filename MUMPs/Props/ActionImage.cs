@@ -25,14 +25,14 @@ namespace MUMPs.Props
 			if (Misc.TryLoadAsset<Texture2D>(ModEntry.monitor, ModEntry.helper, DirPath + action, out var tex))
 				Game1.activeClickableMenu = new UI.ImageDisplay(tex);
 			else
-				ModEntry.monitor.Log($"COuld not find image asset '{action}' in SimpleImage action @ [{tile.X},{tile.Y}] in '{where.Name}'.");
+				ModEntry.monitor.Log($"Could not find image asset '{action}' in SimpleImage action @ [{tile.X},{tile.Y}] in '{where.mapPath.Value}'.");
 		}
 		private static void showAdvanced(Farmer who, string action, Point tile, GameLocation where)
 		{
 			if (Assets.Animations.TryGetValue(action, out var anim))
 				Game1.activeClickableMenu = new UI.AdvancedImageDisplay(anim);
 			else
-				ModEntry.monitor.Log($"Could not find image data for entry '{action}' in Image action @ [{tile.X},{tile.Y}] in '{where.Name}'.");
+				ModEntry.monitor.Log($"Could not find image data for entry '{action}' in Image action @ [{tile.X},{tile.Y}] in '{where.mapPath.Value}'.");
 		}
 	}
 }

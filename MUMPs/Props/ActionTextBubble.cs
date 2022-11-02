@@ -42,6 +42,7 @@ namespace MUMPs.Props
 				pages.Value.Add(tile, dlg = s.Split('/', StringSplitOptions.RemoveEmptyEntries));
 			if (dlg is null || dlg.Length == 0)
 			{
+				// TODO use tokenized string 
 				ModEntry.monitor.Log($"Map strings does not contain key '{what}'; could not display text bubble.", LogLevel.Warn);
 				return;
 			}

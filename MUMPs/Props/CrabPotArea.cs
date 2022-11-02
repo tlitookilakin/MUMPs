@@ -96,7 +96,7 @@ namespace MUMPs.Props
 			{
 				if (!split.FromCorners(out var region, i))
 				{
-					ModEntry.monitor.Log($"CrabPotAreaCorners map property is not valid in location '{where.Name}'", LogLevel.Warn);
+					ModEntry.monitor.Log($"CrabPotAreaCorners map property is not valid in '{where.mapPath.Value}'", LogLevel.Warn);
 					break;
 				}
 				i += 4;

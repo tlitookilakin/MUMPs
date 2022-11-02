@@ -32,7 +32,7 @@ namespace MUMPs.Props
 			{
 				if(!split.ToRect(out Rectangle rect, i))
 				{
-					ModEntry.monitor.Log($"Failed to parse CamRegion map property @ '{loc.Name}': could not convert to number.", LogLevel.Warn);
+					ModEntry.monitor.Log($"Failed to parse CamRegion map property @ '{loc.mapPath.Value}': could not convert to number.", LogLevel.Warn);
 					regions.Value.Clear();
 					return;
 				}

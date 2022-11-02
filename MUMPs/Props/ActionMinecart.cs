@@ -60,7 +60,6 @@ namespace MUMPs.Props
 		}
 		private static void OnCartWarp(Farmer who, string what)
 		{
-			ModEntry.monitor.Log(what);
 			var data = Assets.MiscGameData;
 			if (data.MineCartDestinations != null && data.MineCartDestinations.TryGetValue(what, out var dest))
 			{

@@ -38,7 +38,7 @@ namespace MUMPs.Props
 					if (Game1.soundBank.TryGetCue(s, out cue))
 						soundCache[s] = cue;
 					else
-						ModEntry.monitor.Log($"Failed to find cue {s} @ [{x}, {y}] in {where.mapPath.Value}", LogLevel.Warn);
+						ModEntry.monitor.Log($"Failed to find cue '{s}' @ [{x}, {y}] in {where.mapPath.Value}", LogLevel.Warn);
 				if (cue is null)
 					continue;
 				var points = data.TryGetValue(cue, out var p) ? p : data[cue] = new();

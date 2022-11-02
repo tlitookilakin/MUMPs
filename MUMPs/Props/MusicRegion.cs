@@ -66,7 +66,7 @@ namespace MUMPs.Props
 					reg[rect] = data[i + 4];
 				} else
 				{
-					ModEntry.monitor.Log("Invalid MusicRegions property value on the map for " + loc.Name, LogLevel.Warn);
+					ModEntry.monitor.Log("Invalid MusicRegions property value on the map for " + loc.mapPath.Value, LogLevel.Warn);
 					reg.Clear();
 					break;
 				}
