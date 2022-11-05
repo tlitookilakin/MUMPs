@@ -42,7 +42,7 @@ namespace MUMPs.Props
 				if (cue is null)
 					continue;
 				var points = data.TryGetValue(cue, out var p) ? p : data[cue] = new();
-				points.Add(new(x, y));
+				points.Add(new(x * 64f, y * 64f));
 				cue.Volume = 0f;
 				cue.Play();
 			}
@@ -77,8 +77,7 @@ namespace MUMPs.Props
 		}
 		private static void Tick()
 		{
-			if (fadeVolume.Value < 1f)
-				fadeVolume.Value += (float)Game1.currentGameTime.ElapsedGameTime.TotalMilliseconds * .0003f;
+			fadeVolume.Value = Math.Min(1f, fadeVolume.Value + (float)Game1.currentGameTime.ElapsedGameTime.TotalMilliseconds * .0003f);
 
 			var vol = Math.Min(Game1.ambientPlayerVolume, Game1.options.ambientVolumeLevel);
 			var pos = Game1.player.Position;
@@ -93,7 +92,7 @@ namespace MUMPs.Props
 					continue;
 				}
 				nearest = MathF.Min(1f - nearest / 1024, fadeVolume.Value);
-				cue.Volume =  nearest * 100f * vol;
+				cue.Volume =  nearest * vol;
 				if (cue.IsPaused)
 					cue.Resume();
 				else if (!cue.IsPlaying)
