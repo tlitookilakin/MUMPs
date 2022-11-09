@@ -64,8 +64,9 @@ namespace MUMPs.Props
 			foreach (var cue in which.Keys)
 			{
 				cue.Stop(AudioStopOptions.Immediate);
-				cue.Dispose();
+				//cue.Dispose();
 			}
+			which.Clear();
 		}
 		private static void Cleanup()
 		{
