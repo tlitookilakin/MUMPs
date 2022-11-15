@@ -27,6 +27,7 @@ namespace MUMPs.Props
 		private static void HandleAction(Farmer who, string action, Point tile, GameLocation where)
 			=> DoGarbage(who.currentLocation, new(tile.X, tile.Y), who, action);
 		private static void Cleanup() => checkedCans.ResetAllScreens();
+
 		private static void DoGarbage(GameLocation location, Vector2 tile, Farmer who, string id)
 		{
 			if (string.IsNullOrWhiteSpace(id))
@@ -47,7 +48,6 @@ namespace MUMPs.Props
 			for (int j = 0; j < prewarm; j++)
 				garbageRandom.NextDouble();
 			GarbageItemData selected = null;
-			Item item = null;
 			bool baseChancePassed = garbageRandom.NextDouble() > (double)baseChance;
 			List<GarbageItemData>[] array = new List<GarbageItemData>[3]
 			{
@@ -61,7 +61,7 @@ namespace MUMPs.Props
 					continue;
 				foreach (GarbageItemData entry in itemList)
 				{
-					if (string.IsNullOrWhiteSpace(entry.ID))
+					if (entry.ItemId is null && entry.RandomItemId.Count < 1)
 					{
 						ModEntry.monitor.Log("Garbage: ignored item entry with no ID field.");
 					}
@@ -69,10 +69,9 @@ namespace MUMPs.Props
 					{
 						List<string> randomItemId = entry.RandomItemId;
 						string key = (randomItemId != null && randomItemId.Any()) ? Utility.GetRandom(entry.RandomItemId, garbageRandom) : entry.ItemId;
-						if (key.TryGetItem(out var result))
+						if (key.TryGetItem(out _))
 						{
 							selected = entry;
-							item = result;
 							break;
 						}
 					}
@@ -181,12 +180,7 @@ namespace MUMPs.Props
 			Game1.stats.incrementStat("trashCansChecked", 1);
 			if (selected is not null)
 			{
-				item.Stack = selected.Stack;
-				if (item is StardewValley.Object obj)
-				{
-					obj.IsRecipe = selected.IsRecipe;
-					obj.Quality = selected.Quality;
-				}
+				var item = selected.Spawn(who, location);
 				if (selected.AddToInventoryDirectly)
 				{
 					who.addItemByMenuIfNecessary(item);

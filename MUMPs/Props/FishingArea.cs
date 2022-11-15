@@ -20,7 +20,6 @@ namespace MUMPs.Props
 	{
 		internal static readonly PerScreen<Dictionary<Rectangle, int>> idRegions = new(() => new());
 		internal static readonly PerScreen<Dictionary<Rectangle, string>> locRegions = new(() => new());
-		internal static readonly PerScreen<List<LegendaryFishData>> legendaries = new(() => new());
 		internal static readonly PerScreen<int> defaultRegion = new(() => -1);
 		internal static readonly PerScreen<string> defaultRegionName = new();
 		private static readonly ILHelper fishPatch = new ILHelper(ModEntry.monitor, "GetFish")
@@ -41,7 +40,6 @@ namespace MUMPs.Props
 		{
 			idRegions.Value.Clear();
 			locRegions.Value.Clear();
-			legendaries.Value.Clear();
 
 			string[] data = Maps.MapPropertyArray(loc, "FishingAreaCorners");
 			for (int i = 0; i + 4 < data.Length; i += 5)
@@ -52,34 +50,6 @@ namespace MUMPs.Props
 					if (int.TryParse(data[i + 5], out int region))
 						idRegions.Value[rect] = region;
 				}
-			}
-			data = Maps.MapPropertyArray(loc, "LegendaryFishAreaCorners");
-			for (int i = 0; i + 11 < data.Length;)
-			{
-				if (!data.FromCorners(out var rect, i))
-					break;
-				if (!int.TryParse(data[i + 5], out int fish) || !int.TryParse(data[i + 6], out int family) ||
-					!int.TryParse(data[i + 7], out int level) || !int.TryParse(data[i + 8], out int depth) ||
-					!double.TryParse(data[i + 9], out var chance) || !double.TryParse(data[i + 10], out var curiosity))
-					break;
-				LegendaryFishData legend = new()
-				{
-					Region = rect,
-					Anchor = data[i + 4],
-					Fish = fish,
-					Family = family,
-					MinLevel = level,
-					MinDepth = depth,
-					Curiosity = curiosity,
-					Chance = chance,
-					Weather = data[i + 11]
-				};
-				i += 12;
-				List<string> seasons = new();
-				while(i < data.Length && !int.TryParse(data[i], out _))
-					seasons.Add(data[i]);
-				legend.Seasons = seasons;
-				legendaries.Value.Add(legend);
 			}
 			string[] defaults = Maps.MapPropertyArray(loc, "DefaultFishingArea");
 				defaultRegionName.Value = defaults.Length > 0 ? defaults[0] : null;
@@ -93,7 +63,6 @@ namespace MUMPs.Props
 			locRegions.ResetAllScreens();
 			defaultRegion.ResetAllScreens();
 			defaultRegionName.ResetAllScreens();
-			legendaries.ResetAllScreens();
 		}
 
 		[HarmonyPatch(typeof(GameLocation), nameof(GameLocation.getFish))]
@@ -103,33 +72,8 @@ namespace MUMPs.Props
 			if (__instance != Game1.currentLocation)
 				return original;
 
-			// get treasure
-			var treasureProp = __instance.doesTileHaveProperty((int)bobberTile.X, (int)bobberTile.Y, "FishingTreasure", "Back");
-			if (treasureProp is not null)
-			{
-				var split = treasureProp.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-				if (split.Length >= 1 && split[0].TryGetItem(out Item fished))
-				{
-					Farmer address = split.Length < 3 ? Game1.MasterPlayer : who; // whether instanced or not
-					if (split.Length < 2)
-					{
-						return ModEntry.AeroAPI.WrapItem(fished);
-					}
-					else if (!address.hasOrWillReceiveMail(split[1]))
-					{
-						if (split.Length > 2)
-							address.mailForTomorrow.Add(split[1]);
-						else
-							address.mailReceived.Add(split[1]);
-						return ModEntry.AeroAPI.WrapItem(fished);
-					}
-				}
-			}
-
-			// get legendary fish
-			foreach (var legend in legendaries.Value)
-				if (legend.CanCatchHere(waterDepth, bobberTile, who, bait, __instance))
-					return new(legend.GetFishIndex(), 1);
+			// TODO: rewrite fishing
+			// will require also transpiling DoFunction and tickUpdate on FishingRod
 
 			return original;
 		}
