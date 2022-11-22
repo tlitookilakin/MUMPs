@@ -6,10 +6,13 @@ using MUMPs.models;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.Objects;
+using StardewValley.Tools;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using SObject = StardewValley.Object;
 
 namespace MUMPs.Props
@@ -22,6 +25,8 @@ namespace MUMPs.Props
 		internal static readonly PerScreen<Dictionary<Rectangle, string>> locRegions = new(() => new());
 		internal static readonly PerScreen<int> defaultRegion = new(() => -1);
 		internal static readonly PerScreen<string> defaultRegionName = new();
+		private static bool skipChecks = false;
+		internal static readonly ConditionalWeakTable<FishingRod, SObject> caughtItems = new();
 		private static readonly ILHelper fishPatch = new ILHelper(ModEntry.monitor, "GetFish")
 			.Add(new CodeInstruction[]{
 				new(OpCodes.Ldarg_S, 6),
@@ -29,6 +34,41 @@ namespace MUMPs.Props
 				new(OpCodes.Call, typeof(FishingArea).MethodNamed(nameof(SwapPool))),
 				new(OpCodes.Starg_S, 7)
 			})
+			.Finish();
+		private static readonly ILHelper rodFunction = new ILHelper(ModEntry.monitor, "Fishing rod DoFunction")
+			.SkipTo(new CodeInstruction[] {
+				new(OpCodes.Ldarg_0),
+				new(OpCodes.Ldloc_S, (11, typeof(SObject))),
+				new(OpCodes.Callvirt, typeof(Item).PropertyGetter(nameof(Item.ParentSheetIndex))),
+				new(OpCodes.Ldc_I4_M1)
+			})
+			.Add(new CodeInstruction[]
+			{
+				new(OpCodes.Ldloc_S, 11),
+				new(OpCodes.Ldarg_0),
+				new(OpCodes.Call, typeof(FishingArea).MethodNamed(nameof(StoreCaughtItem)))
+			})
+			.Finish();
+		private static readonly ILHelper rodTick = new ILHelper(ModEntry.monitor, "Fishing rod tick")
+			.SkipTo(new CodeInstruction[]
+			{
+				new(OpCodes.Ldnull),
+				new(OpCodes.Stloc_S, (21, typeof(SObject)))
+			})
+			.Skip(2)
+			.Add(new CodeInstruction[]
+			{
+				new(OpCodes.Ldarg_0),
+				new(OpCodes.Ldloca_S, 21),
+				new(OpCodes.Call, typeof(FishingArea).MethodNamed(nameof(TryGetStoredItem)))
+			})
+			.AddJump(OpCodes.Brtrue, "skip")
+			.SkipTo(new CodeInstruction[]
+			{
+				new(OpCodes.Ldarg_0),
+				new(OpCodes.Ldfld, typeof(FishingRod).FieldNamed(nameof(FishingRod.fromFishPond)))
+			})
+			.AddLabel("skip")
 			.Finish();
 
 		internal static void Init()
@@ -69,12 +109,31 @@ namespace MUMPs.Props
 		[HarmonyPostfix]
 		internal static SObject SwapOutput(SObject original, GameLocation __instance, int bait, int waterDepth, Farmer who, Vector2 bobberTile)
 		{
-			if (__instance != Game1.currentLocation)
-				return original;
-
-			// TODO: rewrite fishing
-			// will require also transpiling DoFunction and tickUpdate on FishingRod
-
+			if (!skipChecks)
+			{
+				// get treasure
+				var treasureProp = __instance.doesTileHaveProperty((int)bobberTile.X, (int)bobberTile.Y, "FishingTreasure", "Back");
+				if (treasureProp is not null)
+				{
+					var split = treasureProp.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+					if (split.Length >= 1 && split[0].TryGetItem(out Item fished))
+					{
+						Farmer address = split.Length < 3 ? Game1.MasterPlayer : who; // whether instanced or not
+						if (split.Length < 2)
+						{
+							return ModEntry.AeroAPI.WrapItem(fished);
+						}
+						else if (!address.hasOrWillReceiveMail(split[1]))
+						{
+							if (split.Length > 2)
+								address.mailForTomorrow.Add(split[1]);
+							else
+								address.mailReceived.Add(split[1]);
+							return ModEntry.AeroAPI.WrapItem(fished);
+						}
+					}
+				}
+			}
 			return original;
 		}
 
@@ -82,13 +141,33 @@ namespace MUMPs.Props
 		[HarmonyTranspiler]
 		internal static IEnumerable<CodeInstruction> GetFish(IEnumerable<CodeInstruction> instructions) => fishPatch.Run(instructions);
 
+		[HarmonyPatch(typeof(FishingRod), nameof(FishingRod.DoFunction))]
+		[HarmonyTranspiler]
+		internal static IEnumerable<CodeInstruction> RodFunction(IEnumerable<CodeInstruction> source) => rodFunction.Run(source);
+		/*
+		internal static IEnumerable<CodeInstruction> RodFunction(IEnumerable<CodeInstruction> source)
+		{
+			var test = typeof(Item).PropertyGetter(nameof(Item.ParentSheetIndex));
+			foreach (var code in source)
+			{
+				ModEntry.monitor.Log($"{code.opcode}:\t{code.operand}");
+				if (code.operand as MethodInfo == test)
+					ModEntry.monitor.Log("--------------------------------------------");
+				yield return code;
+			}
+		}*/
+
+		[HarmonyPatch(typeof(FishingRod), nameof(FishingRod.tickUpdate))]
+		[HarmonyTranspiler]
+		internal static IEnumerable<CodeInstruction> RodTick(IEnumerable<CodeInstruction> source, ILGenerator gen) => rodTick.Run(source, gen);
+
 		[HarmonyPatch(typeof(Farm), nameof(Farm.getFish))]
 		[HarmonyTranspiler]
 		internal static IEnumerable<CodeInstruction> GetFarmFish(IEnumerable<CodeInstruction> instructions)
 		{
 			CodeInstruction prev = null;
 			var getFish = typeof(GameLocation).MethodNamed(nameof(GameLocation.getFish));
-			var swapFish = typeof(FishingArea).MethodNamed(nameof(FarmSwapPool));
+			var swapFish = typeof(FishingArea).MethodNamed(nameof(SwapPool));
 			foreach (var code in instructions)
 			{
 				if (prev is not null) 
@@ -118,34 +197,44 @@ namespace MUMPs.Props
 		}
 		private static string SwapPool(Vector2 bobber, string location)
 		{
+			skipChecks = false;
 			if (location != null)
 				return location;
-			
+
+			string ret = defaultRegionName.Value;
 			foreach ((var region, string loc) in locRegions.Value)
+			{
 				if (region.Contains(bobber))
-					return loc;
-			return defaultRegionName.Value;
-		}
-		private static string FarmSwapPool(Vector2 bobber, string location)
-		{
-			foreach ((var region, string loc) in locRegions.Value)
-				if (region.Contains(bobber))
-					return loc;
-			return location ?? defaultRegionName.Value;
+				{
+					ret = loc;
+					break;
+				}
+			}
+			skipChecks = ret is not null;
+			return ret;
 		}
 
 		[HarmonyPatch(typeof(GameLocation), nameof(GameLocation.getFishingLocation))]
-		[HarmonyPrefix]
-		internal static bool GetFishingLocationPatch(ref Vector2 tile, ref int __result)
+		[HarmonyPostfix]
+		internal static int GetFishingLocationPatch(int result, Vector2 tile)
 		{
-			foreach((var region, int id) in idRegions.Value)
+			foreach ((var region, int id) in idRegions.Value)
 				if (region.Contains(tile))
-				{
-					__result = id;
-					return false;
-				}
-			__result = defaultRegion.Value;
-			return false;
+					return id;
+			return defaultRegion.Value == -1 ? result : defaultRegion.Value;
+		}
+		internal static void StoreCaughtItem(SObject obj, FishingRod rod)
+		{
+			if (ModEntry.AeroAPI.IsWrappedItem(obj))
+				caughtItems.AddOrUpdate(rod, obj);
+		}
+		internal static bool TryGetStoredItem(FishingRod rod, ref SObject obj)
+		{
+			var ret = caughtItems.TryGetValue(rod, out var res);
+			caughtItems.Remove(rod);
+			if (ret)
+				obj = res;
+			return ret;
 		}
 	}
 }

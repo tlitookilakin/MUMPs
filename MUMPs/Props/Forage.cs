@@ -22,6 +22,7 @@ namespace MUMPs.Props
 	{
 		private static readonly int[] Rocks = {25, 75, 76, 77, 95, 290, 750, 751, 764, 765, 816, 817, 818, 819, 846, 847};
 		private static readonly Point giantCropSize = new(3, 3);
+		const string ForageFlag = "tlitoo.mumps.clearForage";
 
 		internal static void ClearOnNewDay(GameLocation where)
 		{
@@ -162,23 +163,33 @@ namespace MUMPs.Props
 				if (!CanSpawnAt(loc, tile))
 					continue;
 				var ground = loc.doesTileHaveProperty((int)tile.X, (int)tile.Y, "type", "back");
-				WeightedArray<string> pool;
+				WeightedArray<ForageItem> pool;
 				if (ground is null || ground == string.Empty)
 					pool = pools.Values.ElementAt(Game1.random.Next(pools.Count));
 				else if (!pools.TryGetValue(ground, out pool))
 					continue;
 				var what = pool.Choose();
-				if (TrySpawnDebris(loc, tile, what))
+				if ((what.Type == ForageItem.ForageType.Item || what.Type == ForageItem.ForageType.Ore) 
+					&& TrySpawnDebris(loc, tile, what.ID))
 					continue;
-				if (what.StartsWith("(RC)"))
-					SpawnClump(loc, tile, what[4..]);
-				else if (what.StartsWith("(CON)"))
-					SpawnOreNode(loc, tile, what[5..]);
-				else if (what.StartsWith("(GC)"))
-					SpawnGiantCrop(loc, tile, what[4..]);
-				else
-					SpawnAt(loc, tile, ForageData.idCache[what].getOne());
+				switch (what.Type)
+				{
+					case ForageItem.ForageType.Item:
+						SpawnAt(loc, tile, ForageData.idCache[what.ID].getOne()); break;
+					case ForageItem.ForageType.Clump:
+						SpawnClump(loc, tile, what.ID); break;
+					case ForageItem.ForageType.Ore:
+						SpawnOreNode(loc, tile, what.ID); break;
+					case ForageItem.ForageType.GiantCrop:
+						SpawnGiantCrop(loc, tile, what.ID); break;
+					case ForageItem.ForageType.Crop:
+						SpawnCrop(loc, tile, what.ID); break;
+				}
 			}
+		}
+		internal static void SpawnCrop(GameLocation where, Vector2 tile, string id)
+		{
+			// TODO spawn crops
 		}
 		internal static void SpawnOreNode(GameLocation loc, Vector2 pos, string id)
 		{
@@ -191,7 +202,7 @@ namespace MUMPs.Props
 			if (!int.TryParse(id, out int index) || !IsAreaClearForSpawning(loc, pos, giantCropSize))
 				return;
 			var crop = new GiantCrop(index, pos);
-			crop.modData["tlitoo.mumps.clearForage"] = "T";
+			crop.modData[ForageFlag] = "T";
 			loc.resourceClumps.Add(crop);
 		}
 		internal static void SpawnAt(GameLocation loc, Vector2 pos, Item what)
