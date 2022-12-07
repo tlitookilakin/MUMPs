@@ -1,7 +1,7 @@
 ﻿{
   "Name": "MUMPs",
   "Author": "Tlitookilakin",
-  "Version": "1.0.0-ALPHA-1",
+  "Version": "1.0.0-ALPHA-2",
   "Description": "Adds more map & tile properties for mapmakers.",
   "UniqueID": "tlitookilakin.mumps",
   "EntryDll": "MUMPs.dll",
