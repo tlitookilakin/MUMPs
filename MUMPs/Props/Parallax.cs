@@ -43,7 +43,7 @@ namespace MUMPs.Props
 			else
 				return null;
 		}
-		private static void ChangeLocation(GameLocation loc)
+		private static void ChangeLocation(GameLocation loc, bool soft)
 		{
 			currentBackground.Value = null;
 			currentForeground.Value = null;

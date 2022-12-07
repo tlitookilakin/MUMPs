@@ -26,7 +26,7 @@ namespace MUMPs.Props
 			ModEntry.OnCleanup += Cleanup;
 			ModEntry.OnChangeLocation += ChangeLocation;
 		}
-		private static void ChangeLocation(GameLocation where)
+		private static void ChangeLocation(GameLocation where, bool soft)
 		{
 			Cleanup();
 		}

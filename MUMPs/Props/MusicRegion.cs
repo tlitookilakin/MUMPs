@@ -41,7 +41,7 @@ namespace MUMPs.Props
 			ModEntry.OnCleanup += Cleanup;
 			ModEntry.OnTick += Update;
 		}
-		private static void ChangeLocation(GameLocation loc)
+		private static void ChangeLocation(GameLocation loc, bool soft)
 		{
 			locChanged.Value = true;
 			regions.Value.Clear();

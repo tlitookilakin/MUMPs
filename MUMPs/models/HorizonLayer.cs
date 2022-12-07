@@ -7,7 +7,7 @@ using System;
 
 namespace MUMPs.models
 {
-	internal class HorizonLayer
+	public class HorizonLayer
 	{
 		public float Depth { set; get; } = 0f;
 		public HorizonImage Image { get; set; }

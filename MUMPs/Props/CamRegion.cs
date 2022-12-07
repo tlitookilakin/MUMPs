@@ -20,7 +20,7 @@ namespace MUMPs.Props
 			ModEntry.OnChangeLocation += ChangeLocation;
 			ModEntry.OnCleanup += Cleanup;
 		}
-		private static void ChangeLocation(GameLocation loc)
+		private static void ChangeLocation(GameLocation loc, bool soft)
 		{
 			regions.Value.Clear();
 			string[] split = loc.getMapProperty("CamRegions")?.Split(' ', StringSplitOptions.RemoveEmptyEntries);

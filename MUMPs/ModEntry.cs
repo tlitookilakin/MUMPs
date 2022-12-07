@@ -26,7 +26,7 @@ namespace MUMPs
 		internal static AeroCore.API.API AeroAPI;
 
 		internal static event Action<SpriteBatch> OnDraw;
-		internal static event Action<GameLocation> OnChangeLocation;
+		internal static event Action<GameLocation, bool> OnChangeLocation;
 		internal static event Action OnCleanup;
 		internal static event Action OnTick;
 
@@ -42,10 +42,11 @@ namespace MUMPs
 			helper.Events.GameLoop.GameLaunched += Init;
 			helper.Events.Content.AssetRequested += LoadAssets;
 			helper.Events.Display.RenderedWorld += (s, a) => OnDraw?.Invoke(a.SpriteBatch);
-			helper.Events.Player.Warped += (s, a) => OnChangeLocation?.Invoke(a.NewLocation);
-			helper.Events.GameLoop.SaveLoaded += (s, a) => OnChangeLocation?.Invoke(Game1.currentLocation);
+			helper.Events.Player.Warped += (s, a) => OnChangeLocation?.Invoke(a.NewLocation, false);
+			helper.Events.GameLoop.SaveLoaded += (s, a) => OnChangeLocation?.Invoke(Game1.currentLocation, false);
 			helper.Events.GameLoop.ReturnedToTitle += (s, a) => OnCleanup?.Invoke();
 			helper.Events.GameLoop.UpdateTicked += (s, a) => OnTick?.Invoke();
+			helper.Events.Content.AssetsInvalidated += RefreshMap;
 		}
 
 		[MethodImpl(MethodImplOptions.NoInlining)]
@@ -60,6 +61,15 @@ namespace MUMPs
 		{
 			if (ev.Name.IsEquivalentTo("Mods/Mumps/Fog"))
 				ev.LoadFromModFile<Texture2D>("assets/fog.png", AssetLoadPriority.Medium);
+		}
+		private static void RefreshMap(object _, AssetsInvalidatedEventArgs ev)
+		{
+			if (Game1.currentLocation is null)
+				return;
+			var map = Game1.currentLocation.mapPath.Value;
+			foreach(var name in ev.NamesWithoutLocale)
+				if(name.IsEquivalentTo(map))
+					OnChangeLocation?.Invoke(Game1.currentLocation, true);
 		}
 	}
 }

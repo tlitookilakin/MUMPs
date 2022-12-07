@@ -28,7 +28,7 @@ namespace MUMPs.Props
 			ModEntry.OnDraw += DrawAbove;
 			ModEntry.OnTick += Update;
 		}
-		private static void EnterLocation(GameLocation location)
+		private static void EnterLocation(GameLocation location, bool soft)
 		{
 			birds.Value = null;
 			var prop = location.getMapProperty("Birds").Split(' ', StringSplitOptions.RemoveEmptyEntries);

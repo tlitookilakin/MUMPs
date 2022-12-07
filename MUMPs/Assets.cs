@@ -8,6 +8,7 @@ using StardewModdingAPI.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AeroCore.Utils;
 
 namespace MUMPs
 {
@@ -52,11 +53,11 @@ namespace MUMPs
 				string local = $"assets/{asset}.json";
 				switch (asset)
 				{
-					case "Animations": ev.LoadFromModFile<Dictionary<string, AnimatedImage>>(local, AssetLoadPriority.Low); break;
-					case "Particles": ev.LoadFromModFile<Dictionary<string, ParticleDefinition>>(local, AssetLoadPriority.Low); break;
-					case "Backgrounds": ev.LoadFromModFile<Dictionary<string, HorizonModel>>(local, AssetLoadPriority.Low); break;
-					case "Forage": ev.LoadFromModFile<Dictionary<string, ForageData>>(local, AssetLoadPriority.Low); break;
-					case "MonsterSpawns": ev.LoadFromModFile<Dictionary<string, SpawnData>>(local, AssetLoadPriority.Low); break;
+					case "Animations": ev.LoadFrom(() => ModEntry.helper.LoadLocalDict<AnimatedImage>(local), AssetLoadPriority.Low); break;
+					case "Particles": ev.LoadFrom(() => ModEntry.helper.LoadLocalDict<ParticleDefinition>(local), AssetLoadPriority.Low); break;
+					case "Backgrounds": ev.LoadFrom(() => ModEntry.helper.LoadLocalDict<HorizonModel>(local), AssetLoadPriority.Low); break;
+					case "Forage": ev.LoadFrom(() => ModEntry.helper.LoadLocalDict<ForageData>(local), AssetLoadPriority.Low); break;
+					case "MonsterSpawns": ev.LoadFrom(() => ModEntry.helper.LoadLocalDict<SpawnData>(local), AssetLoadPriority.Low); break;
 				}
 			}
 			if (ev.NameWithoutLocale.IsEquivalentTo("Data/MiscGameData"))

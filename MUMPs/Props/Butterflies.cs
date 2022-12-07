@@ -11,8 +11,11 @@ namespace MUMPs.Props
 		{
 			ModEntry.OnChangeLocation += EnterLocation;
 		}
-		private static void EnterLocation(GameLocation location)
+		private static void EnterLocation(GameLocation location, bool soft)
 		{
+			if (soft)
+				return;
+
 			if (!int.TryParse(location.getMapProperty("Butterflies"), out int count))
 				return;
 

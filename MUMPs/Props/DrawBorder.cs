@@ -19,7 +19,7 @@ namespace MUMPs.Props
 			ModEntry.OnCleanup += Cleanup;
 			ModEntry.OnDraw += Draw;
 		}
-		private static void ChangeLocation(GameLocation loc) 
+		private static void ChangeLocation(GameLocation loc, bool soft) 
 			=> drawBorders.Value = !string.IsNullOrEmpty(loc.getMapProperty("DrawBorders"));
 		private static void Draw(SpriteBatch b)
 		{

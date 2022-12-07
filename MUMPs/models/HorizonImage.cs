@@ -7,7 +7,7 @@ using System;
 
 namespace MUMPs.models
 {
-	class HorizonImage
+	public class HorizonImage
 	{
 		public enum Mode {None, Tile, Stretch}
 		public string Texture { set; get; } = "";
@@ -29,7 +29,6 @@ namespace MUMPs.models
 		public HorizonImage()
 		{
 			ATexture = new(ModEntry.helper, () => Texture);
-			Reload();
 		}
 		public void Reload()
 		{
@@ -52,7 +51,7 @@ namespace MUMPs.models
 			Point offset = new((int)(center.X * (1f - Depth) + OffsetX * 64f + .5f), (int)(center.Y * (1f - Depth) + OffsetY * 64f + .5f));
 			Rectangle region = getRegion(millis);
 			int fillx = getScaledSize(Game1.viewport.Width, Game1.currentLocation.map.DisplayWidth, Depth);
-			int tile = (int)(region.Width * Scale);
+			int tile = (int)(region.Width * Scale * 4f);
 			accum += millis;
 			switch (HMode)
 			{
@@ -79,13 +78,13 @@ namespace MUMPs.models
 			switch (VMode)
 			{
 				case Mode.None:
-					b.Draw(ATexture.Value, new Rectangle(x, y, w, (int)(source.Height * Scale)), source, Color.White * Opacity);
+					b.Draw(ATexture.Value, new Rectangle(x, y, w, (int)(source.Height * Scale * 4f)), source, Color.White * Opacity);
 					break;
 				case Mode.Stretch:
 					b.Draw(ATexture.Value, new Rectangle(x, y, w, getScaledSize(Game1.viewport.Height, Game1.currentLocation.map.DisplayHeight, Depth)), source, Color.White * Opacity);
 					break;
 				case Mode.Tile:
-					int tile = (int)(source.Height * Scale);
+					int tile = (int)(source.Height * Scale * 4f);
 					int hg = Game1.viewport.Height + Game1.viewport.Y;
 					for (int yy = y % tile; yy < y + hg; yy += tile)
 					{

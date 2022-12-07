@@ -11,7 +11,7 @@ namespace MUMPs.Props
 		{
 			ModEntry.OnChangeLocation += Enter;
 		}
-		private static void Enter(GameLocation loc)
+		private static void Enter(GameLocation loc, bool soft)
 		{
 			var prop = loc.getMapProperty("EntryMail");
 			if (prop is null)

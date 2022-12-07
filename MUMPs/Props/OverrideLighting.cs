@@ -17,7 +17,7 @@ namespace MUMPs.Props
 		{
 			ModEntry.OnChangeLocation += UpdateLocation;
 		}
-		internal static void UpdateLocation(GameLocation where)
+		internal static void UpdateLocation(GameLocation where, bool soft)
 		{
 			where.ignoreOutdoorLighting.Value = where.ignoreOutdoorLighting.Value || where.getMapProperty("IgnoreOutdoorLighting").Length > 0;
 		}

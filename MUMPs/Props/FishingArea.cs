@@ -76,7 +76,7 @@ namespace MUMPs.Props
 			ModEntry.OnChangeLocation += ChangeLocation;
 			ModEntry.OnCleanup += Cleanup;
 		}
-		private static void ChangeLocation(GameLocation loc)
+		private static void ChangeLocation(GameLocation loc, bool soft)
 		{
 			idRegions.Value.Clear();
 			locRegions.Value.Clear();
@@ -144,18 +144,6 @@ namespace MUMPs.Props
 		[HarmonyPatch(typeof(FishingRod), nameof(FishingRod.DoFunction))]
 		[HarmonyTranspiler]
 		internal static IEnumerable<CodeInstruction> RodFunction(IEnumerable<CodeInstruction> source) => rodFunction.Run(source);
-		/*
-		internal static IEnumerable<CodeInstruction> RodFunction(IEnumerable<CodeInstruction> source)
-		{
-			var test = typeof(Item).PropertyGetter(nameof(Item.ParentSheetIndex));
-			foreach (var code in source)
-			{
-				ModEntry.monitor.Log($"{code.opcode}:\t{code.operand}");
-				if (code.operand as MethodInfo == test)
-					ModEntry.monitor.Log("--------------------------------------------");
-				yield return code;
-			}
-		}*/
 
 		[HarmonyPatch(typeof(FishingRod), nameof(FishingRod.tickUpdate))]
 		[HarmonyTranspiler]

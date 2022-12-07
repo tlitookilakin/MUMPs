@@ -23,7 +23,7 @@ namespace MUMPs.Props
 		{
 			fog.ResetAllScreens();
 		}
-		private static void ChangeLocation(GameLocation loc)
+		private static void ChangeLocation(GameLocation loc, bool soft)
 		{
 			fog.Value = null;
 

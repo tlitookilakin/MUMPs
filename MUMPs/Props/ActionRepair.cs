@@ -28,7 +28,7 @@ namespace MUMPs.Props
 			foreach(var spot in currentSet.Value)
 				spot.Draw(b);
 		}
-		private static void ChangeLocation(GameLocation loc)
+		private static void ChangeLocation(GameLocation loc, bool soft)
 		{
 			currentSet.Value.Clear();
 			var map = loc.map;

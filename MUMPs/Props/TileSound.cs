@@ -25,7 +25,7 @@ namespace MUMPs.Props
 			ModEntry.AeroAPI.LocationCleanup += LocationCleanup;
 		}
 
-		private static void PopulateSounds(GameLocation where)
+		private static void PopulateSounds(GameLocation where, bool soft)
 		{
 			var data = new Dictionary<ICue, List<Vector2>>();
 			var soundCache = new Dictionary<string, ICue>();

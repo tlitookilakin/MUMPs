@@ -38,7 +38,7 @@ namespace MUMPs.Props
 				{
 					ModEntry.monitor.Log("Failed to retrieve hijacked pytk display device, attempting default", LogLevel.Debug);
 				}
-			sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("SXnaDisplayDevice").
+			sheets = (Dictionary<TileSheet, Texture2D>)Game1.mapDisplayDevice.GetType().
 				GetField("m_tileSheetTextures", BindingFlags.NonPublic | BindingFlags.Instance).
 				GetValue(Game1.mapDisplayDevice);
 		}

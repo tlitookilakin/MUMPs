@@ -23,7 +23,7 @@ namespace MUMPs.Props
 			ModEntry.helper.Events.GameLoop.DayEnding += OnDayEnd;
 			ModEntry.helper.Events.World.NpcListChanged += OnNpcsChanged;
 		}
-		private static void EnterLocation(GameLocation where)
+		private static void EnterLocation(GameLocation where, bool soft)
 		{
 			var data = where.MapPropertyArray("MonsterSpawns");
 			if (data.Length < 2 || !int.TryParse(data[1], out int count))

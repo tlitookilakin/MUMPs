@@ -44,7 +44,7 @@ namespace MUMPs.Props
 			foreach(var particle in particles.Value)
 				particle.Tick(millis);
 		}
-		private static void ChangeLocation(GameLocation loc)
+		private static void ChangeLocation(GameLocation loc, bool soft)
 		{
 			List<IParticleManager> ps = new();
 			foreach ((var tile, int x, int y) in loc.map.TilesInLayer("Back"))

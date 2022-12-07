@@ -101,7 +101,21 @@
 				"IgnoreBaseChance": false,
 				"IsMegaSuccess": false,
 				"IsDoubleMegaSuccess": false,
-				"AddToInventoryDirectly": false
+				"AddToInventoryDirectly": false,
+				"StackModifiers": [
+					{
+						"Id": "DefaultMultiplier",
+						"Condition": null,
+						"Modification": "Multiply",
+						"Amount": 0.0,
+						"RandomAmount": [
+							1.0,
+							2.0,
+							3.0,
+							4.0
+						]
+					}
+				]
 			}
 		]
 	},

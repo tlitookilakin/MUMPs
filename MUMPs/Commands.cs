@@ -19,7 +19,7 @@ namespace MUMPs
 		{
 			Game1.currentLocation.modData.Remove("tlitookilakin.mumps.generatedObjects");
 			Props.SpawnCrops.Spawn(Game1.currentLocation, true);
-			Props.SpawnObject.Generate(Game1.currentLocation);
+			Props.SpawnObject.Generate(Game1.currentLocation, false);
 		}
 	}
 }

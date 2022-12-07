@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MUMPs.Integration
 {
-	internal interface CustomOreNodesAPI
+	public interface CustomOreNodesAPI
 	{
 		public int GetCustomOreNodeIndex(string id);
 		public List<object> GetCustomOreNodes();

@@ -70,7 +70,7 @@ namespace MUMPs.Props
 				}
 			}
 		}
-		internal static void Generate(GameLocation loc)
+		internal static void Generate(GameLocation loc, bool soft)
 		{
 			UpdateUsable(loc);
 
