@@ -23,16 +23,16 @@ namespace MUMPs.Props
 		private static void ChangeLocation(GameLocation loc, bool soft)
 		{
 			regions.Value.Clear();
-			string[] split = loc.getMapProperty("CamRegions")?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			string[] split = loc.getMapProperty("CamRegionCorners")?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
 			if (split == null)
 				return;
 
 			for(int i = 0; i + 3 < split.Length; i += 4)
 			{
-				if(!split.ToRect(out Rectangle rect, i))
+				if(!split.FromCorners(out Rectangle rect, i))
 				{
-					ModEntry.monitor.Log($"Failed to parse CamRegion map property @ '{loc.mapPath.Value}': could not convert to number.", LogLevel.Warn);
+					ModEntry.monitor.Log($"Failed to parse CamRegionCorners map property @ '{loc.mapPath.Value}': could not convert to number.", LogLevel.Warn);
 					regions.Value.Clear();
 					return;
 				}

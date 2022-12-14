@@ -55,13 +55,13 @@ namespace MUMPs.Props
 
 			var reg = regions.Value;
 			reg.Clear();
-			string[] data = loc.getMapProperty("MusicRegions")?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			string[] data = loc.getMapProperty("MusicRegionCorners")?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 			if (data == null)
 				return;
 
 			for(int i = 0; i + 4 < data.Length; i += 5)
 			{
-				if(data.ToRect(out Rectangle rect, i))
+				if(data.FromCorners(out Rectangle rect, i))
 				{
 					reg[rect] = data[i + 4];
 				} else
