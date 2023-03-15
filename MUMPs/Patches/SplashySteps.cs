@@ -48,7 +48,7 @@ namespace MUMPs.Patches
 		private static string shouldUseSplash(Farmer who, FarmerSprite sprite)
 		{
 			var pos = who.getTileLocationPoint();
-			return (who.currentLocation is not BoatTunnel && 
+			return (who.currentLocation is not BoatTunnel && who.currentLocation.getMapProperty("NoSplashSteps") is null &&
 				who.currentLocation.doesTileHaveProperty(pos.X, pos.Y, "Water", "Back") != null && 
 				who.currentLocation.getTileIndexAt(pos, "Buildings") == -1 &&
 				!Game1.eventUp

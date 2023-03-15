@@ -9,7 +9,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace MUMPs
@@ -26,7 +25,6 @@ namespace MUMPs
 		internal static AeroCore.API.API AeroAPI;
 
 		internal static event Action<SpriteBatch> OnDraw;
-		internal static event Action<SpriteBatch> OnDepthDraw;
 		internal static event Action<GameLocation, bool> OnChangeLocation;
 		internal static event Action OnCleanup;
 		internal static event Action OnTick;
@@ -71,10 +69,6 @@ namespace MUMPs
 			foreach(var name in ev.NamesWithoutLocale)
 				if(name.IsEquivalentTo(map))
 					OnChangeLocation?.Invoke(Game1.currentLocation, true);
-		}
-		internal static void EmitDepthDraw(SpriteBatch b)
-		{
-			OnDepthDraw?.Invoke(b);
 		}
 	}
 }

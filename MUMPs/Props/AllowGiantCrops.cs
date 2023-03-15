@@ -8,9 +8,18 @@ using System.Reflection.Emit;
 
 namespace MUMPs.Props
 {
-	[HarmonyPatch(typeof(Crop), nameof(Crop.newDay))]
+	[ModInit]
 	internal class AllowGiantCrops
 	{
+		internal static void Init()
+		{
+			if (ModEntry.helper.ModRegistry.IsLoaded("leclair.giantcroptweaks"))
+				return; // that mod already does this
+
+			ModEntry.harmony.Patch(typeof(Crop).MethodNamed(nameof(Crop.newDay)), 
+				transpiler: new(typeof(AllowGiantCrops).MethodNamed(nameof(Transpiler))));
+		}
+
 		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> source, ILGenerator gen)
 		{
 			IEnumerator<CodeInstruction> cursor = source.GetEnumerator();

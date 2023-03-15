@@ -23,7 +23,7 @@ namespace MUMPs.Props
 			ModEntry.OnChangeLocation += ChangeLocation;
 			ModEntry.OnCleanup += Cleanup;
 			ModEntry.OnTick += Tick;
-			ModEntry.OnDepthDraw += Draw;
+			ModEntry.AeroAPI.OnDrawingWorld += Draw;
 			ModEntry.OnDraw += DrawAfter;
 			//ModEntry.helper.Events.Display.RenderedHud += (s, e) => Draw(e.SpriteBatch);
 		}
