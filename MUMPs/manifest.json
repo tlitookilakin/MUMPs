@@ -15,6 +15,14 @@
 	  {
 		  "UniqueID": "atravita.GiantCropFertilizer",
 		  "IsRequired": false
+	  },
+	  {
+		  "UniqueID": "spacechase0.MoreGiantCrops",
+		  "IsRequired": false
+	  },
+	  {
+		  "UniqueID": "leclair.giantcroptweaks",
+		  "IsRequired": false
 	  }
   ]
 }

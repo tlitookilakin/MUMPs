@@ -19,7 +19,6 @@ namespace MUMPs.Props
 			ModEntry.harmony.Patch(typeof(Crop).MethodNamed(nameof(Crop.newDay)), 
 				transpiler: new(typeof(AllowGiantCrops).MethodNamed(nameof(Transpiler))));
 		}
-
 		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> source, ILGenerator gen)
 		{
 			IEnumerator<CodeInstruction> cursor = source.GetEnumerator();
@@ -45,9 +44,16 @@ namespace MUMPs.Props
 			yield return new(OpCodes.Bgt_S, jump);
 			yield return cursor.Current;
 
-			// skip 3
-			for(int i = 2; i > 0 && cursor.MoveNext(); i--)
-				yield return cursor.Current;
+			// skip env check chunk
+			if (cursor.TryGetNext(out var op))
+				if (op.opcode != OpCodes.Isinst) // inst check already removed
+					yield return op;
+				else if (cursor.TryGetNext(out op)) // remove inst checks
+					yield return op;
+				else
+					yield break;
+			else
+				yield break;
 
 			// add label to last one
 			if (!cursor.MoveNext())
@@ -55,8 +61,9 @@ namespace MUMPs.Props
 			cursor.Current.labels.Add(jump);
 			yield return cursor.Current;
 
-			// remove casting if atra hasn't already
-			if (ModEntry.helper.ModRegistry.IsLoaded("atravita.GiantCropFertilizer"))
+			// remove further casting if it hasn't been already
+			if (ModEntry.helper.ModRegistry.IsLoaded("atravita.GiantCropFertilizer") || 
+				ModEntry.helper.ModRegistry.IsLoaded("spacechase0.MoreGiantCrops"))
 			{
 				while(cursor.MoveNext())
 					yield return cursor.Current;
