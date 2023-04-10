@@ -28,23 +28,15 @@ namespace MUMPs.Props
 		}
 		internal static void Reload()
 		{
-			if (ModEntry.helper.ModRegistry.IsLoaded("Platonymous.Toolkit"))
-				try {
-					sheets = (Dictionary<TileSheet, Texture2D>)AccessTools.TypeByName("PyDisplayDevice").
-						GetField("m_tileSheetTextures2", BindingFlags.NonPublic | BindingFlags.Instance).
-						GetValue(Game1.mapDisplayDevice);
-					return;
-				} catch (ArgumentException)
-				{
-					ModEntry.monitor.Log("Failed to retrieve hijacked pytk display device, attempting default", LogLevel.Debug);
-				}
-			sheets = (Dictionary<TileSheet, Texture2D>)Game1.mapDisplayDevice.GetType().
-				GetField("m_tileSheetTextures", BindingFlags.NonPublic | BindingFlags.Instance).
-				GetValue(Game1.mapDisplayDevice);
+			var err = TryGetTilesheets(ref sheets);
+			if (err is not null)
+				ModEntry.monitor.Log(err, LogLevel.Error);
+			else
+				ModEntry.monitor.Log("Successfully retrieved tilesheets!");
 		}
 		private static void Draw(ILightingEventArgs ev)
 		{
-			if (Game1.currentLocation?.map is null)
+			if (Game1.currentLocation?.map is null || sheets is null)
 				return;
 			List<Layer> layers = new();
 			foreach(var l in Game1.currentLocation.map.Layers)
@@ -100,6 +92,22 @@ namespace MUMPs.Props
 				return 0;
 
 			return (float)(Math.PI / (180.0 / value));
+		}
+
+		private static string TryGetTilesheets(ref Dictionary<TileSheet, Texture2D> sheets)
+		{
+			if (Game1.mapDisplayDevice is null)
+				return "Display device does not exist";
+			var type = Game1.mapDisplayDevice.GetType();
+
+			foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+			{
+				if (field.FieldType != typeof(Dictionary<TileSheet, Texture2D>))
+					continue;
+				sheets = field.GetValue(Game1.mapDisplayDevice) as Dictionary<TileSheet, Texture2D>;
+				return null;
+			}
+			return $"Could not find tilesheet data on display device! (type: {type.AssemblyQualifiedName})";
 		}
 	}
 }
