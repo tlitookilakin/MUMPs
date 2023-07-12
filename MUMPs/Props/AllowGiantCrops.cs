@@ -2,8 +2,10 @@
 using AeroCore.Utils;
 using HarmonyLib;
 using StardewValley;
+using StardewValley.Locations;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace MUMPs.Props
@@ -11,6 +13,8 @@ namespace MUMPs.Props
 	[ModInit]
 	internal class AllowGiantCrops
 	{
+		const int buffer = 5;
+
 		internal static void Init()
 		{
 			if (ModEntry.helper.ModRegistry.IsLoaded("leclair.giantcroptweaks"))
@@ -19,60 +23,36 @@ namespace MUMPs.Props
 			ModEntry.harmony.Patch(typeof(Crop).MethodNamed(nameof(Crop.newDay)), 
 				transpiler: new(typeof(AllowGiantCrops).MethodNamed(nameof(Transpiler))));
 		}
-		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> source, ILGenerator gen)
+		internal static IEnumerable<CodeInstruction> wrap(IEnumerable<CodeInstruction> instructions)
+		{
+			foreach (var instruction in Transpiler(instructions))
+			{
+				ModEntry.monitor.Log(instruction.ToString(), StardewModdingAPI.LogLevel.Debug);
+				yield return instruction;
+			}
+		}
+		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> source)
 		{
 			IEnumerator<CodeInstruction> cursor = source.GetEnumerator();
-			var flag = typeof(Crop).FieldNamed(nameof(Crop.phaseToShow));
-			var jump = gen.DefineLabel();
-
-			// find the first request for the location after PhaseToShow
 			bool flagged = false;
-			while (cursor.MoveNext()) {
-				if (!flagged && cursor.Current.LoadsField(flag))
-					flagged = true;
-				else if (flagged && cursor.Current.opcode == OpCodes.Ldarg_S)
-					break;
-				yield return cursor.Current;
-			}
 
-			// if the map property is present and non-empty, skip other checks
-			yield return new(cursor.Current.opcode, cursor.Current.operand);
-			yield return new(OpCodes.Ldstr, "AllowGiantCrops");
-			yield return new(OpCodes.Callvirt, typeof(GameLocation).MethodNamed(nameof(GameLocation.getMapProperty)));
-			yield return new(OpCodes.Callvirt, typeof(string).PropertyGetter(nameof(string.Length)));
-			yield return new(OpCodes.Ldc_I4_0);
-			yield return new(OpCodes.Bgt_S, jump);
-			yield return cursor.Current;
-
-			// skip env check chunk
-			if (cursor.TryGetNext(out var op))
-				if (op.opcode != OpCodes.Isinst) // inst check already removed
-					yield return op;
-				else if (cursor.TryGetNext(out op)) // remove inst checks
-					yield return op;
-				else
-					yield break;
-			else
-				yield break;
-
-			// add label to last one
-			if (!cursor.MoveNext())
-				yield break;
-			cursor.Current.labels.Add(jump);
-			yield return cursor.Current;
-
-			// remove further casting if it hasn't been already
-			if (ModEntry.helper.ModRegistry.IsLoaded("atravita.GiantCropFertilizer") || 
-				ModEntry.helper.ModRegistry.IsLoaded("spacechase0.MoreGiantCrops"))
+			while (cursor.MoveNext())
 			{
-				while(cursor.MoveNext())
-					yield return cursor.Current;
-			} else
-			{
-				while (cursor.MoveNext())
-					if (cursor.Current.opcode != OpCodes.Isinst || !typeof(Farm).Equals(cursor.Current.operand as Type))
-						yield return cursor.Current;
+				var c = cursor.Current;
+
+				if (flagged && (c.opcode == OpCodes.Isinst || c.Branches(out _)))
+					yield return new(OpCodes.Call, typeof(AllowGiantCrops).MethodNamed(nameof(CheckProperty)));
+				flagged = !flagged && c.opcode == OpCodes.Ldarg_S && (byte)c.operand == 5;
+				if (c.opcode != OpCodes.Isinst || c.operand is not Type t || t != typeof(Farm))
+					yield return c;
 			}
+		}
+		private static GameLocation CheckProperty(GameLocation where)
+		{
+			if (where is Farm or IslandWest or null)
+				return where;
+			var prop = where.getMapProperty("AllowGiantCrops");
+			return prop is not null && prop.Length > 0 ? where : null;
 		}
 	}
 }
