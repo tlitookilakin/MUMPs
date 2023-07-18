@@ -97,14 +97,16 @@ namespace MUMPs.Props
 		private static string TryGetTilesheets(ref Dictionary<TileSheet, Texture2D> sheets)
 		{
 			if (Game1.mapDisplayDevice is null)
-				return "Display device does not exist";
+				return "Display device does not exist! Something is wrong!";
 			var type = Game1.mapDisplayDevice.GetType();
 
 			foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
 			{
 				if (field.FieldType != typeof(Dictionary<TileSheet, Texture2D>))
 					continue;
-				sheets = field.GetValue(Game1.mapDisplayDevice) as Dictionary<TileSheet, Texture2D>;
+				if (field.GetValue(Game1.mapDisplayDevice) is not Dictionary<TileSheet, Texture2D> fv)
+					return $"Display device has null tilesheet data! Something is wrong! (type: {type.AssemblyQualifiedName})";
+				sheets = fv;
 				return null;
 			}
 			return $"Could not find tilesheet data on display device! (type: {type.AssemblyQualifiedName})";

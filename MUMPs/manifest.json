@@ -23,6 +23,10 @@
 	  {
 		  "UniqueID": "leclair.giantcroptweaks",
 		  "IsRequired": false
+	  },
+	  {
+		  "UniqueID": "mod.kitchen.minecartpatcher",
+		  "IsRequired": false
 	  }
   ]
 }
