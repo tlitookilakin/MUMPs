@@ -8,7 +8,7 @@ using SObject = StardewValley.Object;
 
 namespace MUMPs.Patches
 {
-	[ModInit]
+	//[ModInit]
 	internal class NoInteract
 	{
 		internal static void Init()

@@ -14,7 +14,6 @@ using SObject = StardewValley.Object;
 namespace MUMPs.Props
 {
 	[ModInit]
-	[HarmonyPatch(typeof(GameLocation), nameof(GameLocation.DayUpdate))]
 	class SpawnObject
 	{
 		internal static void Init()
@@ -72,7 +71,7 @@ namespace MUMPs.Props
 		}
 		internal static void Generate(GameLocation loc, bool soft)
 		{
-			UpdateUsable(loc);
+			//UpdateUsable(loc);
 
 			if (loc.modData.ContainsKey("tlitookilakin.mumps.generatedObjects"))
 				return;
@@ -131,10 +130,12 @@ namespace MUMPs.Props
 					for(int i = 3; i < split.Length; i++)
 						if (split[i].TryGetItem(out var si))
 							chest.items.Add(si);
+				/*
 				if (!interact)
 					obj.modData["tlitookilakin.mumps.noInteract"] = "T";
 				if (!pickup)
 					obj.modData["tlitookilakin.mumps.noPickup"] = "T";
+				*/
 				if (obj is Sign && split.Length > 3 && split[3].TryGetItem(out var disp))
 					obj.heldObject.Value = disp as SObject;
 			} else if (loc.terrainFeatures.TryGetValue(pos, out tf) && !pickup)
@@ -154,10 +155,12 @@ namespace MUMPs.Props
 					else if (split.Length > 3 && split[3].TryGetItem(out var si))
 						f.performObjectDropInAction(si, true, null);
 					// must be after drop-in, or it might get canceled
+					/*
 					if (!interact)
 						f.modData["tlitookilakin.mumps.noInteract"] = "T";
 					if (!pickup)
 						f.modData["tlitookilakin.mumps.noPickup"] = "T";
+					*/
 				}
 			}
 		}
@@ -169,8 +172,10 @@ namespace MUMPs.Props
 			if (split.Length == 0 || !split[0].TryGetFruitTree(out var tree, 4))
 				return;
 			tree.daysUntilMature.Value = 0;
+			/*
 			if (split.Length > 1 && !split[1].StartsWith("T", StringComparison.OrdinalIgnoreCase))
 				tree.modData["tlitookilakin.mumps.noInteract"] = "T";
+			*/
 			loc.terrainFeatures[pos] = tree;
 		}
 	}
