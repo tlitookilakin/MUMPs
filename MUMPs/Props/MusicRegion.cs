@@ -197,6 +197,8 @@ namespace MUMPs.Props
 			if (Game1.currentLocation is null || !changed)
 				return;
 
+			var oldCue = lastCue.Value;
+
 			lastCue.Value = defaultCue.Value;
 			foreach((var region, string song) in regions.Value)
 			{
@@ -207,13 +209,16 @@ namespace MUMPs.Props
 				}
 			}
 
+			if (oldCue == lastCue.Value)
+				return;
+
 			bool fade = ActiveScreen == Context.ScreenId;
 			bool foundCue = false;
 			var isFade = cueIsFade.Value;
 			var id = lastCue.Value;
 			foreach (var cue in isFade.Keys)
 			{
-				if (cue.Name.Equals(id, StringComparison.OrdinalIgnoreCase))
+				if (cue.Name == id)
 				{
 					foundCue = true;
 					isFade[cue] = fade;

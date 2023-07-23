@@ -31,7 +31,7 @@ namespace MUMPs.Props
 			var soundCache = new Dictionary<string, ICue>();
 			foreach ((var tile, var x, var y) in where.Map.TilesInLayer("Paths"))
 			{
-				if (!tile.TileHasProperty("Sound", out var s))
+				if (!tile.TileHasProperty("sound", out var s))
 					continue;
 				s = s.Trim();
 				if (!soundCache.TryGetValue(s, out var cue))

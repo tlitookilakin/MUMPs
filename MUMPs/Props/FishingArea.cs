@@ -86,12 +86,12 @@ namespace MUMPs.Props
 			{
 				if (data.FromCorners(out var rect, i))
 				{
-					locRegions.Value[rect] = data[i + 4];
-					if (int.TryParse(data[i + 5], out int region))
+					if (data.Length > i + 5 && int.TryParse(data[i + 4], out int region))
 					{
 						idRegions.Value[rect] = region;
 						i += 1;
 					}
+					locRegions.Value[rect] = data[i + 4];
 				}
 			}
 			string[] defaults = Maps.MapPropertyArray(loc, "DefaultFishingArea");
