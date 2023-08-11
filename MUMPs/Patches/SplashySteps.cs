@@ -48,11 +48,16 @@ namespace MUMPs.Patches
 		private static string shouldUseSplash(Farmer who, FarmerSprite sprite)
 		{
 			var pos = who.getTileLocationPoint();
-			return (who.currentLocation is not BoatTunnel && who.currentLocation.getMapProperty("NoSplashSteps") is null &&
-				who.currentLocation.doesTileHaveProperty(pos.X, pos.Y, "Water", "Back") != null && 
-				who.currentLocation.getTileIndexAt(pos, "Buildings") == -1 &&
-				!Game1.eventUp
-				) ? "quickSlosh" : sprite.currentStep;
+			var loc = who.currentLocation;
+
+			return (
+				loc is not BoatTunnel && 
+				loc.getMapProperty("NoSplashSteps").Length is 0 &&
+				loc.doesTileHaveProperty(pos.X, pos.Y, "Water", "Back") is not null && 
+				loc.getTileIndexAt(pos, "Buildings") is -1
+				) 
+				? "quickSlosh" 
+				: sprite.currentStep;
 		}
 		private static void addRipple(string what, Farmer who)
 		{
