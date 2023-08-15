@@ -1,37 +1,71 @@
-﻿using AeroCore;
-using AeroCore.Utils;
-using HarmonyLib;
+﻿using HarmonyLib;
+using Microsoft.Xna.Framework;
 using StardewValley;
-using System;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace MUMPs.Props
 {
-	[HarmonyPatch(typeof(Character), "applyVelocity")]
+	[HarmonyPatch(typeof(Farmer))]
 	[HarmonyPriority(Priority.High)]
 	internal class Ramp
 	{
-		private static ILHelper patch = new ILHelper(ModEntry.monitor, "Ramp")
-			.SkipTo(new CodeInstruction[]
-			{
-				new(OpCodes.Ldfld, typeof(Character).FieldNamed(nameof(Character.yVelocity))),
-				new(OpCodes.Conv_I4)
-			})
-			.Skip(2)
-			.Add(new CodeInstruction[]
-			{
-				new(OpCodes.Ldarg_0),
-				new(OpCodes.Ldarg_1),
-				new(OpCodes.Call, typeof(Ramp).MethodNamed(nameof(SlopeOffset)))
-			})
-			.Finish();
+		private static int offset;
+		private static float oldX;
 
-		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> source)
-			=> patch.Run(source);
+		[HarmonyPatch(nameof(Farmer.nextPosition))]
+		[HarmonyPostfix]
+		internal static void ApplyCheck(ref Rectangle __result, Farmer __instance, int direction)
+		{
+			oldX = __instance.Position.X;
+			offset = 0;
+			if (__instance is null)
+				return;
 
-		private static int SlopeOffset(int v, Character inst, GameLocation loc)
-			=> inst is not null && float.TryParse(loc.doesTileHaveProperty(inst.getTileX(), inst.getTileY(), "Ramp", "Back"), out var off) ?
-			v + (int)(off * inst.xVelocity) : v;
+			var loc = Game1.currentLocation;
+			if (loc is null || !float.TryParse(loc.doesTileHavePropertyNoNull(__instance.getTileX(), __instance.getTileY(), "Ramp", "Back"), out var off))
+				return;
+
+			off *= __instance.getMovementSpeed();
+			offset =
+				direction is 1 ? (int)-off :
+				direction is 3 ? (int)off :
+				0;
+			__result.Y += offset;
+			//__result.Y += (int)((((direction >> ((~direction) & 1)) << 1) - 2) * off);
+		}
+
+		[HarmonyPatch(nameof(Farmer.nextPositionHalf))]
+		[HarmonyPostfix]
+		internal static void ApplyCheckHalf(ref Rectangle __result, Farmer __instance, int direction)
+		{
+			oldX = __instance.Position.X;
+			offset = 0;
+			if (__instance is null)
+				return;
+
+			var loc = Game1.currentLocation;
+			if (loc is null || !float.TryParse(loc.doesTileHavePropertyNoNull(__instance.getTileX(), __instance.getTileY(), "Ramp", "Back"), out var off))
+				return;
+
+			off *= __instance.getMovementSpeed() * .5f;
+			offset =
+				direction is 1 ? (int)-off :
+				direction is 3 ? (int)off :
+				0;
+			__result.Y += offset;
+		}
+
+		[HarmonyPatch(nameof(Farmer.MovePosition))]
+		[HarmonyPrefix]
+		[HarmonyPriority(Priority.High)]
+		internal static void Reset()
+			=> offset = 0;
+
+		[HarmonyPatch(nameof(Farmer.MovePosition))]
+		[HarmonyPostfix]
+		internal static void ApplyModifier(Farmer __instance)
+		{
+			if (offset is not 0 && oldX is not 0 && oldX != __instance.Position.X)
+				__instance.position.Y += offset;
+		}
 	}
 }
